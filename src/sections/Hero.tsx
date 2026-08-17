@@ -70,8 +70,8 @@ export default function Hero() {
         playsInline
       />
       {/* Heavy dark gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-[#050505]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(5,5,5,0.65)_100%)]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-[#050505]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(5,5,5,0.45)_100%)]" />
 
       {/* Top bar */}
       <header className="hero-fade absolute inset-x-0 top-0 z-20 flex items-center justify-between px-6 py-6 opacity-0 md:px-12">

@@ -68,7 +68,7 @@
 
 /* ---------- Cinematic video treatment ---------- */
 .video-cinematic {
-  filter: brightness(0.42) contrast(1.2) saturate(1.1) blur(1.5px);
+  filter: brightness(0.95) contrast(1.1) saturate(1.05);
 }
 .video-cinematic-heavy {
   filter: brightness(0.35) contrast(1.25) saturate(1.2) blur(10px);
