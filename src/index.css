@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 2%;
+    --foreground: 0 0% 96%;
+    --card: 220 40% 6%;
+    --card-foreground: 0 0% 96%;
+    --popover: 220 40% 6%;
+    --popover-foreground: 0 0% 96%;
+    --primary: 184 100% 50%;
+    --primary-foreground: 0 0% 2%;
+    --secondary: 220 30% 12%;
+    --secondary-foreground: 0 0% 96%;
+    --muted: 220 30% 12%;
+    --muted-foreground: 220 10% 55%;
+    --accent: 184 100% 50%;
+    --accent-foreground: 0 0% 2%;
+    --destructive: 348 100% 59%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 100% / 0.1;
+    --input: 220 30% 15%;
+    --ring: 184 100% 50%;
+    --radius: 0.625rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-white/10;
+  }
+  html {
+    background: #050505;
+  }
+  body {
+    @apply bg-[#050505] text-neutral-200 antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+  ::selection {
+    background: rgba(0, 240, 255, 0.25);
+    color: #fff;
+  }
+}
+
+@layer utilities {
+  .font-serif-display {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+  .font-cinzel {
+    font-family: 'Cinzel', serif;
+  }
+  .font-mono-tech {
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .text-glow-cyan {
+    text-shadow:
+      0 0 20px rgba(0, 240, 255, 0.55),
+      0 0 60px rgba(0, 240, 255, 0.3),
+      0 0 120px rgba(0, 240, 255, 0.18);
+  }
+  .text-glow-soft {
+    text-shadow: 0 0 40px rgba(255, 255, 255, 0.25);
+  }
+}
+
+/* ---------- Cinematic video treatment ---------- */
+.video-cinematic {
+  filter: brightness(0.42) contrast(1.2) saturate(1.1) blur(1.5px);
+}
+.video-cinematic-heavy {
+  filter: brightness(0.35) contrast(1.25) saturate(1.2) blur(10px);
+}
+
+/* ---------- Film grain overlay ---------- */
+.film-grain {
+  position: fixed;
+  inset: -100%;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.055;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 300px 300px;
+  animation: grain-shift 0.9s steps(4) infinite;
+}
+@keyframes grain-shift {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-2%, 3%); }
+  50% { transform: translate(3%, -2%); }
+  75% { transform: translate(-3%, -3%); }
+  100% { transform: translate(2%, 2%); }
+}
+
+/* ---------- Pulsing CTA ---------- */
+@keyframes cta-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 18px rgba(0, 240, 255, 0.45),
+      0 0 55px rgba(0, 240, 255, 0.18),
+      inset 0 0 12px rgba(0, 240, 255, 0.12);
+  }
+  50% {
+    box-shadow:
+      0 0 34px rgba(0, 240, 255, 0.75),
+      0 0 90px rgba(0, 240, 255, 0.35),
+      inset 0 0 20px rgba(0, 240, 255, 0.22);
+  }
+}
+.cta-pulse {
+  animation: cta-pulse 2.6s ease-in-out infinite;
+}
+
+/* ---------- Scanline shimmer for dashboard ---------- */
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(400%); }
+}
+.scanline {
+  animation: scanline 4s linear infinite;
+}
+
+@keyframes blink-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.15; }
+}
+.blink-dot {
+  animation: blink-dot 1.4s ease-in-out infinite;
+}
+
+/* ---------- Lenis recommended styles ---------- */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
