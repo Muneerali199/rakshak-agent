@@ -25,6 +25,17 @@ from dataclasses import dataclass, field
 
 from resolve.io import deterministic_key
 
+# honorifics the generator prepends (variants.py) — stripped from display labels only
+_HON = {"sh.", "sh", "shri", "sri", "mr.", "mr", "ms.", "ms", "smt.", "smt", "km", "kumari", "dr", "dr."}
+
+
+def _clean_label(surface: str) -> str:
+    """Drop a leading honorific token for a tidy node label (display only)."""
+    parts = surface.split()
+    while parts and parts[0].casefold().strip(".") in {h.strip(".") for h in _HON}:
+        parts = parts[1:]
+    return " ".join(parts) or surface
+
 # layer names (match the API's Layer enum)
 COMMUNICATION, FINANCIAL, SPATIAL = "communication", "financial", "spatial"
 
@@ -167,8 +178,9 @@ def build_graph(bench: dict, clusters: dict) -> Graph:
         pmids = [m for m in mids if m in mention_meta]
         if not pmids:
             continue
-        # representative label = the longest surface (usually the fullest romanized form)
-        label = max((mention_meta[m]["surface"] for m in pmids), key=len)
+        # representative label = the longest *honorific-free* surface (fullest clean name)
+        surfaces = [mention_meta[m]["surface"] for m in pmids]
+        label = max((_clean_label(s) for s in surfaces), key=len)
         for m in pmids:
             person_of_mention[m] = cid
             person_aliases[cid].add(mention_meta[m]["surface"])

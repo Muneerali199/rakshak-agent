@@ -119,6 +119,27 @@ npm run lint       # eslint
 **Sections** (`src/sections/`): `Hero` · `Problem` · `Solution` (the four pillars) · `VisualProof`
 (analyst workbench mockup) · `Footer`.
 
+### Investigator Workbench (`/workbench`) — live, wired to the backend
+
+Beyond the landing page, `/workbench` is the **real** three-pane analyst UI (React Flow), wired to the
+FastAPI backend — entity resolution, the layered temporal graph, and the evidence panel with live
+SHA-256 verification. Run both halves:
+
+```bash
+# terminal 1 — backend API (from app/backend)
+pip install -r backend/api/requirements.txt
+uvicorn api.main:app --port 8000          # generates seed-42 data on first boot
+
+# terminal 2 — frontend (from app/)
+pnpm install
+pnpm dev                                   # → http://localhost:5173/workbench
+```
+
+Override the API base with `VITE_API_URL` if the backend isn't on `localhost:8000`. Left rail = entity
+search + `/api/resolve` tester + layer/confidence filters; center = the 3 layer lanes (observed =
+solid, inferred = dashed grey); right = the evidence panel (SHA-256 verified badge, source snippets,
+Accept/Reject).
+
 ---
 
 ## Roadmap
