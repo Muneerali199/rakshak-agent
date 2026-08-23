@@ -84,18 +84,19 @@ export default function Problem() {
 
         <div className="mt-14 space-y-8 text-lg font-light leading-relaxed text-neutral-300 md:text-xl">
           <p className="problem-line">
-            Every investigation generates thousands of signals: call records, CCTV feeds, social
-            media chatter, financial trails, FIRs filed in <Cyan>22 official languages</Cyan>. The
-            evidence is almost always there.
+            Every investigation generates thousands of records: call detail logs, financial trails,
+            surveillance notes, and FIRs filed in <Cyan>Hindi, English and Hinglish</Cyan> — across
+            scripts and spellings. The evidence is almost always there.
           </p>
           <p className="problem-line">
             But it sits in <Cyan>siloed systems</Cyan>, scattered across districts, locked in
             formats no single analyst can connect in time. Meanwhile,{' '}
-            <Red>threats move at machine speed</Red> — coordinated, encrypted, borderless.
+            <Red>criminal networks reorganize across jurisdictions</Red> — new numbers, new aliases,
+            new shell accounts.
           </p>
           <p className="problem-line">
             The gap between <Cyan>signal</Cyan> and <Cyan>truth</Cyan> is where cases go cold, where
-            patterns go unseen, where the next attack hides in plain sight.
+            patterns go unseen, where the network stays hidden in plain sight.
           </p>
         </div>
 

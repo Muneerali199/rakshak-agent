@@ -81,14 +81,14 @@ export default function Hero() {
         </div>
         <div className="font-mono-tech hidden items-center gap-2 text-[10px] tracking-[0.25em] text-neutral-400 md:flex">
           <span className="blink-dot h-1.5 w-1.5 rounded-full bg-[#ff2d55]" />
-          SYSTEM ONLINE — 24/7 SURVEILLANCE GRID
+          INVESTIGATIVE DECISION-SUPPORT — HUMAN-VERIFIED
         </div>
       </header>
 
       {/* Centered content */}
       <div ref={contentRef} className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
         <p className="hero-fade font-mono-tech mb-8 text-[10px] tracking-[0.5em] text-[#00f0ff] opacity-0 md:text-xs">
-          AI-POWERED POLICE INTELLIGENCE & CYBERSECURITY
+          EVIDENCE-GROUNDED CRIMINAL NETWORK INTELLIGENCE
         </p>
 
         <h1 className="font-serif-display max-w-6xl text-[13vw] font-bold leading-[0.95] text-white sm:text-7xl md:text-8xl lg:text-[8rem]">
@@ -110,15 +110,16 @@ export default function Hero() {
         </h1>
 
         <p className="hero-fade mt-8 max-w-xl text-base font-light leading-relaxed text-neutral-300 opacity-0 md:text-lg">
-          Rakshak fuses fragmented signals into one intelligence fabric — built for the forces
-          that protect a billion people.
+          Rakshak fuses fragmented case records — FIRs, call logs, financial trails — into one
+          temporal, evidence-grounded network graph. Every link traces to its source; every lead is
+          verified by a human.
         </p>
 
         <a
           href="#command-center"
           className="hero-fade cta-pulse group mt-12 inline-flex items-center gap-3 rounded-full border border-[#00f0ff]/50 bg-[#00f0ff]/10 px-8 py-4 text-sm font-medium tracking-[0.2em] text-[#00f0ff] backdrop-blur-md transition-all duration-300 hover:bg-[#00f0ff]/20 hover:text-white opacity-0"
         >
-          ENTER THE COMMAND CENTER
+          EXPLORE THE PLATFORM
           <span className="transition-transform duration-300 group-hover:translate-x-1.5">→</span>
         </a>
       </div>

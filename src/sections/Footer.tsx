@@ -50,8 +50,8 @@ export default function Footer() {
       {/* Cyan horizon glow */}
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-[30rem] w-[90vw] -translate-x-1/2 -translate-y-1/2 rounded-[100%] bg-[#00f0ff]/[0.06] blur-[110px]" />
 
-      <p className="footer-sub font-mono-tech mb-8 text-[10px] tracking-[0.6em] text-[#00f0ff] opacity-0 md:text-xs">
-        RAKSHAK · AI POLICE INTELLIGENCE
+      <p className="footer-sub font-mono-tech mb-8 text-[10px] tracking-[0.5em] text-[#00f0ff] opacity-0 md:text-xs">
+        RAKSHAK · EVIDENCE-GROUNDED CRIMINAL NETWORK INTELLIGENCE
       </p>
 
       <h2 className="footer-massive font-cinzel text-glow-cyan text-center text-[13vw] font-black leading-[1.05] text-white md:text-[9rem]">
@@ -62,6 +62,10 @@ export default function Footer() {
 
       <div className="footer-sub mt-16 flex flex-col items-center gap-6 opacity-0">
         <div className="h-px w-40 bg-gradient-to-r from-transparent via-[#00f0ff]/60 to-transparent" />
+        <p className="max-w-md text-center text-xs font-light leading-relaxed text-neutral-500 md:text-sm">
+          Investigative decision-support — not surveillance, not prediction, not autonomous
+          enforcement.
+        </p>
         <div className="font-mono-tech flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-[9px] tracking-[0.3em] text-neutral-500 md:text-[10px]">
           <span>CLASSIFIED — AUTHORIZED PERSONNEL ONLY</span>
           <span className="hidden h-1 w-1 rounded-full bg-neutral-700 md:block" />

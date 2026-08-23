@@ -23,11 +23,11 @@ function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
 }
 
 const ALERTS = [
-  { level: 'HIGH', color: '#ff2d55', text: 'Anomalous fund flow — Jamtara cluster flagged' },
-  { level: 'MED', color: '#00f0ff', text: 'Chatter spike detected — 3 districts, Bengali + Hindi' },
-  { level: 'HIGH', color: '#ff2d55', text: 'Vehicle of interest matched — NH-48 toll, Jaipur' },
-  { level: 'LOW', color: '#8b93a7', text: 'CCTV node 4471 re-linked to identity graph' },
-  { level: 'MED', color: '#00f0ff', text: 'Encrypted channel pattern — new signature learned' },
+  { level: 'HIGH', color: '#ff2d55', text: 'Circular fund flow — 4-account cycle in financial layer' },
+  { level: 'MED', color: '#00f0ff', text: 'Repeated co-location — 3 entities, same sector, 5 nights' },
+  { level: 'HIGH', color: '#ff2d55', text: 'Vehicle UP15AB1234 links two open cases' },
+  { level: 'LOW', color: '#8b93a7', text: 'Entity merge suggested @ 0.71 — pending human review' },
+  { level: 'MED', color: '#00f0ff', text: 'Cross-layer correlation — call → transfer within 2h' },
 ]
 
 export default function VisualProof() {
@@ -48,10 +48,10 @@ export default function VisualProof() {
             03 — VISUAL PROOF
           </p>
           <h2 className="font-serif-display text-4xl font-bold text-white md:text-6xl">
-            The Command Center, <span className="italic text-[#00f0ff]">live.</span>
+            The analyst's <span className="italic text-[#00f0ff]">workbench.</span>
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-sm font-light leading-relaxed text-neutral-400 md:text-base">
-            Every signal, every entity, every district — rendered on a single pane of glass.
+            Every entity, every link, every source — on one verifiable pane of glass.
           </p>
         </div>
 
@@ -83,12 +83,12 @@ export default function VisualProof() {
                     <div className="flex items-center gap-2">
                       <div className="h-1.5 w-1.5 rounded-full bg-[#00f0ff]" />
                       <span className="font-cinzel text-[8px] font-bold tracking-[0.3em] text-white md:text-[10px]">
-                        RAKSHAK COMMAND CENTER
+                        RAKSHAK · CASE WORKBENCH
                       </span>
                     </div>
                     <div className="font-mono-tech flex items-center gap-1.5 text-[7px] text-neutral-500 md:text-[9px]">
                       <span className="blink-dot h-1 w-1 rounded-full bg-[#ff2d55]" />
-                      LIVE FEED
+                      CASE LOADED
                     </div>
                   </div>
 
@@ -96,8 +96,8 @@ export default function VisualProof() {
                   <div className="mb-3 grid grid-cols-3 gap-2 md:gap-3">
                     {[
                       { label: 'ACTIVE CASES', value: 1284, color: '#ffffff' },
-                      { label: 'SIGNALS / SEC', value: 48392, color: '#00f0ff' },
-                      { label: 'THREATS FLAGGED', value: 37, color: '#ff2d55' },
+                      { label: 'ENTITIES RESOLVED', value: 9743, color: '#00f0ff' },
+                      { label: 'ANOMALIES · FOR REVIEW', value: 37, color: '#ff2d55' },
                     ].map((s) => (
                       <div
                         key={s.label}
@@ -135,10 +135,10 @@ export default function VisualProof() {
                         />
                       ))}
                     </div>
-                    {/* threat ticker */}
+                    {/* leads-for-review ticker */}
                     <div className="col-span-2 overflow-hidden rounded-md border border-white/10 bg-white/[0.03] p-2 md:p-3">
                       <div className="font-mono-tech mb-2 text-[6px] tracking-[0.25em] text-neutral-500 md:text-[8px]">
-                        PRIORITY QUEUE
+                        LEADS · FOR REVIEW
                       </div>
                       <motion.div
                         animate={{ y: ['0%', '-50%'] }}
@@ -165,10 +165,10 @@ export default function VisualProof() {
                   {/* bottom bar */}
                   <div className="flex items-center justify-between border-t border-white/10 pt-2">
                     <span className="font-mono-tech text-[6px] tracking-[0.25em] text-neutral-600 md:text-[8px]">
-                      GRID: NATIONAL · 28 STATES · 8 UTs
+                      SCOPE: CASE-BOUNDED · AUDIT-LOGGED
                     </span>
                     <span className="font-mono-tech text-[6px] tracking-[0.25em] text-[#00f0ff]/70 md:text-[8px]">
-                      IDENTITY GRAPH: 1.4B NODES
+                      CASE GRAPH: 10K NODES · 50K EDGES
                     </span>
                   </div>
                 </div>
@@ -185,7 +185,11 @@ export default function VisualProof() {
           </motion.div>
         </motion.div>
 
-        <p className="font-mono-tech mt-14 text-center text-[9px] tracking-[0.35em] text-neutral-600">
+        <p className="mx-auto mt-14 max-w-lg text-center text-xs font-light leading-relaxed text-neutral-500 md:text-sm">
+          <span className="text-[#00f0ff]">Anomaly ≠ criminality.</span> Every flagged pattern is a
+          lead for investigation — and every consequential output requires human verification.
+        </p>
+        <p className="font-mono-tech mt-6 text-center text-[9px] tracking-[0.35em] text-neutral-600">
           [ LIVE MODULE — REPLACE WITH YOUR SCREEN RECORDING ]
         </p>
       </div>
