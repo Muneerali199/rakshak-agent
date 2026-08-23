@@ -1,0 +1,4 @@
+# RAKSHAK synthetic benchmark generator — runtime dependencies: NONE.
+# The generator uses only the Python 3.9+ standard library, so it runs anywhere
+# with no install step. The line below is for running the test suite only.
+pytest>=7.0

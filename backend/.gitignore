@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Generated benchmark + resolver artifacts (deterministic — regenerate with
+# `python -m synthgen` / `python -m resolve`; never commit)
+output/
+output_*/
+pred*.json
