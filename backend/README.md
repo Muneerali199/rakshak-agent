@@ -78,15 +78,34 @@ The *answers* live separately:
 
 - **Phase 3 (Entity Resolution):** ✅ implemented — see [`resolve/`](resolve/README.md). Consumes
   `*.jsonl`, predicts clusters, scores against `clusters` (all §23 targets met).
-- **Phase 4 (Temporal Graph):** CDR→`CONTACTED`, FIN→`TRANSFERRED_TO`, FIR→`APPEARED_IN` /
-  `LOCATED_AT`; resolved entities become nodes across the six layers.
+- **Phase 4 (Temporal Graph):** 🌱 seeded — see [`graph/`](graph/build.py). CDR→`CONTACTED`,
+  FIN→`TRANSFERRED_TO`, FIR→`LOCATED_AT` (3 MVP layers), plus inferred `ASSOCIATE_OF` / `USES`;
+  resolved entities become nodes; every edge carries provenance + a SHA-256 audit hash (Algorithm 3).
 - **Phase 5 (Anomaly):** the injected circular fund flows and call bursts are the positives to detect.
+
+## API layer (serves the Investigator Workbench)
+
+The [`api/`](api/main.py) package exposes the resolver + graph over HTTP (FastAPI). This is the only
+part with third-party deps; the core packages stay stdlib-only.
+
+```bash
+cd app/backend
+pip install -r api/requirements.txt
+uvicorn api.main:app --reload --port 8000     # OpenAPI docs at http://localhost:8000/docs
+```
+
+| Endpoint | Backed by |
+| --- | --- |
+| `POST /api/resolve` | `resolve.features.score_pair` (real — the 4-feature breakdown) |
+| `GET /api/graph/subgraph` | `graph.build_graph` neighborhood, layer-filterable |
+| `GET /api/evidence/{edge_id}` | source-doc snippet + live SHA-256 verification |
+| `GET /api/entities`, `/api/health` | UI convenience (risk-ranked list; liveness) |
 
 ## Layout
 
 ```
 backend/
-  synthgen/         Phase 2 — synthetic benchmark generator (this package)
+  synthgen/         Phase 2 — synthetic benchmark generator
     __init__.py     public API: GenConfig, LARGE, build_world, generate
     __main__.py     CLI (python -m synthgen)
     config.py       GenConfig knobs + LARGE preset
@@ -96,9 +115,11 @@ backend/
     records.py      FIR / CDR / FIN synthesis with per-mention ground truth
     generate.py     orchestration + file writing + manifest
   resolve/          Phase 3 — hybrid entity resolution + §23 evaluation (see resolve/README.md)
+  graph/            Phase 4 seed — 3-layer temporal graph with provenance + SHA-256 (Algorithm 3)
+  api/              FastAPI service (POST /api/resolve, GET /api/graph/subgraph, /api/evidence)
   tests/
-    test_synthgen.py
-    test_resolve.py
+    test_synthgen.py  test_resolve.py  test_graph.py  test_api.py
   conftest.py
   requirements.txt
 ```
+

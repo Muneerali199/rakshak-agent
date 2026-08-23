@@ -1,0 +1,7 @@
+# RAKSHAK MVP API — web layer only.
+# The core packages (synthgen, resolve, graph) are dependency-free; these deps
+# are isolated to the FastAPI service so the core stays stdlib-only.
+fastapi>=0.110
+uvicorn[standard]>=0.27
+pydantic>=2.6
+httpx>=0.27        # for TestClient in tests/test_api.py
