@@ -30,6 +30,11 @@ class GenConfig:
     typo_rate: float = 0.25          # chance a romanized name gets a spelling perturbation
     evolving_phone_rate: float = 0.25  # people who switch phone number mid-timeline
 
+    # planted anomalies (ground-truth positives for detector evaluation, §14/§21)
+    num_planted_cycles: int = 4      # circular fund flows A→B→C→A in the FIN stream
+    num_call_bursts: int = 3         # phones with a sudden spike of calls in a 48h window
+    burst_call_count: int = 15       # calls per planted burst
+
     # timeline
     start_date: str = "2026-01-01"   # ISO date; all events fall within [start, start + days)
     days: int = 120

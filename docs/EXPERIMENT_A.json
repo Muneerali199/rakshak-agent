@@ -1,0 +1,227 @@
+{
+  "exact": {
+    "pairwise": {
+      "precision": 0.9917,
+      "recall": 0.9503,
+      "f1": 0.9706,
+      "tp": 4301,
+      "fp": 36,
+      "fn": 225
+    },
+    "bcubed": {
+      "precision": 0.9891,
+      "recall": 0.9285,
+      "f1": 0.9578
+    },
+    "false_merge_rate": 6e-05,
+    "false_split_rate": 0.04971,
+    "false_match_traps": {
+      "merged": 5,
+      "total": 6
+    },
+    "by_type": {
+      "ACCOUNT": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 549,
+        "fp": 0,
+        "fn": 0
+      },
+      "LOCATION": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 68,
+        "fp": 0,
+        "fn": 0
+      },
+      "PERSON": {
+        "precision": 0.8286,
+        "recall": 0.4361,
+        "f1": 0.5714,
+        "tp": 174,
+        "fp": 36,
+        "fn": 225
+      },
+      "PHONE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 3509,
+        "fp": 0,
+        "fn": 0
+      },
+      "VEHICLE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 1,
+        "fp": 0,
+        "fn": 0
+      }
+    },
+    "coverage": {
+      "scored_mentions": 1097,
+      "unresolved_truth_mentions": 0,
+      "predicted_clusters": 232,
+      "truth_clusters": 182
+    },
+    "targets": {
+      "precision>0.85": true,
+      "recall>0.80": true,
+      "false_merge_rate<0.01": true,
+      "false_split_rate<0.05": true
+    }
+  },
+  "fuzzy": {
+    "pairwise": {
+      "precision": 0.8291,
+      "recall": 0.9808,
+      "f1": 0.8986,
+      "tp": 4439,
+      "fp": 915,
+      "fn": 87
+    },
+    "bcubed": {
+      "precision": 0.9037,
+      "recall": 0.971,
+      "f1": 0.9362
+    },
+    "false_merge_rate": 0.00153,
+    "false_split_rate": 0.01922,
+    "false_match_traps": {
+      "merged": 6,
+      "total": 6
+    },
+    "by_type": {
+      "ACCOUNT": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 549,
+        "fp": 0,
+        "fn": 0
+      },
+      "LOCATION": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 68,
+        "fp": 0,
+        "fn": 0
+      },
+      "PERSON": {
+        "precision": 0.5436,
+        "recall": 0.782,
+        "f1": 0.6413,
+        "tp": 312,
+        "fp": 262,
+        "fn": 87
+      },
+      "PHONE": {
+        "precision": 0.8431,
+        "recall": 1.0,
+        "f1": 0.9149,
+        "tp": 3509,
+        "fp": 653,
+        "fn": 0
+      },
+      "VEHICLE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 1,
+        "fp": 0,
+        "fn": 0
+      }
+    },
+    "coverage": {
+      "scored_mentions": 1097,
+      "unresolved_truth_mentions": 0,
+      "predicted_clusters": 179,
+      "truth_clusters": 182
+    },
+    "targets": {
+      "precision>0.85": false,
+      "recall>0.80": true,
+      "false_merge_rate<0.01": true,
+      "false_split_rate<0.05": true
+    }
+  },
+  "hybrid": {
+    "pairwise": {
+      "precision": 0.9916,
+      "recall": 0.9954,
+      "f1": 0.9935,
+      "tp": 4505,
+      "fp": 38,
+      "fn": 21
+    },
+    "bcubed": {
+      "precision": 0.993,
+      "recall": 0.9934,
+      "f1": 0.9932
+    },
+    "false_merge_rate": 6e-05,
+    "false_split_rate": 0.00464,
+    "false_match_traps": {
+      "merged": 2,
+      "total": 6
+    },
+    "by_type": {
+      "ACCOUNT": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 549,
+        "fp": 0,
+        "fn": 0
+      },
+      "LOCATION": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 68,
+        "fp": 0,
+        "fn": 0
+      },
+      "PERSON": {
+        "precision": 0.9087,
+        "recall": 0.9474,
+        "f1": 0.9276,
+        "tp": 378,
+        "fp": 38,
+        "fn": 21
+      },
+      "PHONE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 3509,
+        "fp": 0,
+        "fn": 0
+      },
+      "VEHICLE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 1,
+        "fp": 0,
+        "fn": 0
+      }
+    },
+    "coverage": {
+      "scored_mentions": 1097,
+      "unresolved_truth_mentions": 0,
+      "predicted_clusters": 185,
+      "truth_clusters": 182
+    },
+    "targets": {
+      "precision>0.85": true,
+      "recall>0.80": true,
+      "false_merge_rate<0.01": true,
+      "false_split_rate<0.05": true
+    }
+  }
+}

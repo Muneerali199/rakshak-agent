@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef } from 'react'
+import { Link } from 'react-router'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -66,6 +67,13 @@ export default function Footer() {
           Investigative decision-support — not surveillance, not prediction, not autonomous
           enforcement.
         </p>
+        <Link
+          to="/workbench"
+          className="cta-pulse group inline-flex items-center gap-3 rounded-full border border-[#00f0ff] bg-[#00f0ff] px-8 py-4 text-sm font-semibold tracking-[0.2em] text-[#050505] shadow-[0_0_30px_rgba(0,240,255,0.35)] transition-all duration-300 hover:bg-[#00f0ff]/90"
+        >
+          OPEN CASE WORKBENCH
+          <span className="transition-transform duration-300 group-hover:translate-x-1.5">→</span>
+        </Link>
         <div className="font-mono-tech flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-[9px] tracking-[0.3em] text-neutral-500 md:text-[10px]">
           <span>CLASSIFIED — AUTHORIZED PERSONNEL ONLY</span>
           <span className="hidden h-1 w-1 rounded-full bg-neutral-700 md:block" />

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router'
 import { motion, useInView, animate } from 'framer-motion'
 
 function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
@@ -189,9 +190,15 @@ export default function VisualProof() {
           <span className="text-[#00f0ff]">Anomaly ≠ criminality.</span> Every flagged pattern is a
           lead for investigation — and every consequential output requires human verification.
         </p>
-        <p className="font-mono-tech mt-6 text-center text-[9px] tracking-[0.35em] text-neutral-600">
-          [ LIVE MODULE — REPLACE WITH YOUR SCREEN RECORDING ]
-        </p>
+        <div className="mt-10 flex justify-center">
+          <Link
+            to="/workbench"
+            className="group inline-flex items-center gap-3 rounded-full border border-[#00f0ff] bg-[#00f0ff] px-8 py-4 text-sm font-semibold tracking-[0.2em] text-[#050505] shadow-[0_0_30px_rgba(0,240,255,0.35)] transition-all duration-300 hover:bg-[#00f0ff]/90"
+          >
+            LAUNCH THE LIVE WORKBENCH
+            <span className="transition-transform duration-300 group-hover:translate-x-1.5">→</span>
+          </Link>
+        </div>
       </div>
     </section>
   )

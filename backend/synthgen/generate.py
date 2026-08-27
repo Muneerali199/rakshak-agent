@@ -70,8 +70,8 @@ def generate(cfg: GenConfig, out_dir: str | Path) -> dict:
 
     world = build_world(cfg)
     fir, fir_m = generate_firs(world)
-    cdr, cdr_m = generate_cdrs(world)
-    fin, fin_m = generate_fins(world)
+    cdr, cdr_m, cdr_planted = generate_cdrs(world)
+    fin, fin_m, fin_planted = generate_fins(world)
     mentions = fir_m + cdr_m + fin_m
 
     # clusters: true_id -> [mention_id]  (the entity-resolution ground truth)
@@ -89,6 +89,8 @@ def generate(cfg: GenConfig, out_dir: str | Path) -> dict:
             p.id: [ph.number for ph in p.phones]
             for p in world.persons if len(p.phones) > 1
         },
+        # planted anomaly positives — lets detectors be scored for precision/recall (§21)
+        "planted_anomalies": cdr_planted + fin_planted,
     }
 
     # write record + mention files

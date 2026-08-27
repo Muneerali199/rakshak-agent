@@ -127,6 +127,11 @@ def generate_firs(world: World) -> tuple[list[dict], list[Mention]]:
             nar.add("The accused was contacted on ")
             nar.add_entity(ph.number, {"type": "PHONE", "id": ph.id})
             nar.add(". ")
+        if accused[0].accounts and rng.random() < 0.35:
+            acc = accused[0].accounts[0]
+            nar.add("Extortion payments were traced to account ")
+            nar.add_entity(acc.number, {"type": "ACCOUNT", "id": acc.id})
+            nar.add(". ")
 
         for meta, start, end in nar.spans:
             mid += 1
@@ -168,10 +173,10 @@ def generate_firs(world: World) -> tuple[list[dict], list[Mention]]:
 
 
 # --------------------------------------------------------------------------- CDR
-def generate_cdrs(world: World) -> tuple[list[dict], list[Mention]]:
+def generate_cdrs(world: World) -> tuple[list[dict], list[Mention], list[dict]]:
     cfg = world.cfg
     rng = _rng(cfg, 200)
-    records, mentions = [], []
+    records, mentions, planted = [], [], []
 
     # partition non-irrelevant people into groups so communities emerge
     pool = [p for p in world.persons if not p.is_irrelevant] or world.persons
@@ -204,14 +209,46 @@ def generate_cdrs(world: World) -> tuple[list[dict], list[Mention]]:
         for field, ph in (("caller", cph), ("receiver", rph)):
             mentions.append(Mention(f"CDR-m{2 * i + (field == 'receiver') + 1:06d}",
                                     "CDR", rid, field, "PHONE", ph.number, ph.id))
-    return records, mentions
+
+    # ---- planted call bursts: one phone suddenly makes many calls in 48h -------
+    # Ground-truth positives for the COMM_BURST detector (paper §14.1).
+    burst_actors = rng.sample([p for p in pool if p.phones],
+                              min(cfg.num_call_bursts, len(pool)))
+    for b, actor in enumerate(burst_actors):
+        ph = actor.phone_active_on(world.start + timedelta(days=cfg.days // 2))
+        window_start = (datetime.combine(world.start, time.min)
+                        + timedelta(days=rng.randrange(max(1, cfg.days - 2)),
+                                    hours=rng.randrange(0, 22)))
+        rec_ids = []
+        for j in range(cfg.burst_call_count):
+            other = rng.choice(pool)
+            if other is actor:
+                continue
+            oph = other.phone_active_on(window_start.date())
+            dt = window_start + timedelta(minutes=rng.randrange(0, 48 * 60))
+            rid = f"CDR-{len(records) + 1:06d}"
+            records.append({
+                "record_id": rid,
+                "source": "CDR",
+                "caller": ph.number,
+                "receiver": oph.number,
+                "timestamp": dt.isoformat(),
+                "duration_sec": rng.choice([8, 15, 30, 42, 63]),
+                "tower": f"{rng.choice(world.locations).locality}, {rng.choice(world.locations).district}",
+            })
+            rec_ids.append(rid)
+        planted.append({"kind": "COMM_BURST", "phone": ph.number,
+                        "record_ids": rec_ids,
+                        "window_start": window_start.isoformat()})
+
+    return records, mentions, planted
 
 
 # --------------------------------------------------------------------------- FIN
-def generate_fins(world: World) -> tuple[list[dict], list[Mention]]:
+def generate_fins(world: World) -> tuple[list[dict], list[Mention], list[dict]]:
     cfg = world.cfg
     rng = _rng(cfg, 300)
-    records, mentions = [], []
+    records, mentions, planted = [], [], []
 
     accounts = [(p, acc) for p in world.persons for acc in p.accounts]
     if len(accounts) < 2:
@@ -242,16 +279,23 @@ def generate_fins(world: World) -> tuple[list[dict], list[Mention]]:
                                 records[-1]["amount_raw"], None, normalized=str(value)))
 
     # a few deliberate circular flows (A→B→C→A) as anomaly seeds
-    n_cycles = min(4, len(accounts) // 3)
+    n_cycles = min(cfg.num_planted_cycles, len(accounts) // 3)
     for _ in range(n_cycles):
         ring = rng.sample(accounts, 3)
         base_dt = _random_dt(rng, world)
+        rec_ids = []
         for j in range(3):
             (ps, sa), (pr, ra) = ring[j], ring[(j + 1) % 3]
+            rid = f"FIN-{len(records) + 1:06d}"
+            rec_ids.append(rid)
             emit_transfer(ps, sa, pr, ra, base_dt + timedelta(hours=j * 3))
+        # ground-truth positive for the CIRCULAR_FLOW detector (paper §14.1)
+        planted.append({"kind": "CIRCULAR_FLOW",
+                        "accounts": [acc.number for _, acc in ring],
+                        "record_ids": rec_ids})
 
     while len(records) < cfg.num_fin:
         (ps, sa), (pr, ra) = rng.sample(accounts, 2)
         emit_transfer(ps, sa, pr, ra, _random_dt(rng, world))
 
-    return records, mentions
+    return records, mentions, planted

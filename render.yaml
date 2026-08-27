@@ -1,0 +1,21 @@
+# Render Blueprint for the RAKSHAK-NET backend (FastAPI).
+# The git repo root is this `app/` directory; the backend lives in `backend/`.
+# Deploy: Render dashboard → New → Blueprint → pick this repo. Then set the two
+# origin vars below to your Vercel URL. Free tier sleeps when idle; the first
+# request after sleep cold-starts (regenerates the seed-42 benchmark, ~1–2s).
+services:
+  - type: web
+    name: rakshak-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install -r api/requirements.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.6"          # api/ needs 3.10+ (uses `str | None` annotations)
+      - key: ALLOWED_ORIGINS
+        sync: false               # set to e.g. https://rakshak-net.vercel.app
+      - key: ALLOWED_ORIGIN_REGEX
+        sync: false               # optional, e.g. https://.*\.vercel\.app for previews

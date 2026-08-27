@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef } from 'react'
+import { Link } from 'react-router'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -79,9 +80,18 @@ export default function Hero() {
           <div className="h-2 w-2 rounded-full bg-[#00f0ff] shadow-[0_0_12px_rgba(0,240,255,0.9)]" />
           <span className="font-cinzel text-sm font-bold tracking-[0.35em] text-white">RAKSHAK</span>
         </div>
-        <div className="font-mono-tech hidden items-center gap-2 text-[10px] tracking-[0.25em] text-neutral-400 md:flex">
-          <span className="blink-dot h-1.5 w-1.5 rounded-full bg-[#ff2d55]" />
-          INVESTIGATIVE DECISION-SUPPORT — HUMAN-VERIFIED
+        <div className="flex items-center gap-5">
+          <div className="font-mono-tech hidden items-center gap-2 text-[10px] tracking-[0.25em] text-neutral-400 md:flex">
+            <span className="blink-dot h-1.5 w-1.5 rounded-full bg-[#ff2d55]" />
+            INVESTIGATIVE DECISION-SUPPORT — HUMAN-VERIFIED
+          </div>
+          <Link
+            to="/workbench"
+            className="group inline-flex items-center gap-2 rounded-full border border-[#00f0ff]/50 bg-[#00f0ff]/10 px-4 py-2 font-mono-tech text-[10px] font-medium tracking-[0.2em] text-[#00f0ff] backdrop-blur-md transition-all duration-300 hover:bg-[#00f0ff]/20 hover:text-white"
+          >
+            OPEN WORKBENCH
+            <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+          </Link>
         </div>
       </header>
 
@@ -115,13 +125,22 @@ export default function Hero() {
           verified by a human.
         </p>
 
-        <a
-          href="#command-center"
-          className="hero-fade cta-pulse group mt-12 inline-flex items-center gap-3 rounded-full border border-[#00f0ff]/50 bg-[#00f0ff]/10 px-8 py-4 text-sm font-medium tracking-[0.2em] text-[#00f0ff] backdrop-blur-md transition-all duration-300 hover:bg-[#00f0ff]/20 hover:text-white opacity-0"
-        >
-          EXPLORE THE PLATFORM
-          <span className="transition-transform duration-300 group-hover:translate-x-1.5">→</span>
-        </a>
+        <div className="hero-fade mt-12 flex flex-col items-center gap-4 opacity-0 sm:flex-row">
+          <Link
+            to="/workbench"
+            className="cta-pulse group inline-flex items-center gap-3 rounded-full border border-[#00f0ff] bg-[#00f0ff] px-8 py-4 text-sm font-semibold tracking-[0.2em] text-[#050505] shadow-[0_0_30px_rgba(0,240,255,0.35)] transition-all duration-300 hover:bg-[#00f0ff]/90"
+          >
+            OPEN CASE WORKBENCH
+            <span className="transition-transform duration-300 group-hover:translate-x-1.5">→</span>
+          </Link>
+          <a
+            href="#command-center"
+            className="group inline-flex items-center gap-3 rounded-full border border-[#00f0ff]/40 bg-[#00f0ff]/5 px-8 py-4 text-sm font-medium tracking-[0.2em] text-[#00f0ff] backdrop-blur-md transition-all duration-300 hover:bg-[#00f0ff]/15 hover:text-white"
+          >
+            EXPLORE THE PLATFORM
+            <span className="transition-transform duration-300 group-hover:translate-x-1.5">→</span>
+          </a>
+        </div>
       </div>
 
       {/* Scroll cue */}

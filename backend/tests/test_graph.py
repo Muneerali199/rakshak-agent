@@ -57,11 +57,11 @@ def test_observed_vs_inferred_split():
         _, g = _graph(42, Path(t))
         methods = {e.creation_method for e in g.edges.values()}
         assert methods == {"EXTRACTED", "INFERRED"}
-        # CDR/FIN/FIR direct edges are observed; co-mention/USES are inferred
+        # CDR/FIN/FIR direct edges are observed; co-mention/USES/OWNED are inferred
         assert all(e.creation_method == "EXTRACTED"
                    for e in g.edges.values() if e.type in ("CONTACTED", "TRANSFERRED_TO", "LOCATED_AT"))
         assert all(e.creation_method == "INFERRED"
-                   for e in g.edges.values() if e.type in ("ASSOCIATE_OF", "USES"))
+                   for e in g.edges.values() if e.type in ("ASSOCIATE_OF", "USES", "OWNED"))
 
 
 def test_persons_reach_communication_lane():
@@ -73,6 +73,57 @@ def test_persons_reach_communication_lane():
         e = uses[0]
         assert g.nodes[e.source].type == "PERSON"
         assert g.nodes[e.target].type == "PHONE"
+
+
+def test_persons_reach_financial_lane():
+    # #6: inferred OWNED edges must connect PERSON → ACCOUNT
+    with tempfile.TemporaryDirectory() as t:
+        _, g = _graph(42, Path(t))
+        owned = [e for e in g.edges.values()
+                 if e.type == "OWNED" and g.nodes[e.target].type == "ACCOUNT"]
+        assert owned, "expected inferred person→account OWNED edges"
+        assert g.nodes[owned[0].source].type == "PERSON"
+        assert owned[0].layer == FINANCIAL
+
+
+def test_vehicle_nodes_materialise():
+    # #11: VEHICLE nodes exist and hang off persons via inferred OWNED edges
+    with tempfile.TemporaryDirectory() as t:
+        _, g = _graph(42, Path(t))
+        vehicles = [n for n in g.nodes.values() if n.type == "VEHICLE"]
+        assert vehicles, "expected VEHICLE nodes from FIR co-mentions"
+        veh_owned = [e for e in g.edges.values()
+                     if e.type == "OWNED" and g.nodes[e.target].type == "VEHICLE"]
+        assert veh_owned, "expected person→vehicle OWNED edges"
+        assert g.nodes[veh_owned[0].source].type == "PERSON"
+
+
+def test_persons_become_multilayer_hubs():
+    # #5: layer propagation — at least one PERSON spans ≥2 lanes
+    with tempfile.TemporaryDirectory() as t:
+        _, g = _graph(42, Path(t))
+        hubs = [n for n in g.nodes.values() if n.type == "PERSON" and len(n.layers) >= 2]
+        assert hubs, "expected multi-layer PERSON hubs after layer propagation"
+
+
+def test_no_duplicate_inferred_edges():
+    # #8: at most one INFERRED claim per (src, tgt, type)
+    with tempfile.TemporaryDirectory() as t:
+        _, g = _graph(42, Path(t))
+        seen = set()
+        for e in g.edges.values():
+            if e.creation_method == "INFERRED":
+                k = (e.source, e.target, e.type)
+                assert k not in seen, f"duplicate inferred edge {k}"
+                seen.add(k)
+
+
+def test_location_nodes_keyed_per_station():
+    # #7: distinct stations never share a node — labels are unique
+    with tempfile.TemporaryDirectory() as t:
+        _, g = _graph(42, Path(t))
+        labels = [n.label for n in g.nodes.values() if n.type == "LOCATION"]
+        assert len(labels) == len(set(labels)), f"colliding location labels: {labels}"
 
 
 def test_subgraph_is_bounded_and_consistent():

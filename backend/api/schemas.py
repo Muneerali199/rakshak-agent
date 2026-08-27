@@ -120,3 +120,93 @@ class EvidenceResponse(BaseModel):
     source_documents: list[SourceDocument]
     review_status: ReviewStatus
     reviewer_actions: list[Literal["ACCEPT", "REJECT", "MODIFY"]]
+    victim_shield: bool = False
+
+
+# ═══════════════ 4) POST /api/review  (Algorithm 8) ═══════════════
+class ReviewDecision(str, Enum):
+    ACCEPT = "ACCEPT"
+    REJECT = "REJECT"
+    MODIFY = "MODIFY"
+
+
+class ReviewRequest(BaseModel):
+    edge_id: str
+    decision: ReviewDecision
+    reviewer_id: str
+    modifications: dict | None = None
+
+
+class AuditRecordSchema(BaseModel):
+    id: int
+    edge_id: str
+    decision: str
+    reviewer_id: str
+    timestamp: str
+    evidence_hash: str
+    modifications: dict | None = None
+    prev_status: str
+    prev_hash: str = ""
+    chain_hash: str = ""
+
+
+class ReviewResponse(BaseModel):
+    success: bool
+    edge_id: str
+    decision: ReviewDecision
+    review_status: ReviewStatus
+    confidence: float
+    audit_record: AuditRecordSchema
+
+
+# ═══════════════ 5) POST /api/scan  (RakshakAI, paper §18) ═══════════════
+class ScanRequest(BaseModel):
+    code: str = Field(..., max_length=60_000, examples=['@app.get("/citizen/{id}")\ndef get_citizen(id):\n    return db.execute(f"SELECT * FROM citizens WHERE id={id}")'])
+    filename: str | None = Field(None, examples=["api/routes.py"])
+
+
+class ScanFinding(BaseModel):
+    cwe: str
+    title: str
+    severity: Literal["CRITICAL", "HIGH", "MEDIUM", "LOW"]
+    line: int
+    snippet: str
+    reason: str
+    remediation: str
+
+
+class ScanResponse(BaseModel):
+    engine: str
+    engine_note: str
+    findings: list[ScanFinding]
+    summary: dict
+    scanned_lines: int
+    disclosure: str
+
+
+# ═══════════════ 6) GET /api/query  (Algorithm 7, §16) ═══════════════
+class QueryMatch(BaseModel):
+    entity_id: str
+    label: str
+    type: str
+    score: float
+
+
+class QueryResultRow(BaseModel):
+    edge_id: str
+    focus_entity_id: str
+    claim: str
+    confidence: float | None = None
+    provenance: str | None = None
+    timestamp: str | None = None
+
+
+class QueryResponse(BaseModel):
+    question: str
+    intent: str
+    grounded: bool
+    answer: str
+    matches: list[QueryMatch]
+    results: list[QueryResultRow]
+    citations: list[str]
+    disclosure: str

@@ -39,13 +39,15 @@ def _clean_label(surface: str) -> str:
 # layer names (match the API's Layer enum)
 COMMUNICATION, FINANCIAL, SPATIAL = "communication", "financial", "spatial"
 
-# edge type → layer
+# edge type → layer ("OWNED" defaults to financial; person→vehicle OWNED edges
+# override to spatial at creation, since a vehicle sighting is a spatial fact)
 _TYPE_LAYER = {
     "CONTACTED": COMMUNICATION,
     "TRANSFERRED_TO": FINANCIAL,
     "LOCATED_AT": SPATIAL,
     "ASSOCIATE_OF": COMMUNICATION,   # inferred co-mention, shown on the comm lane
     "USES": COMMUNICATION,           # inferred person→phone ownership (from FIR co-mention)
+    "OWNED": FINANCIAL,              # inferred person→account ownership (from FIR co-mention)
 }
 
 
@@ -106,9 +108,9 @@ class Graph:
             n.meta.update({k: v for k, v in meta.items() if v is not None})
         return n
 
-    def _edge(self, src, tgt, etype, ts, prov, conf, method) -> Edge:
+    def _edge(self, src, tgt, etype, ts, prov, conf, method, layer: str | None = None) -> Edge:
         self._eid += 1
-        e = Edge(f"E{self._eid:05d}", src, tgt, etype, _TYPE_LAYER[etype],
+        e = Edge(f"E{self._eid:05d}", src, tgt, etype, layer or _TYPE_LAYER[etype],
                  method, round(conf, 3), ts, prov).with_hash()
         self.edges[e.id] = e
         self._adj[src].add(e.id)
@@ -157,6 +159,34 @@ class Graph:
     def edge(self, edge_id: str) -> Edge:
         return self.edges[edge_id]
 
+    def shortest_path(self, src: str, dst: str, max_depth: int = 6) -> list:
+        """BFS shortest edge path between two nodes (paper §16 investigation queries)."""
+        if src not in self.nodes or dst not in self.nodes:
+            return None
+        if src == dst:
+            return []
+        from collections import deque
+        prev: dict[str, tuple] = {src: (None, None)}      # node → (prev node, edge id)
+        q = deque([src])
+        while q and len(prev) <= len(self.nodes):
+            cur = q.popleft()
+            for eid in self._adj[cur]:
+                e = self.edges[eid]
+                nxt = e.target if e.source == cur else e.source
+                if nxt in prev:
+                    continue
+                prev[nxt] = (cur, eid)
+                if nxt == dst:
+                    path = []
+                    node = dst
+                    while prev[node][0] is not None:
+                        p, eid2 = prev[node]
+                        path.append(self.edges[eid2])
+                        node = p
+                    return list(reversed(path))
+                q.append(nxt)
+        return None
+
 
 # --------------------------------------------------------------------------- #
 # Build the graph from a resolved benchmark
@@ -186,8 +216,31 @@ def build_graph(bench: dict, clusters: dict) -> Graph:
             person_aliases[cid].add(mention_meta[m]["surface"])
         person_label[cid] = label
 
+    # ---- victim-shield roles (Women Safety Division policy) --------------------
+    # A resolved person is tagged by how they appear in FIRs:
+    #   "accused"   — named as an accused in ≥1 FIR  → full network analysis
+    #   "victim"    — named as a complainant and never as an accused → PROTECTED:
+    #                 pseudonymized, access-restricted, never network-analyzed
+    #   "mentioned" — appears only in narratives     → default handling
+    # Accused-in-any-FIR wins over victim, because a complainant in one case can be
+    # an accused in another (cross-case linkage is exactly what investigators need).
+    roles: dict[str, str] = {}
+    for cid in person_label:
+        roles[cid] = "mentioned"
+    for m in bench["mentions"]:
+        if m["entity_type"] != "PERSON" or m["source"] != "FIR":
+            continue
+        cid = person_of_mention.get(m["mention_id"])
+        if cid is None:
+            continue
+        if m.get("field") == "accused":
+            roles[cid] = "accused"
+        elif m.get("field") == "complainant" and roles[cid] != "accused":
+            roles[cid] = "victim"
+
     for cid, lbl in person_label.items():
-        g._node(cid, lbl, "PERSON", SPATIAL, aliases=sorted(person_aliases[cid])[:5])
+        g._node(cid, lbl, "PERSON", SPATIAL, aliases=sorted(person_aliases[cid])[:5],
+                role=roles[cid])
 
     # ---- Communication: CDR → CONTACTED between phone entities ----------------
     for r in bench["cdr"]:
@@ -216,7 +269,9 @@ def build_graph(bench: dict, clusters: dict) -> Graph:
 
     for r in bench["fir"]:
         loc_label = f'{r.get("police_station","PS")}, {r.get("district","")}'.strip(", ")
-        lk = "LOC:" + deterministic_key("LOCATION", r.get("district", loc_label))
+        # key by station+district so distinct police stations never collapse into
+        # one mislabeled node (#7) — the label and the key now describe the same place
+        lk = "LOC:" + deterministic_key("LOCATION", loc_label)
         g._node(lk, loc_label, "LOCATION", SPATIAL, district=r.get("district"))
         persons = sorted(fir_persons.get(r["record_id"], []))
         for cid in persons:
@@ -228,12 +283,14 @@ def build_graph(bench: dict, clusters: dict) -> Graph:
                 g._edge(persons[i], persons[j], "ASSOCIATE_OF", r["date"],
                         f'co-mention:{r["record_id"]}', 0.6, "INFERRED")
 
-    # ---- INFERRED person→phone ownership: a phone named in a FIR narrative is
-    # attributed to that FIR's *accused* (narratively "the accused was contacted on…").
-    # This is what connects PERSON nodes into the communication lane. Low confidence,
+    # ---- INFERRED person→identifier ownership from FIR co-mention -------------
+    # A phone / account / vehicle named in a FIR narrative is attributed to that
+    # FIR's accused. This is what connects PERSON nodes into the communication
+    # AND financial lanes (#5, #6) and materialises vehicles (#11). Low confidence,
     # PENDING review — the human-in-the-loop confirms or rejects it.
     accused_by_fir: dict[str, set] = defaultdict(set)
-    phones_by_fir: dict[str, set] = defaultdict(set)
+    ident_by_fir: dict[tuple[str, str], set] = defaultdict(set)   # (record_id, kind) → node keys
+    surfaces: dict[str, str] = {}                                 # node key → display surface
     for m in bench["mentions"]:
         if m["source"] != "FIR":
             continue
@@ -242,14 +299,68 @@ def build_graph(bench: dict, clusters: dict) -> Graph:
             if cid:
                 accused_by_fir[m["record_id"]].add(cid)
         elif m["entity_type"] == "PHONE":
-            phones_by_fir[m["record_id"]].add("PH:" + deterministic_key("PHONE", m["surface"]))
-    for rid, phones in phones_by_fir.items():
-        accused = accused_by_fir.get(rid, set())
+            k = "PH:" + deterministic_key("PHONE", m["surface"])
+            ident_by_fir[(m["record_id"], "PHONE")].add(k)
+            surfaces.setdefault(k, m["surface"])
+        elif m["entity_type"] == "ACCOUNT":
+            k = "AC:" + deterministic_key("ACCOUNT", m["surface"])
+            ident_by_fir[(m["record_id"], "ACCOUNT")].add(k)
+            surfaces.setdefault(k, m["surface"])
+        elif m["entity_type"] == "VEHICLE":
+            k = "VH:" + deterministic_key("VEHICLE", m["surface"])
+            ident_by_fir[(m["record_id"], "VEHICLE")].add(k)
+            surfaces.setdefault(k, m["surface"])
+
+    for rid, accused in accused_by_fir.items():
         # split confidence when the attribution is ambiguous across multiple accused
         conf = 0.55 if len(accused) == 1 else 0.4
-        for cid in accused:
-            for pk in phones:
+        for pk in ident_by_fir.get((rid, "PHONE"), ()):
+            for cid in accused:
                 if pk in g.nodes:
                     g._edge(cid, pk, "USES", "", f'co-mention:{rid}', conf, "INFERRED")
+        for ak in ident_by_fir.get((rid, "ACCOUNT"), ()):
+            if ak not in g.nodes:                 # account first seen here → materialise it
+                g._node(ak, surfaces.get(ak, ak), "ACCOUNT", FINANCIAL)
+            for cid in accused:
+                g._edge(cid, ak, "OWNED", "", f'co-mention:{rid}', conf, "INFERRED")
+        for vk in ident_by_fir.get((rid, "VEHICLE"), ()):
+            if vk not in g.nodes:                 # vehicle first seen here → materialise it
+                g._node(vk, surfaces.get(vk, vk), "VEHICLE", SPATIAL)
+            for cid in accused:
+                g._edge(cid, vk, "OWNED", "", f'co-mention:{rid}', conf, "INFERRED",
+                        layer=SPATIAL)            # a vehicle sighting is a spatial fact
+
+    # ---- #5: propagate edge layers onto endpoints so hubs become multi-lane ---
+    # A person with USES + OWNED + LOCATED_AT edges now spans communication,
+    # financial, and spatial — the cross-layer hub the UI halos.
+    for e in g.edges.values():
+        for nid in (e.source, e.target):
+            n = g.nodes.get(nid)
+            if n is not None:
+                n.layers.add(e.layer)
+
+    # ---- #8: dedupe INFERRED edges — same (src, tgt, type) keeps only the
+    # strongest claim, so degree/risk is not inflated by duplicate inference.
+    _dedupe_inferred(g)
 
     return g
+
+
+def _dedupe_inferred(g: Graph) -> int:
+    best: dict[tuple, Edge] = {}
+    drop: set[str] = set()
+    for e in g.edges.values():
+        if e.creation_method != "INFERRED":
+            continue
+        k = (e.source, e.target, e.type)
+        if k not in best:
+            best[k] = e
+            continue
+        keep, gone = (e, best[k]) if e.confidence > best[k].confidence else (best[k], e)
+        best[k] = keep
+        drop.add(gone.id)
+    for eid in drop:
+        e = g.edges.pop(eid)
+        g._adj[e.source].discard(eid)
+        g._adj[e.target].discard(eid)
+    return len(drop)
