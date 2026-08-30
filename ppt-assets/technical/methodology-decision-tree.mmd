@@ -1,0 +1,26 @@
+%% RAKSHAK-NET — Technical methodology (decision-tree, winner-deck style)
+%% Rendered: technical-mermaid.svg / technical-mermaid.png (transparent)
+flowchart TD
+    START(["New name appears in FIR"]) --> S1["STEP 1 · Script detect<br/>Hindi / English / Hinglish"]
+    S1 --> Q1{"STEP 2 · Exact ID match?<br/>phone · vehicle · account"}
+    Q1 -- "YES · deterministic" --> AM["AUTO-MERGE · 100%<br/>hash-ledgered"]
+    Q1 -- "NO" --> S3["STEP 3 · Transliterate — IndicXlit<br/>+ phonetic encode"]
+    S3 --> S4["STEP 4 · Hybrid 4-feature score<br/>id · name · phonetic · attributes"]
+    S4 --> Q2{"Confidence?"}
+    Q2 -- "85% or more" --> M["MATCH<br/>merge + evidence links"]
+    Q2 -- "50% – 85%" --> U["UNCERTAIN<br/>human review queue"]
+    Q2 -- "under 50%" --> NM["NON-MATCH<br/>create new entity"]
+    U --> Q3{"Officer<br/>Accept / Reject / Modify"}
+    AM --> END(["Resolved — every outcome<br/>hash-chained into the ledger"])
+    M --> END
+    NM --> END
+    Q3 --> END
+
+    classDef step fill:#1e293b,stroke:#334155,color:#ffffff,stroke-width:1.5px
+    classDef decision fill:#fbbf24,stroke:#d97706,color:#111827,stroke-width:1.5px
+    classDef terminal fill:#065f46,stroke:#059669,color:#ffffff,stroke-width:1.5px
+    classDef review fill:#7c3aed,stroke:#6d28d9,color:#ffffff,stroke-width:1.5px
+    class S1,S3,S4,M,NM step
+    class Q1,Q2,Q3 decision
+    class AM,END terminal
+    class U review

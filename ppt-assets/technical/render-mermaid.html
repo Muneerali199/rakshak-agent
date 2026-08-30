@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; padding: 0; background: transparent; }
+  #wrap { display: inline-block; padding: 8px; background: transparent; }
+</style>
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: "base",
+    flowchart: { curve: "basis", htmlLabels: true, nodeSpacing: 45, rankSpacing: 55 },
+    themeVariables: {
+      fontFamily: "Arial, sans-serif",
+      fontSize: "16px",
+      primaryColor: "#1e293b",
+      primaryTextColor: "#ffffff",
+      primaryBorderColor: "#334155",
+      lineColor: "#475569",
+      secondaryColor: "#fbbf24",
+      tertiaryColor: "#ffffff"
+    }
+  });
+  const src = await (await fetch("./methodology-decision-tree.mmd")).text();
+  const { svg } = await mermaid.render("diagram", src);
+  document.getElementById("wrap").innerHTML = svg;
+  window.__done = true;
+</script>
+</head>
+<body>
+  <div id="wrap"></div>
+</body>
+</html>

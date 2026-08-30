@@ -117,7 +117,19 @@ receipts, never case data. Delhi, Mumbai, Jaipur each keep their own graph."*
 ---
 
 ### SLIDE 3 — TECHNICAL APPROACH
-**Layout:** **`02-fir-to-report-pipeline.png` full-width on top**, corrected stack below.
+**Layout (final, winner-style two-up):** two transparent visuals side by side, captions
+below each. Both are in `app/ppt-assets/technical/` as **SVG + transparent-background PNG**
+— paste straight onto any slide background; replace either one without touching the other:
+
+| Left half | Right half |
+| --- | --- |
+| `technical-mermaid.svg` / `.png` — **Methodology decision tree** (winner-deck style: START → steps → decision diamonds → branches → END, incl. human-review loop) | `technical-napkin-stack.svg` / `.png` — **Technical stack** (Napkin AI infographic: Frontend · Backend API · Core Intelligence · Data+Ledgers · Security · Indian Stack) |
+
+> Captions: *Left — "METHODOLOGY: how one name gets resolved — deterministic first,
+> human review on uncertainty, every outcome ledgered."* ·
+> Right — *"TECH STACK: stdlib-Python core, air-gapped, no foreign APIs."*
+
+**Optional fallback:** `02-fir-to-report-pipeline.png` full-width on top if you prefer one banner.
 
 **Stack — CORRECTED (must replace Next.js/Neo4j claims):**
 
