@@ -1,0 +1,15 @@
+%% Warrant gate sequence — rendered PNG: ../03-warrant-gate-sequence.png
+sequenceDiagram
+    autonumber
+    participant IO as Investigating Officer
+    participant WG as Warrant Gate
+    participant SP as Senior Officer (SP+)
+    participant L as Warrant Ledger (hash-chained)
+
+    IO->>WG: request warrant — scope, reason, expiry
+    WG->>SP: forward for countersign
+    Note over SP: self-approval REJECTED in code<br/>(four-eyes principle)
+    SP->>WG: dual-sign warrant
+    WG->>IO: unmask — scoped · expiring · revocable
+    WG->>L: every event hash-chained
+    Note over L: /api/warrants/verify names<br/>first tampered record

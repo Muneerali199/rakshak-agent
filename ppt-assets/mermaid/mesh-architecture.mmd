@@ -1,0 +1,31 @@
+%% RAKSHAK-NET mesh architecture — paste into https://mermaid.live or the
+%% Mermaid editor in VS Code to re-render / restyle. Rendered PNG version:
+%% ../01-mesh-architecture.png
+flowchart TB
+    subgraph GW["MESH GATEWAY · :8000 — NPCI-style switch"]
+        G1["routes signed queries"]
+        G2["stores RECEIPTS, never case data"]
+        G3["hash-chained exchange ledger · /mesh/verify"]
+    end
+
+    subgraph D["DELHI VAULT · :8001"]
+        D1["own FIR/CDR/FIN graph<br/>116 nodes · 253 edges"]
+    end
+    subgraph M["MUMBAI VAULT · :8002"]
+        M1["own FIR/CDR/FIN graph<br/>122 nodes · 301 edges"]
+    end
+    subgraph J["JAIPUR VAULT · :8003"]
+        J1["own FIR/CDR/FIN graph<br/>136 nodes · 242 edges"]
+    end
+
+    GW -- "HMAC-signed query" --> D
+    GW -- "HMAC-signed query" --> M
+    GW -- "HMAC-signed query" --> J
+    D -- "answer + signed receipt" --> GW
+    M -- "answer + signed receipt" --> GW
+    J -- "answer + signed receipt" --> GW
+
+    style GW stroke:#22d3ee,stroke-width:3px
+    style D stroke:#34d399,stroke-width:2px
+    style M stroke:#a78bfa,stroke-width:2px
+    style J stroke:#fbbf24,stroke-width:2px

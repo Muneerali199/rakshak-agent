@@ -1,0 +1,17 @@
+%% FIR → court-ready evidence chain — rendered PNG: ../02-fir-to-report-pipeline.png
+flowchart LR
+    A["1 · FILE FIR<br/>raw Hindi/English/Hinglish text"] -->
+    B["2 · EXTRACT<br/>regex NER · source spans · zero LLM"] -->
+    C["3 · RESOLVE<br/>Mohd ↔ Mohamad ↔ मोहम्मद<br/>hybrid 4-feature scoring"] -->
+    D["4 · MESH QUERY<br/>cross-district fan-out · signed receipts"] -->
+    E["5 · GRAPH + LEDGER<br/>temporal edges · SHA-256 provenance"] -->
+    F["6 · WARRANT GATE<br/>dual-signed · scoped · expiring"] -->
+    G["7 · REPORT 2.0<br/>court-ready chain + blindspot score"]
+
+    style A stroke:#22d3ee,stroke-width:2px
+    style B stroke:#22d3ee,stroke-width:2px
+    style C stroke:#a78bfa,stroke-width:2px
+    style D stroke:#a78bfa,stroke-width:2px
+    style E stroke:#34d399,stroke-width:2px
+    style F stroke:#fbbf24,stroke-width:2px
+    style G stroke:#34d399,stroke-width:2px
