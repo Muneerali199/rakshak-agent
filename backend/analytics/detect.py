@@ -143,12 +143,33 @@ def _zscore_anomalies(counts: dict[str, int], kind: str, threshold: float = 2.0)
     return out
 
 
-def detect_comm_bursts(cdr: list[dict]) -> list[dict]:
-    counts: dict[str, int] = defaultdict(int)
+def detect_comm_bursts(cdr: list[dict], window_hours: float = 48) -> list[dict]:
+    """Windowed call bursts: a phone's *densest* sliding window, z-scored.
+
+    A burst is a temporal event — "15 calls inside 48h" — not a high lifetime total.
+    Scoring each phone by its densest sliding window keeps slow-burn escalation
+    trajectories (a few calls a week for weeks) out of the burst detector, so the
+    two anomaly families don't cannibalise each other's ground truth.
+    """
+    from datetime import datetime
+    by_phone: dict[str, list[float]] = defaultdict(list)
     for r in cdr:
-        counts[_phone_key(r["caller"])] += 1
-        counts[_phone_key(r["receiver"])] += 1
-    return _zscore_anomalies(dict(counts), "COMM_BURST")
+        try:
+            ts = datetime.fromisoformat(r["timestamp"]).timestamp()
+        except (ValueError, TypeError, KeyError):
+            continue
+        by_phone[_phone_key(r["caller"])].append(ts)
+        by_phone[_phone_key(r["receiver"])].append(ts)
+    counts: dict[str, int] = {}
+    for k, tss in by_phone.items():
+        tss.sort()
+        best, j = 0, 0
+        for i, t in enumerate(tss):
+            while t - tss[j] > window_hours * 3600:
+                j += 1
+            best = max(best, i - j + 1)
+        counts[k] = best
+    return _zscore_anomalies(counts, "COMM_BURST")
 
 
 def detect_trans_bursts(fin: list[dict]) -> list[dict]:

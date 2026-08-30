@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import {
   ShieldAlert, ChevronDown, ChevronRight, Layers, Sliders,
-  User, Search, Zap, AlertTriangle,
+  User, Search, Zap, AlertTriangle, TrendingUp, MoonStar, Shield, EyeOff,
 } from 'lucide-react'
 import {
   api, LAYER_COLOR, LAYER_LABEL, type AnomaliesResponse, type Anomaly,
-  type EntitySummary, type LayerName, type ResolveResponse,
+  type BlindspotResponse, type EntitySummary, type EscalationResponse,
+  type LayerName, type ResolveResponse,
 } from '@/lib/api'
 
 const ALL_LAYERS: LayerName[] = ['communication', 'financial', 'spatial']
@@ -31,7 +32,9 @@ export default function QueryRail({
 }) {
   return (
     <aside className="flex h-full w-80 shrink-0 flex-col gap-4 overflow-y-auto border-r border-white/5 bg-[#0a0f1c] p-3">
+      <EscalationPanel onPick={onPick} />
       <AnomalyPanel onPick={onPick} />
+      {activeId && <BlindspotPanel entityId={activeId} />}
       <ResolveTester />
 
       {/* Entities by Risk */}
@@ -164,6 +167,63 @@ export default function QueryRail({
         </label>
       </div>
     </aside>
+  )
+}
+
+function BlindspotPanel({ entityId }: { entityId: string }) {
+  const [data, setData] = useState<BlindspotResponse | null>(null)
+  const [open, setOpen] = useState(true)
+
+  useEffect(() => {
+    setData(null)
+    api.blindspot(entityId).then(setData).catch(() => setData(null))
+  }, [entityId])
+
+  if (!data) return null
+  const score = data.corroboration_score
+  const color = score >= 75 ? '#34d399' : score >= 45 ? '#fbbf24' : '#ef4444'
+
+  return (
+    <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3 backdrop-blur-md">
+      <button onClick={() => setOpen(!open)}
+              className="flex w-full items-center justify-between text-left">
+        <div className="flex items-center gap-1.5">
+          <EyeOff size={12} style={{ color }} />
+          <h3 className="font-mono text-[10px] uppercase tracking-[0.25em] text-slate-400">
+            Blindspots · what we don't know
+          </h3>
+        </div>
+        {open ? <ChevronDown size={12} className="text-slate-500" /> : <ChevronRight size={12} className="text-slate-500" />}
+      </button>
+      {open && (
+        <div className="mt-2.5">
+          <div className="flex items-center gap-2">
+            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-800">
+              <div className="h-full rounded-full transition-all"
+                   style={{ width: `${score}%`, background: color }} />
+            </div>
+            <span className="font-mono text-[11px] font-bold" style={{ color }}>{score}</span>
+          </div>
+          <p className="mt-1 font-mono text-[9px] uppercase tracking-wider" style={{ color }}>
+            {data.verdict}
+          </p>
+          <ul className="mt-2 space-y-1">
+            {data.gaps.map((g, i) => (
+              <li key={i} className="flex items-start gap-1.5 text-[10px] leading-snug text-slate-400">
+                <span className="mt-1 h-1 w-1 shrink-0 rounded-full" style={{ background: color }} />
+                {g}
+              </li>
+            ))}
+            {data.gaps.length === 0 && (
+              <li className="text-[10px] text-slate-500">No blindspots detected — all three layers corroborated.</li>
+            )}
+          </ul>
+          <p className="mt-2 font-mono text-[8px] text-slate-600">
+            {data.stats.observed} observed · {data.stats.inferred} inferred · {data.stats.independent_sources} sources
+          </p>
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -314,6 +374,102 @@ function AnomalyPanel({ onPick }: { onPick: (id: string) => void }) {
               <br />analytical lead — not a determination of criminality
             </p>
           )}
+        </>
+      )}
+    </div>
+  )
+}
+
+// Stalking-escalation leads (GET /api/escalation) — the Women Safety centerpiece.
+// A rising caller→receiver trajectory with night calls, BEFORE the next FIR. The
+// sparkline makes the trajectory visible at a glance; victim-linked rows flag
+// CRITICAL while keeping the protected party shielded (phone-level display only).
+function EscalationPanel({ onPick }: { onPick: (id: string) => void }) {
+  const [data, setData] = useState<EscalationResponse | null>(null)
+  const [open, setOpen] = useState(true)
+
+  useEffect(() => {
+    api.escalation().then(setData).catch(() => setData(null))
+  }, [])
+
+  if (!data || data.alerts.length === 0) return null
+
+  const sevColor = { CRITICAL: '#ef4444', HIGH: '#f59e0b', MEDIUM: '#38bdf8' } as const
+
+  return (
+    <div className="rounded-lg border border-red-500/30 bg-red-500/[0.05] p-3 backdrop-blur-md">
+      <button
+        onClick={() => setOpen(!open)}
+        className="mb-1 flex w-full items-center justify-between"
+      >
+        <div className="flex items-center gap-1.5">
+          <TrendingUp size={12} className="text-red-400" />
+          <h3 className="font-mono text-[10px] uppercase tracking-[0.25em] text-red-400">
+            Escalating contact · {data.total}
+          </h3>
+        </div>
+        {open ? <ChevronDown size={12} className="text-slate-500" /> : <ChevronRight size={12} className="text-slate-500" />}
+      </button>
+      {open && (
+        <>
+          <ul className="space-y-2">
+            {data.alerts.slice(0, 5).map((a) => {
+              const c = sevColor[a.severity]
+              const max = Math.max(...a.weekly_counts, 1)
+              return (
+                <li key={a.id}>
+                  <button
+                    onClick={() => onPick(a.caller)}
+                    title={a.reason}
+                    className="w-full rounded-md border border-transparent px-2 py-2 text-left transition-all duration-150 hover:border-slate-700/50 hover:bg-slate-800/40"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="min-w-0 truncate font-mono text-[10px] text-slate-200">
+                        {a.caller_label}
+                      </span>
+                      <span
+                        className="flex shrink-0 items-center gap-1 rounded px-1 py-0.5 font-mono text-[8px] uppercase"
+                        style={{ color: c, border: `1px solid ${c}40`, background: `${c}10` }}
+                      >
+                        {a.victim_linked && <Shield size={8} />}
+                        {a.severity}
+                      </span>
+                    </div>
+                    {/* trajectory sparkline — the escalation is visible */}
+                    <div className="mt-1.5 flex items-end gap-1">
+                      {a.weekly_counts.map((n, i) => (
+                        <div
+                          key={i}
+                          className="w-4 rounded-sm"
+                          style={{
+                            height: `${4 + (n / max) * 14}px`,
+                            background: i === a.weekly_counts.length - 1 ? c : `${c}55`,
+                          }}
+                          title={`week ${i + 1}: ${n} calls`}
+                        />
+                      ))}
+                      <span className="ml-1 font-mono text-[8px] text-slate-500">
+                        {a.weekly_counts.join(' → ')} calls/wk
+                      </span>
+                      {a.night_calls > 0 && (
+                        <span className="ml-auto flex items-center gap-0.5 font-mono text-[8px] text-indigo-300">
+                          <MoonStar size={8} /> {a.night_calls} night
+                        </span>
+                      )}
+                    </div>
+                    {a.victim_linked && (
+                      <p className="mt-1 font-mono text-[8px] text-purple-300/80">
+                        receiver is a complainant on record · shielded
+                      </p>
+                    )}
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+          <p className="mt-2 border-t border-white/5 pt-1.5 font-mono text-[8px] leading-relaxed text-slate-600">
+            trajectory leads — intervene before the next FIR · not a determination of guilt
+          </p>
         </>
       )}
     </div>

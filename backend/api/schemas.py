@@ -121,6 +121,29 @@ class EvidenceResponse(BaseModel):
     review_status: ReviewStatus
     reviewer_actions: list[Literal["ACCEPT", "REJECT", "MODIFY"]]
     victim_shield: bool = False
+    warrant_id: str | None = None       # set when protected data was lawfully unmasked
+
+
+# ═══════════════ warrant gate (DEPA consent artifacts) ═══════════════
+class WarrantRequestIn(BaseModel):
+    scope: str                          # e.g. "edge:E-..." — DEPA artifacts are scoped
+    requester_id: str
+    requester_role: str
+    reason: str
+
+
+class WarrantApproveIn(BaseModel):
+    approver_id: str
+    approver_role: str                  # must be SP rank or above, ≠ requester
+
+
+class WarrantOut(BaseModel):
+    ok: bool
+    warrant_id: str | None = None
+    status: str | None = None
+    scope: str | None = None
+    expires_at: str | None = None
+    error: str | None = None
 
 
 # ═══════════════ 4) POST /api/review  (Algorithm 8) ═══════════════
@@ -209,4 +232,115 @@ class QueryResponse(BaseModel):
     matches: list[QueryMatch]
     results: list[QueryResultRow]
     citations: list[str]
+    disclosure: str
+
+
+# ═══════════════ 8) POST /api/ingest/fir  (live FIR-to-graph) ═══════════════
+class IngestRequest(BaseModel):
+    """A raw FIR as an investigator would paste it — free text + minimal structure."""
+    narrative: str = Field(..., min_length=20, max_length=20_000,
+                           examples=["दिनांक 12/04/2026 को शिकायतकर्ता ने बताया कि संदिग्ध ने +91-9812345678 से धमकी भरा कॉल किया। वाहन DL3C 9423 देखा गया। खाता AC1234567890 में पैसे ट्रांसफर हुए।"])
+    district: str = Field(..., examples=["Delhi"])
+    police_station: str = Field(..., examples=["PS Karol Bagh"])
+    date: str = Field(..., examples=["2026-04-12"])
+    complainant_name: str | None = Field(None, examples=["Sunita Devi"])
+    accused_names: list[str] = Field(default_factory=list, examples=[["Ramesh Kumar"]])
+
+
+class ExtractedEntityOut(BaseModel):
+    kind: str                     # PERSON | PHONE | ACCOUNT | VEHICLE | IPC
+    surface: str                  # as it appears in the narrative
+    normalized: str               # graph key form
+    span: tuple[int, int]         # character offsets into the narrative
+    node_id: str = ""             # graph node id after merge
+
+
+class CrossCaseLink(BaseModel):
+    entity_kind: str
+    entity_surface: str
+    entity_key: str
+    linked_records: list[dict]
+    cross_district: list[str]
+    alert: str
+
+
+# ═══════════════ mesh (district vault interoperability) ═══════════════
+class MeshReceiptOut(BaseModel):
+    """One peer vault's signed answer — counts and record ids only, never case data."""
+    responder_vault: str
+    hits: int
+    hit_summaries: list[dict]
+    timestamp: str
+    verified: bool = False
+    error: str | None = None
+
+
+class MeshFanout(BaseModel):
+    request_id: str
+    receipts: list[MeshReceiptOut]
+    all_verified: bool
+    error: str | None = None
+
+
+class IngestResponse(BaseModel):
+    record_id: str
+    entities: list[ExtractedEntityOut]
+    cross_case_links: list[CrossCaseLink]
+    new_edges: list[dict]
+    victim_shield_applied: bool
+    graph_stats: dict             # nodes/edges after merge — the "graph grew" proof
+    mesh: MeshFanout | None = None  # cross-vault signed receipts (mesh mode only)
+    disclosure: str
+
+
+# ═══════════════ 9) GET /api/escalation  (stalking trajectory, §14) ═══════════════
+class EscalationAlert(BaseModel):
+    id: str
+    caller: str                   # PH:… node id
+    caller_label: str
+    receiver: str                 # PH:… node id
+    receiver_label: str
+    victim_linked: bool           # receiver attributed to an FIR complainant
+    weekly_counts: list[int]      # oldest → newest call volumes
+    night_calls: int              # 23:00–05:00 calls (double-weighted signal)
+    score: float
+    severity: Literal["CRITICAL", "HIGH", "MEDIUM"]
+    reason: str
+    evidence_record_ids: list[str]
+
+
+class EscalationResponse(BaseModel):
+    alerts: list[EscalationAlert]
+    total: int
+    disclosure: str
+
+
+# ═══════════════ 10) GET /api/report/{entity_id}  (evidence chain) ═══════════════
+class ReportRow(BaseModel):
+    edge_id: str
+    claim: str
+    layer: str
+    creation_method: CreationMethod
+    confidence: float
+    timestamp: str
+    provenance: str
+    audit_hash: str
+    hash_verified: bool
+    review_status: ReviewStatus
+
+
+class ReportResponse(BaseModel):
+    entity_id: str
+    label: str
+    type: str
+    role: str | None              # accused | victim | mentioned (victim → redacted report)
+    generated_at: str
+    rows: list[ReportRow]
+    anomalies: list[dict]
+    review_history: list[dict]
+    ledger: dict                  # verify_chain() output — the integrity statement
+    victim_shield: bool
+    blindspot: dict | None = None        # corroboration profile — what we don't know
+    warrant_events: list[dict] = []      # protected-data access log touching this entity
+    mesh_exchanges: list[dict] = []      # cross-vault receipts that established links
     disclosure: str

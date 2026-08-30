@@ -289,6 +289,7 @@ def build_graph(bench: dict, clusters: dict) -> Graph:
     # AND financial lanes (#5, #6) and materialises vehicles (#11). Low confidence,
     # PENDING review — the human-in-the-loop confirms or rejects it.
     accused_by_fir: dict[str, set] = defaultdict(set)
+    complainant_by_fir: dict[str, set] = defaultdict(set)  # victim's own phone in her FIR
     ident_by_fir: dict[tuple[str, str], set] = defaultdict(set)   # (record_id, kind) → node keys
     surfaces: dict[str, str] = {}                                 # node key → display surface
     for m in bench["mentions"]:
@@ -298,6 +299,10 @@ def build_graph(bench: dict, clusters: dict) -> Graph:
             cid = person_of_mention.get(m["mention_id"])
             if cid:
                 accused_by_fir[m["record_id"]].add(cid)
+        elif m["entity_type"] == "PERSON" and m["field"] == "complainant":
+            cid = person_of_mention.get(m["mention_id"])
+            if cid:
+                complainant_by_fir[m["record_id"]].add(cid)
         elif m["entity_type"] == "PHONE":
             k = "PH:" + deterministic_key("PHONE", m["surface"])
             ident_by_fir[(m["record_id"], "PHONE")].add(k)
@@ -329,6 +334,15 @@ def build_graph(bench: dict, clusters: dict) -> Graph:
             for cid in accused:
                 g._edge(cid, vk, "OWNED", "", f'co-mention:{rid}', conf, "INFERRED",
                         layer=SPATIAL)            # a vehicle sighting is a spatial fact
+
+    # complainants own their co-mentioned phones too (the victim's number named in
+    # her own FIR) — this is what lets escalation detection link a stalker's call
+    # pattern to a protected party WITHOUT exposing her identity
+    for rid, complainants in complainant_by_fir.items():
+        for pk in ident_by_fir.get((rid, "PHONE"), ()):
+            for cid in complainants:
+                if pk in g.nodes:
+                    g._edge(cid, pk, "USES", "", f'co-mention:{rid}', 0.55, "INFERRED")
 
     # ---- #5: propagate edge layers onto endpoints so hubs become multi-lane ---
     # A person with USES + OWNED + LOCATED_AT edges now spans communication,

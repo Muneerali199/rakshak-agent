@@ -1,19 +1,26 @@
 # RAKSHAK-NET
 
-**AI-powered temporal criminal-network intelligence & evidence graph platform.**
+**The UPI of criminal intelligence — a constitutional evidence mesh.**
 
-An investigative **decision-support** system that fuses fragmented, multilingual crime records —
-FIRs, call detail records, financial trails — into a single **temporal, evidence-grounded knowledge
-graph**. Every relationship traces back to its source document, carries a confidence score, and is
-verified by a human before it informs any consequential decision.
+Policing in India is a **State subject** (Seventh Schedule) — a central national crime
+database is *legally impossible*. So RAKSHAK-NET does what India has already proven twice:
+**UPI** made banks interoperable without centralizing money; **Account Aggregator (DEPA)**
+shares data without storing it. RAKSHAK-NET makes **police districts interoperable without
+centralizing FIRs** — each district vault keeps its own data, signed queries travel across
+a mesh gateway (the NPCI-style switch that stores *receipts, never case data*), and every
+protected-data access sits behind a **dual-signed warrant artifact** (the DEPA consent model).
 
 > **Smart India Hackathon 2026** · Problem **SIH26189** · Ministry of Home Affairs — National Crime
 > Records Bureau (NCRB), Women Safety Division.
 
 This repository is a working monorepo: a **cinematic landing page**, a **dependency-free Python
-pipeline** (synthetic-data → entity resolution → temporal graph), a **FastAPI** service, and a **live
-Investigator Workbench** (React Flow) wired to it end-to-end. The authoritative research proposal
-(architecture, algorithms, evaluation plan) is `RAKSHAK_NET_Research_Proposal.pdf`, kept separately.
+pipeline** (synthetic-data → entity resolution → temporal graph), a **FastAPI** service runnable as
+**3 district vaults + a mesh gateway**, and a **live Investigator Workbench** (React Flow) wired to
+it end-to-end. The authoritative research proposal (architecture, algorithms, evaluation plan) is
+`RAKSHAK_NET_Research_Proposal.pdf`, kept separately.
+
+**One command, whole mesh:** `scripts/run_mesh.sh` → gateway `:8000`, Delhi/Mumbai/Jaipur vaults
+`:8001-8003`, workbench `:3000`. Single-node dev mode still works untouched (`uvicorn api.main:app`).
 
 ---
 
@@ -24,13 +31,19 @@ Investigator Workbench** (React Flow) wired to it end-to-end. The authoritative 
 1. **Never lies** — the NL query is retrieval-only: every answer cites the edges that
    support it, and unknown entities are *refused*, not invented. No LLM in the serving
    path means no hallucination is possible by construction.
-2. **Never forgets, never tampers** — every human review decision is **hash-chained**
-   to the previous one (SHA-256, stdlib SQLite). Editing, deleting, or reordering any
-   historical record breaks every link after it; `GET /api/reviews/verify` walks the
-   chain and names the first broken record.
+2. **Never forgets, never tampers** — every human review decision, every warrant event, and
+   every cross-vault exchange is **hash-chained** (SHA-256, stdlib SQLite). Editing history
+   breaks every link after it; `/api/reviews/verify`, `/api/warrants/verify`, and
+   `/mesh/verify` walk their chains and name the first broken record.
 3. **Never profiles the innocent** — *victim-shield* (Women Safety Division policy,
-   enforced in code): complainants are pseudonymized and access-restricted; network
-   analysis runs on accused persons only.
+   enforced in code): complainants are pseudonymized; unmasking needs a **scoped, expiring,
+   dual-signed warrant** (four-eyes principle) — and the access itself is ledgered.
+
+**References fused:** Estonia **X-Road** (data sovereignty) · **UPI + DEPA/Account Aggregator**
+(interoperability + consent artifacts — India's own DPI) · **INTERPOL** dual-authorization ·
+China's **IJOP** studied and inverted (its detection capability, *with* the rights and
+cryptographic accountability it lacked — and, per HRW's reverse engineering, the software
+protection it lacked too: see RakshakAI Sentinel below).
 
 ---
 
@@ -45,9 +58,17 @@ Investigator Workbench** (React Flow) wired to it end-to-end. The authoritative 
 | Human-review persistence (Algorithm 8) | ✅ built · **hash-chained tamper-evident ledger** · SQLite append-only, survives restarts | [`backend/api/review_store.py`](backend/api/review_store.py) |
 | Victim-shield (Women Safety policy layer) | ✅ built · query masking + evidence redaction for protected parties | [`backend/api/query.py`](backend/api/query.py) |
 | Grounded NL query (§16, Algorithm 7) | ✅ built · anti-hallucination: refuses unknown entities, cites every claim | [`backend/api/query.py`](backend/api/query.py) |
+| **Live FIR ingestion** | ✅ built · paste raw FIR → regex NER with source spans → **cross-district collision alerts** → graph grows live | [`backend/api/ingest.py`](backend/api/ingest.py) |
+| **Stalking escalation detection** (Women Safety) | ✅ built · weekly trajectory + night-call signal + victim-linked CRITICAL alerts · planted ground truth | [`backend/analytics/escalation.py`](backend/analytics/escalation.py) |
+| **Evidence chain report** | ✅ built · court-ready per-entity chain: hash-verified rows + review log + ledger integrity · `/report/{id}` page | [`backend/api/main.py`](backend/api/main.py) |
+| **District Vault Mesh** ("UPI of criminal intelligence") | ✅ built · 3 vaults + NPCI-style gateway · HMAC-signed envelopes/receipts · hash-chained exchange ledger · data never leaves its district | [`backend/mesh`](backend/mesh) |
+| **Warrant Gate** (DEPA consent artifacts) | ✅ built · scoped/expiring/revocable · four-eyes dual-sign (SP+) · access ledgered · `WarrantGateModal` UI | [`backend/api/warrants.py`](backend/api/warrants.py) |
+| **Blindspot analysis** (honest AI) | ✅ built · missing layers + inferred-ratio + source diversity + temporal gaps → corroboration score | [`backend/analytics/blindspot.py`](backend/analytics/blindspot.py) |
+| **RakshakAI Sentinel** (self-security) | ✅ built · graded endpoint levels (MLPS-inspired) · boot self-scan hash-chained · build manifest · `/api/security/posture` | [`backend/api/sentinel.py`](backend/api/sentinel.py) |
+| IndicXlit adapter (AI4Bharat) | ✅ built · neural transliteration when locally installed, honest fallback otherwise · zero new hard deps | [`backend/resolve/indic_xlit.py`](backend/resolve/indic_xlit.py) |
 | RakshakAI code scanner (§18) | ✅ built · rule engine + `RAKSHAK_AI_URL` 14B hook · `/scanner` UI | [`backend/api/scanner.py`](backend/api/scanner.py) |
-| FastAPI service (10 endpoints) | ✅ built · 83/83 tests | [`backend/api`](backend/api/main.py) |
-| Investigator Workbench + Scanner UI | ✅ live · responsive · **auto-loads lead anomaly · time-travel slider · guided demo mode** | [`src/workbench`](src/workbench) |
+| FastAPI service (20 endpoints) + Mesh gateway | ✅ built · **119/119 tests** | [`backend/api`](backend/api/main.py) |
+| Investigator Workbench + Scanner UI | ✅ live · responsive · **File-FIR w/ live mesh receipts · warrant-gate modal · blindspot panel · escalation sparklines · vault badge · time-travel slider** | [`src/workbench`](src/workbench) |
 | RakshakAI 14B model | 🤖 published (supplementary, hook-ready) | [HF ↗](https://huggingface.co/Muneerali199/rakshak-cwe-14b-sft-final) |
 
 Core Python packages (`synthgen`, `resolve`, `graph`, `analytics`) are **standard-library only** and

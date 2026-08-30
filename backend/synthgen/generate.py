@@ -16,7 +16,7 @@ from pathlib import Path
 
 from .config import GenConfig
 from .entities import Mention, World, build_world
-from .records import generate_cdrs, generate_firs, generate_fins
+from .records import generate_cdrs, generate_firs, generate_fins, plant_escalations
 
 
 def _mention_dict(m: Mention) -> dict:
@@ -72,7 +72,10 @@ def generate(cfg: GenConfig, out_dir: str | Path) -> dict:
     fir, fir_m = generate_firs(world)
     cdr, cdr_m, cdr_planted = generate_cdrs(world)
     fin, fin_m, fin_planted = generate_fins(world)
-    mentions = fir_m + cdr_m + fin_m
+    # planted stalking escalations need FIR context (complainants + their phones)
+    esc, esc_m, esc_planted = plant_escalations(world, fir_m, len(cdr))
+    cdr += esc
+    mentions = fir_m + cdr_m + esc_m + fin_m
 
     # clusters: true_id -> [mention_id]  (the entity-resolution ground truth)
     clusters: dict[str, list[str]] = defaultdict(list)
@@ -90,7 +93,7 @@ def generate(cfg: GenConfig, out_dir: str | Path) -> dict:
             for p in world.persons if len(p.phones) > 1
         },
         # planted anomaly positives — lets detectors be scored for precision/recall (§21)
-        "planted_anomalies": cdr_planted + fin_planted,
+        "planted_anomalies": cdr_planted + esc_planted + fin_planted,
     }
 
     # write record + mention files

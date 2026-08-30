@@ -34,6 +34,8 @@ class GenConfig:
     num_planted_cycles: int = 4      # circular fund flows A→B→C→A in the FIN stream
     num_call_bursts: int = 3         # phones with a sudden spike of calls in a 48h window
     burst_call_count: int = 15       # calls per planted burst
+    num_escalations: int = 3         # stalking-escalation trajectories (stalker→complainant,
+                                     # rising weekly volume + night calls — Women Safety §14)
 
     # timeline
     start_date: str = "2026-01-01"   # ISO date; all events fall within [start, start + days)

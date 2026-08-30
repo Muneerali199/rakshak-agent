@@ -7,6 +7,7 @@ evaluator knows the *true* entity id for each surface form (paper §21.1).
 from __future__ import annotations
 
 import random
+from collections import defaultdict
 from datetime import datetime, time, timedelta
 
 from .config import GenConfig
@@ -127,6 +128,13 @@ def generate_firs(world: World) -> tuple[list[dict], list[Mention]]:
             nar.add("The accused was contacted on ")
             nar.add_entity(ph.number, {"type": "PHONE", "id": ph.id})
             nar.add(". ")
+        # complainant's own number appears in ~half of FIRs (stalking/harassment
+        # narratives name the victim's contact) — enables victim-linked USES edges
+        if rng.random() < 0.5:
+            cph = complainant.phone_active_on(dt.date())
+            nar.add("The complainant was contacted on ")
+            nar.add_entity(cph.number, {"type": "PHONE", "id": cph.id})
+            nar.add(" number. ")
         if accused[0].accounts and rng.random() < 0.35:
             acc = accused[0].accounts[0]
             nar.add("Extortion payments were traced to account ")
@@ -297,5 +305,116 @@ def generate_fins(world: World) -> tuple[list[dict], list[Mention], list[dict]]:
     while len(records) < cfg.num_fin:
         (ps, sa), (pr, ra) = rng.sample(accounts, 2)
         emit_transfer(ps, sa, pr, ra, _random_dt(rng, world))
+
+    return records, mentions, planted
+
+
+# --------------------------------------------------------------------------- #
+# Planted stalking escalations (Women Safety ground truth, §14)
+# --------------------------------------------------------------------------- #
+def plant_escalations(world: World, fir_mentions: list[Mention],
+                      cdr_start_index: int) -> tuple[list[dict], list[Mention], list[dict]]:
+    """Plant stalker→complainant call trajectories that escalate week over week.
+
+    Runs as a post-step in ``generate()`` (needs FIR mentions to know who is a
+    complainant and which phone is provably theirs). For each planted scenario:
+
+      week A: 1 call (baseline) → week B: 3 calls → week C: 5 calls, 2 at night
+
+    Volumes stay deliberately below the planted burst level (15 calls/48h) so the
+    two anomaly families occupy different z-score territory — escalation is a
+    *trajectory* signal, bursts are a *volume* signal, and the detectors must not
+    cannibalise each other's ground truth.
+
+    The victim side is chosen only from complainants whose *own* phone is
+    co-mentioned in their FIR, so the graph's victim-linked USES edge exists and the
+    escalation detector can flag the case as CRITICAL without exposing the victim.
+    """
+    cfg = world.cfg
+    rng = _rng(cfg, 300)
+    records, mentions, planted = [], [], []
+
+    # map FIR record → complainant person ids + phone entity ids co-mentioned in it
+    by_rec: dict[str, list[Mention]] = defaultdict(list)
+    for m in fir_mentions:
+        by_rec[m.record_id].append(m)
+    person_of = {p.id: p for p in world.persons}
+    phone_owner = {ph.id: p for p in world.persons for ph in p.phones}
+
+    # complainant-ONLY persons make valid victims: anyone also named as an accused in
+    # any FIR gets role="accused" at graph build (accused wins), which would break the
+    # detector's protected-party linkage
+    accused_ids = {m.true_id for m in fir_mentions
+                   if m.field == "accused" and m.true_id}
+
+    victim_pairs: list[tuple[object, object]] = []   # (victim person, their phone)
+    seen_victims: set[str] = set()
+    for rid, ms in by_rec.items():
+        comp_ids = {m.true_id for m in ms if m.field == "complainant" and m.true_id}
+        ph_ids = {m.true_id for m in ms if m.entity_type == "PHONE" and m.true_id}
+        for cid in comp_ids:
+            victim = person_of.get(cid)
+            if victim is None or cid in seen_victims or cid in accused_ids:
+                continue
+            for ph in victim.phones:
+                if ph.id in ph_ids and phone_owner.get(ph.id) is victim:
+                    victim_pairs.append((victim, ph))
+                    seen_victims.add(cid)
+                    break
+
+    pool = [p for p in world.persons if not p.is_irrelevant and p.phones]
+    stalkers = [p for p in pool if p.id not in seen_victims]
+    rng.shuffle(stalkers)
+
+    n = min(cfg.num_escalations, len(victim_pairs), len(stalkers))
+    rid_i = cdr_start_index
+    mid = 0
+    for (victim, vph), stalker in zip(victim_pairs[:n], stalkers[:n]):
+        sph = stalker.phones[0]
+        # three consecutive weeks in the later half of the timeline (the "current"
+        # escalation an investigator would be looking at today)
+        base_day = world.start + timedelta(days=cfg.days // 2 + rng.randrange(0, cfg.days // 4))
+        rec_ids: list[str] = []
+
+        def _call(day: datetime, hour: int) -> None:
+            nonlocal rid_i, mid
+            rid_i += 1
+            mid += 1
+            rid = f"CDR-{rid_i:06d}"
+            d = day.date() if isinstance(day, datetime) else day
+            dt = datetime.combine(d, time(hour, rng.randrange(60), rng.randrange(60)))
+            tower = rng.choice(world.locations)
+            records.append({
+                "record_id": rid,
+                "source": "CDR",
+                "caller": sph.number,
+                "receiver": vph.number,
+                "timestamp": dt.isoformat(),
+                "duration_sec": rng.choice([8, 15, 30, 42, 63, 120]),
+                "tower": f"{tower.locality}, {tower.district}",
+            })
+            rec_ids.append(rid)
+            mentions.append(Mention(f"CDR-esc{mid:05d}", "CDR", rid, "caller",
+                                    "PHONE", sph.number, sph.id))
+            mid += 1
+            mentions.append(Mention(f"CDR-esc{mid:05d}", "CDR", rid, "receiver",
+                                    "PHONE", vph.number, vph.id))
+
+        # week A — baseline: 1 daytime call
+        _call(base_day, rng.randrange(9, 20))
+        # week B — rising: 3 calls
+        week_b = base_day + timedelta(days=7)
+        for j in range(3):
+            _call(week_b + timedelta(days=j * 2), rng.randrange(9, 21))
+        # week C — escalation: 5 calls, 2 of them at night (23:00–05:00)
+        week_c = base_day + timedelta(days=14)
+        for j in range(5):
+            hour = rng.choice([23, 0, 1, 2, 3, 4]) if j < 2 else rng.randrange(8, 22)
+            _call(week_c + timedelta(days=j), hour)
+
+        planted.append({"kind": "STALKING_ESCALATION",
+                        "caller": sph.number, "receiver": vph.number,
+                        "victim_person": victim.id, "stalker_person": stalker.id,
+                        "record_ids": rec_ids})
 
     return records, mentions, planted

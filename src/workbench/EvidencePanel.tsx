@@ -7,6 +7,7 @@ import {
   api, ApiError,
   type EvidenceResponse, type ReviewStatus,
 } from '@/lib/api'
+import WarrantGateModal from './WarrantGateModal'
 
 const REVIEWER_ID = 'workbench-officer'
 
@@ -71,12 +72,15 @@ export default function EvidencePanel({
   const [mode, setMode] = useState<Mode>('idle')
   const [newConf, setNewConf] = useState(0.6)
   const [ledger, setLedger] = useState<{ ok: boolean; records: number } | null>(null)
+  // warrant gate: modal visibility (granted artifact id rides back in the evidence payload)
+  const [gateOpen, setGateOpen] = useState(false)
 
   useEffect(() => {
     if (!edgeId) { setEv(null); setStatus(null); return }
     setLoading(true)
     setError(null)
     setMode('idle')
+    setGateOpen(false)
     api.evidence(edgeId)
       .then((d) => {
         setEv(d)
@@ -227,17 +231,38 @@ export default function EvidencePanel({
         )}
         {ev && (
           <>
-            {ev.victim_shield && (
+            {ev.victim_shield && !ev.warrant_id && (
               <div className="mt-3 rounded-lg border border-purple-400/30 bg-purple-400/10 px-3 py-2 backdrop-blur-sm">
-                <div className="flex items-center gap-1.5">
-                  <Shield size={12} className="text-purple-400" />
-                  <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-purple-400">
-                    Victim-Shield Active
-                  </p>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <Shield size={12} className="text-purple-400" />
+                    <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-purple-400">
+                      Victim-Shield Active
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setGateOpen(true)}
+                    className="rounded border border-purple-400/40 bg-purple-400/10 px-2 py-0.5 font-mono text-[9px] text-purple-300 transition-colors hover:bg-purple-400/20"
+                    title="Request a dual-signed warrant artifact to lawfully unmask (DEPA consent model)"
+                  >
+                    🔏 request access
+                  </button>
                 </div>
                 <p className="mt-1 text-[11px] leading-snug text-slate-400">
                   A protected party is pseudonymized under Women Safety Division policy.
-                  The system analyzes offender networks — never victims.
+                  The system analyzes offender networks — never victims. Unmasking needs a
+                  scoped warrant countersigned by a senior officer, and the access is ledgered.
+                </p>
+              </div>
+            )}
+            {ev.warrant_id && (
+              <div className="mt-3 rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-3 py-2 backdrop-blur-sm">
+                <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-emerald-400">
+                  Unmasked under warrant {ev.warrant_id}
+                </p>
+                <p className="mt-1 text-[11px] leading-snug text-slate-400">
+                  Dual-signed (four-eyes), scoped to this edge, expiring — and this access
+                  is hash-chained into the warrant ledger.
                 </p>
               </div>
             )}
@@ -405,6 +430,20 @@ export default function EvidencePanel({
             </p>
           </div>
         </>
+      )}
+      {gateOpen && edgeId && (
+        <WarrantGateModal
+          scope={`edge:${edgeId}`}
+          onClose={() => setGateOpen(false)}
+          onGranted={(wid) => {
+            setGateOpen(false)
+            setLoading(true)
+            api.evidence(edgeId, wid)
+              .then((d) => { setEv(d); setStatus(d.review_status); setConfidence(d.confidence) })
+              .catch(() => setError('warrant accepted but evidence refetch failed'))
+              .finally(() => setLoading(false))
+          }}
+        />
       )}
     </aside>
   )

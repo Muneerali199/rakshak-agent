@@ -91,6 +91,7 @@ export interface EvidenceResponse {
   review_status: ReviewStatus
   reviewer_actions: Array<'ACCEPT' | 'REJECT' | 'MODIFY'>
   victim_shield: boolean
+  warrant_id?: string | null      // set when protected data was lawfully unmasked
 }
 
 export interface EntitySummary {
@@ -203,6 +204,154 @@ export interface QueryResponse {
   disclosure: string
 }
 
+// ── live FIR ingestion ──────────────────────────────────────────────────────
+export interface IngestRequest {
+  narrative: string
+  district: string
+  police_station: string
+  date: string
+  complainant_name?: string
+  accused_names?: string[]
+}
+
+export interface ExtractedEntityOut {
+  kind: string
+  surface: string
+  normalized: string
+  span: [number, number]
+  node_id: string
+}
+
+export interface CrossCaseLink {
+  entity_kind: string
+  entity_surface: string
+  entity_key: string
+  linked_records: Array<{ record_id: string; source: string; district: string }>
+  cross_district: string[]
+  alert: string
+}
+
+export interface MeshReceiptOut {
+  responder_vault: string
+  hits: number
+  hit_summaries: Array<{ entity_key: string; record_count: number; record_ids: string[] }>
+  timestamp: string
+  verified: boolean
+  error?: string | null
+}
+
+export interface MeshFanout {
+  request_id: string
+  receipts: MeshReceiptOut[]
+  all_verified: boolean
+  error?: string | null
+}
+
+export interface IngestResponse {
+  record_id: string
+  entities: ExtractedEntityOut[]
+  cross_case_links: CrossCaseLink[]
+  new_edges: Array<{ edge_id: string; type: string; source: string; target: string }>
+  victim_shield_applied: boolean
+  graph_stats: { nodes: number; edges: number }
+  mesh?: MeshFanout | null
+  disclosure: string
+}
+
+// ── stalking escalation ─────────────────────────────────────────────────────
+export interface EscalationAlert {
+  id: string
+  caller: string
+  caller_label: string
+  receiver: string
+  receiver_label: string
+  victim_linked: boolean
+  weekly_counts: number[]
+  night_calls: number
+  score: number
+  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM'
+  reason: string
+  evidence_record_ids: string[]
+}
+
+export interface EscalationResponse {
+  alerts: EscalationAlert[]
+  total: number
+  disclosure: string
+}
+
+// ── evidence chain report ───────────────────────────────────────────────────
+export interface ReportRow {
+  edge_id: string
+  claim: string
+  layer: string
+  creation_method: CreationMethod
+  confidence: number
+  timestamp: string
+  provenance: string
+  audit_hash: string
+  hash_verified: boolean
+  review_status: ReviewStatus
+}
+
+export interface ReportResponse {
+  entity_id: string
+  label: string
+  type: string
+  role: string | null
+  generated_at: string
+  rows: ReportRow[]
+  anomalies: Anomaly[]
+  review_history: AuditRecord[]
+  ledger: { ok: boolean; records: number; first_bad_id: number | null }
+  victim_shield: boolean
+  blindspot?: BlindspotResponse | null
+  warrant_events?: WarrantEvent[]
+  mesh_exchanges?: MeshExchange[]
+  disclosure: string
+}
+
+export interface WarrantEvent {
+  id: number
+  warrant_id: string
+  event: 'REQUEST' | 'APPROVE' | 'USE' | 'REVOKE' | 'DENY'
+  scope: string
+  requester_id: string
+  requester_role: string
+  approver_id: string | null
+  approver_role: string | null
+  timestamp: string
+  chain_hash: string
+}
+
+export interface MeshExchange {
+  exchange_id: number
+  request_id: string
+  origin_vault: string
+  timestamp: string
+  chain_hash: string
+  receipts: Array<{ responder_vault: string; hits: number }>
+}
+
+// ── blindspot (honest AI: what the system does NOT know) ────────────────────
+export interface BlindspotResponse {
+  entity_id: string
+  label: string
+  corroboration_score: number
+  stats: {
+    edges: number
+    observed: number
+    inferred: number
+    layers_present: string[]
+    missing_layers: string[]
+    independent_sources: number
+    max_gap_days: number
+  }
+  gaps: string[]
+  verdict: string
+  disclosure: string
+}
+
 // ── fetch helpers ───────────────────────────────────────────────────────────
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}${path}`)
@@ -220,7 +369,7 @@ export class ApiError extends Error {
 
 export const api = {
   base: BASE,
-  health: () => get<{ status: string; nodes: number; edges: number }>(`/api/health`),
+  health: () => get<{ status: string; nodes: number; edges: number; vault?: string | null; mesh?: boolean }>(`/api/health`),
   entities: (type: NodeType = 'PERSON', limit = 24) =>
     get<EntitySummary[]>(`/api/entities?type=${type}&limit=${limit}`),
   subgraph: (entityId: string, depth = 2, layers?: LayerName[], start?: string, end?: string) => {
@@ -230,9 +379,22 @@ export const api = {
     if (end) q.set('end', end)
     return get<SubgraphResponse>(`/api/graph/subgraph?${q.toString()}`)
   },
-  evidence: (edgeId: string) => get<EvidenceResponse>(`/api/evidence/${edgeId}`),
+  evidence: (edgeId: string, warrantId?: string) =>
+    get<EvidenceResponse>(`/api/evidence/${edgeId}${warrantId ? `?warrant_id=${encodeURIComponent(warrantId)}` : ''}`),
   anomalies: () => get<AnomaliesResponse>('/api/anomalies'),
   ask: (q: string) => get<QueryResponse>(`/api/query?q=${encodeURIComponent(q)}`),
+  escalation: () => get<EscalationResponse>('/api/escalation'),
+  report: (entityId: string) => get<ReportResponse>(`/api/report/${encodeURIComponent(entityId)}`),
+  blindspot: (entityId: string) => get<BlindspotResponse>(`/api/blindspot/${encodeURIComponent(entityId)}`),
+  ingestFir: async (body: IngestRequest): Promise<IngestResponse> => {
+    const res = await fetch(`${BASE}/api/ingest/fir`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    if (!res.ok) throw new ApiError(res.status, `POST /api/ingest/fir → ${res.status}`)
+    return res.json() as Promise<IngestResponse>
+  },
   scan: async (code: string, filename?: string): Promise<ScanResponse> => {
     const res = await fetch(`${BASE}/api/scan`, {
       method: 'POST',
@@ -265,6 +427,47 @@ export const api = {
     if (!res.ok) throw new ApiError(res.status, `POST /api/resolve → ${res.status}`)
     return res.json() as Promise<ResolveResponse>
   },
+  // ── warrant gate (DEPA consent artifacts — scoped, dual-signed, ledgered) ──
+  requestWarrant: async (body: WarrantRequestIn): Promise<WarrantOut> => {
+    const res = await fetch(`${BASE}/api/warrants`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    if (!res.ok) throw new ApiError(res.status, `POST /api/warrants → ${res.status}`)
+    return res.json() as Promise<WarrantOut>
+  },
+  approveWarrant: async (warrantId: string, body: WarrantApproveIn): Promise<WarrantOut> => {
+    const res = await fetch(`${BASE}/api/warrants/${warrantId}/approve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    if (!res.ok) {
+      const detail = await res.json().catch(() => null)
+      throw new ApiError(res.status, detail?.detail ?? `approve → ${res.status}`)
+    }
+    return res.json() as Promise<WarrantOut>
+  },
+}
+
+export interface WarrantRequestIn {
+  scope: string
+  requester_id: string
+  requester_role: string
+  reason: string
+}
+export interface WarrantApproveIn {
+  approver_id: string
+  approver_role: string
+}
+export interface WarrantOut {
+  ok: boolean
+  warrant_id?: string | null
+  status?: string | null
+  scope?: string | null
+  expires_at?: string | null
+  error?: string | null
 }
 
 // ── shared UI constants ───────────────────────────────────────────────────────

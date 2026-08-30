@@ -6,6 +6,7 @@ import QueryBar from '@/workbench/QueryBar'
 import EvidencePanel from '@/workbench/EvidencePanel'
 import TimeSlider from '@/workbench/TimeSlider'
 import DemoMode from '@/workbench/DemoMode'
+import FileFirPanel from '@/workbench/FileFirPanel'
 import {
   api, LAYER_COLOR, type EntitySummary, type LayerName, type ReviewStatus, type SubgraphResponse,
 } from '@/lib/api'
@@ -37,6 +38,7 @@ export default function Workbench() {
   const [showInferred, setShowInferred] = useState(true)
   const [depth, setDepth] = useState(1)
   const [online, setOnline] = useState<boolean | null>(null)
+  const [vault, setVault] = useState<string | null>(null)
   const [pane, setPane] = useState<Pane>('graph')
   // auto-load context: which anomaly the workbench opened on (the case narrative)
   const [autoCase, setAutoCase] = useState<{ kind: string; label: string } | null>(null)
@@ -44,6 +46,9 @@ export default function Workbench() {
   const [timeEnd, setTimeEnd] = useState<number | null>(null)
   // guided demo overlay
   const [demo, setDemo] = useState(false)
+  // file-new-FIR modal + a bump counter that forces subgraph refetch after ingest
+  const [fileFir, setFileFir] = useState(false)
+  const [dataVersion, setDataVersion] = useState(0)
 
   const isNarrow = useMediaQuery('(max-width: 1023px)')
 
@@ -51,7 +56,7 @@ export default function Workbench() {
   // the highest-severity circular-flow ring — so the workbench opens on the story,
   // not an empty screen.
   useEffect(() => {
-    api.health().then(() => setOnline(true)).catch(() => setOnline(false))
+    api.health().then((h) => { setOnline(true); setVault(h.vault ?? null) }).catch(() => setOnline(false))
     api.entities('PERSON', 24)
       .then((e) => setEntities(e))
       .catch(() => setOnline(false))
@@ -67,13 +72,20 @@ export default function Workbench() {
       .catch(() => {})
   }, [])
 
-  // fetch subgraph when the active entity, depth, or time window changes
+  // fetch subgraph when the active entity, depth, time window, or data version changes
   useEffect(() => {
     if (!activeId) return
     setSelectedEdge(null)
     const end = timeEnd ? new Date(timeEnd).toISOString().slice(0, 10) : undefined
     api.subgraph(activeId, depth, undefined, undefined, end).then(setRaw).catch(() => setRaw(null))
-  }, [activeId, depth, timeEnd])
+  }, [activeId, depth, timeEnd, dataVersion])
+
+  // after a live FIR ingestion: refocus on the newly-created accused node and refetch
+  const handleIngested = useCallback((res: { new_edges: Array<{ source: string }> }) => {
+    const focus = res.new_edges[0]?.source
+    setDataVersion((v) => v + 1)
+    if (focus) setActiveId(focus)
+  }, [])
 
   // NL-query results: focus the entity, then open the cited edge once its
   // subgraph has loaded (pendingEdge survives the refetch).
@@ -199,12 +211,16 @@ export default function Workbench() {
         <div className="flex min-w-0 items-center gap-3">
           <Link to="/" className="font-cinzel text-sm font-bold tracking-[0.3em] text-white">RAKSHAK</Link>
           <span className="hidden font-mono text-[10px] tracking-[0.25em] text-slate-500 md:inline">CASE WORKBENCH</span>
+          <button onClick={() => setFileFir(true)}
+                  className="rounded-md border border-cyan-400/50 bg-cyan-400/15 px-2.5 py-1 font-mono text-[10px] font-semibold text-cyan-300 transition-colors hover:bg-cyan-400/25">
+            ＋ File FIR
+          </button>
           <Link to="/scanner"
                 className="hidden rounded border border-slate-700/50 px-2 py-0.5 font-mono text-[9px] text-slate-400 transition-colors hover:border-red-400/50 hover:text-red-400 sm:inline">
             ⚡ RakshakAI scanner
           </Link>
           <button onClick={() => setDemo(true)}
-                  className="rounded border border-cyan-400/40 bg-cyan-400/10 px-2 py-0.5 font-mono text-[9px] text-cyan-400 transition-colors hover:bg-cyan-400/20">
+                  className="rounded border border-slate-700/50 px-2 py-0.5 font-mono text-[9px] text-slate-400 transition-colors hover:border-cyan-400/50 hover:text-cyan-400">
             ▶ demo
           </button>
           {autoCase && (
@@ -235,6 +251,19 @@ export default function Workbench() {
               {filtered.stats.nodes} nodes · {filtered.stats.edges} edges · {filtered.stats.inferred} inferred
             </span>
           )}
+          {activeId && (
+            <Link to={`/report/${encodeURIComponent(activeId)}`}
+                  className="hidden rounded border border-slate-700/50 px-2 py-0.5 font-mono text-[9px] text-slate-400 transition-colors hover:border-emerald-400/50 hover:text-emerald-400 md:inline"
+                  title="Court-ready evidence chain for the focused entity">
+              ⎙ report
+            </Link>
+          )}
+          {vault && (
+            <span className="hidden rounded border border-cyan-400/30 bg-cyan-400/10 px-2 py-0.5 font-mono text-[9px] uppercase text-cyan-400 sm:inline"
+                  title="This console is connected to one district vault — cross-district answers arrive as signed mesh receipts (data never leaves its district)">
+              ⛁ {vault} vault
+            </span>
+          )}
           <span className="hidden rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 font-mono text-[9px] text-amber-400 sm:inline">
             uncalibrated
           </span>
@@ -259,6 +288,13 @@ export default function Workbench() {
           onClose={() => setDemo(false)}
           focusEntity={focusNode}
           openEdge={pickEdge}
+        />
+      )}
+
+      {fileFir && (
+        <FileFirPanel
+          onClose={() => setFileFir(false)}
+          onIngested={handleIngested}
         />
       )}
 

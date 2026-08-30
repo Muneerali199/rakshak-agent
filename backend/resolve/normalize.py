@@ -63,7 +63,18 @@ _VISARGA = "ः"
 
 
 def transliterate(text: str) -> str:
-    """Romanize a (possibly Devanagari) string; leaves Latin text untouched."""
+    """Romanize a (possibly Devanagari) string; leaves Latin text untouched.
+
+    Prefers AI4Bharat's IndicXlit neural model when it is locally installed
+    (:mod:`resolve.indic_xlit` — offline, no API key); otherwise this built-in
+    rule-based romanizer runs. The engine in use is disclosed via
+    :func:`resolve.indic_xlit.engine_name`.
+    """
+    from . import indic_xlit                      # local import: optional stack
+    if has_devanagari(text):
+        neural = indic_xlit.xlit(text)
+        if neural is not None:
+            return neural
     out: list[str] = []
     i, n = 0, len(text)
     while i < n:
