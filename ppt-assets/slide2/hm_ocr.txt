@@ -1,0 +1,24 @@
+HIERARCHICAL DIAGRAM
+
+ADMINISTRATION
+
+MESH GATEWAY
+NPCl-style switch - :8000
+query routing - receipt
+verification
+hash-chained ledger -
+warrant registry
+
+DELHI VAULT - :8001 MUMBAI VAULT - :8002 JAIPUR VAULT - :8003
+own FIR/CDRY/FIN graph own FIR/CDR/FIN graph own FIR/CDR/FIN graph
+
+seu
+INVESTIGATOR
+
+WORKBENCH
+Investigating Officers -
+Senior Officers (SP+)
+
+NCRB / Court Auditors
+
+signed queries travel between tiers - FIR data never leaves its vault

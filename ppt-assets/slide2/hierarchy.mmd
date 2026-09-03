@@ -1,0 +1,38 @@
+%% RAKSHAK-NET — 3-tier hierarchy (winner-exact), mermaid auto-layout
+%% Rendered: hierarchy-mermaid.png / hierarchy-mermaid.svg (transparent)
+flowchart TB
+    subgraph T1["ADMINISTRATION"]
+        GW["<b>MESH GATEWAY</b><br/>NPCI-style switch · :8000<br/>query routing · receipt verification<br/>hash-chained ledger · warrant registry"]
+    end
+
+    subgraph T2["CORE INFRASTRUCTURE"]
+        direction LR
+        D["<b>DELHI VAULT</b> · :8001<br/>own FIR/CDR/FIN graph"]
+        M["<b>MUMBAI VAULT</b> · :8002<br/>own FIR/CDR/FIN graph"]
+        J["<b>JAIPUR VAULT</b> · :8003<br/>own FIR/CDR/FIN graph"]
+    end
+
+    subgraph T3["END-USER APPLICATION"]
+        WB["<b>INVESTIGATOR WORKBENCH</b><br/>Investigating Officers · Senior Officers (SP+)<br/>NCRB / Court Auditors"]
+    end
+
+    GW <--> D
+    GW <--> M
+    GW <--> J
+    D <--> WB
+    M <--> WB
+    J <--> WB
+
+    classDef gateway fill:#ecfeff,stroke:#0891b2,stroke-width:2.5px,color:#0f172a
+    classDef delhi fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#0f172a
+    classDef mumbai fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px,color:#0f172a
+    classDef jaipur fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#0f172a
+    classDef workbench fill:#ffffff,stroke:#7c3aed,stroke-width:2.5px,color:#0f172a
+    class GW gateway
+    class D delhi
+    class M mumbai
+    class J jaipur
+    class WB workbench
+    style T1 fill:#f8fafc,stroke:#0891b2,stroke-width:2px,color:#0891b2,font-weight:bold
+    style T2 fill:#f8fafc,stroke:#059669,stroke-width:2px,color:#059669,font-weight:bold
+    style T3 fill:#f8fafc,stroke:#7c3aed,stroke-width:2px,color:#7c3aed,font-weight:bold

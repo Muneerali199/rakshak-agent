@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; padding: 0; background: transparent; }
+  #wrap { display: inline-block; padding: 12px; background: transparent; }
+  #title { font-family: Arial, sans-serif; font-size: 30px; font-weight: bold;
+           color: #1e293b; text-align: center; margin-bottom: 4px; }
+  #underline { width: 220px; height: 5px; background: #0891b2; border-radius: 3px;
+               margin: 0 auto 14px auto; }
+  #caption { font-family: Arial, sans-serif; font-size: 17px; font-weight: bold;
+             color: #0f172a; text-align: center; margin-top: 14px; }
+</style>
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: "base",
+    flowchart: { curve: "basis", htmlLabels: true, nodeSpacing: 42, rankSpacing: 46, padding: 10 },
+    themeVariables: {
+      fontFamily: "Arial, sans-serif",
+      fontSize: "15px",
+      background: "transparent",
+      primaryColor: "#ffffff",
+      primaryTextColor: "#0f172a",
+      primaryBorderColor: "#94a3b8",
+      lineColor: "#64748b"
+    }
+  });
+  const src = await (await fetch("./hierarchy.mmd")).text();
+  const { svg } = await mermaid.render("diagram", src);
+  document.getElementById("diagram-holder").innerHTML = svg;
+  window.__done = true;
+</script>
+</head>
+<body>
+  <div id="wrap">
+    <div id="title">HIERARCHICAL DIAGRAM</div>
+    <div id="underline"></div>
+    <div id="diagram-holder"></div>
+    <div id="caption">signed queries travel between tiers · FIR data never leaves its vault</div>
+  </div>
+</body>
+</html>
