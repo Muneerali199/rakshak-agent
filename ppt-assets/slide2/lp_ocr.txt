@@ -24,19 +24,21 @@ canonical schema and resolves multilingual names into a single entity
 with confidence scores (live: Mohd @ 4tes1@ > MATCH).
 
 @ District Vault Mesh
-The UPI pattern: signed queries travel between district vaults — FIR data
+The UPI pattern: signed queries travel between district vaults over the
 
-never leaves its district. Cross-state answers in seconds, on the only
-architecture that is legally deployable today.
+existing police intranet — the closed network CCTNS already uses for
+15,000+ police stations. FIR data never leaves its district.
 
 e Evidence-Grounded Intelligence
 A temporal knowledge graph where every link carries its source + SHA-256
 hash; victims unmask only behind dual-signed warrants; every human
 
-decision lands ina. tamper evident leadaar.
+decision_lands inatampenevident ledasr
+rad
+
 USP — WHY ONLY US
 e Constitutional by design mesh, never a central database — legally deployable
 e Zero hallucination no LLM in the serving path - answers cite evidence
 
-e Live today, fully offline 3 vaults + gateway + workbench - 119/119 tests
+e Sovereign Al stack all models on-premise - demo offline - rides CCTNS intranet
 

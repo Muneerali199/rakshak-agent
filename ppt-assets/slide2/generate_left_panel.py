@@ -79,9 +79,9 @@ def run():
            "canonical schema and resolves multilingual names into a single entity\n"
            "with confidence scores (live: Mohd ↔ मोहम्मद → MATCH).", EMER)
     bullet(32.5, "District Vault Mesh",
-           "The UPI pattern: signed queries travel between district vaults — FIR data\n"
-           "never leaves its district. Cross-state answers in seconds, on the only\n"
-           "architecture that is legally deployable today.", EMER)
+           "The UPI pattern: signed queries travel between district vaults over the\n"
+           "existing police intranet — the closed network CCTNS already uses for\n"
+           "15,000+ police stations. FIR data never leaves its district.", EMER)
     bullet(19.5, "Evidence-Grounded Intelligence",
            "A temporal knowledge graph where every link carries its source + SHA-256\n"
            "hash; victims unmask only behind dual-signed warrants; every human\n"
@@ -95,7 +95,7 @@ def run():
     rows = [
         (8.4, "Constitutional by design", "mesh, never a central database — legally deployable"),
         (5.6, "Zero hallucination", "no LLM in the serving path · answers cite evidence"),
-        (2.8, "Live today, fully offline", "3 vaults + gateway + workbench · 119/119 tests"),
+        (2.8, "Sovereign AI stack", "all models on-premise · demo offline · rides CCTNS intranet"),
     ]
     for y, head, expl in rows:
         txt(3.4, y, "•", size=12, color=CYAN, weight="bold")
