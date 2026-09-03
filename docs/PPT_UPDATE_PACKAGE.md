@@ -222,3 +222,15 @@ backend/.venv/bin/python ppt-assets/generate_diagrams.py   # re-renders all 8 PN
 
 Edit text/colors in `ppt-assets/generate_diagrams.py` (palette constants at top), or
 hand the `ppt-assets/mermaid/*.mmd` files to anyone with mermaid.live for quick restyles.
+
+---
+
+## ⚠️ NAMING RULE (deck-wide, decided after review)
+
+| Name | Kya hai | Kahan use karna |
+| --- | --- | --- |
+| **RAKSHAK-NET** | THE PLATFORM (mesh + workbench + ledgers) | Deck mein har jagah — title, slide 2, headers |
+| **RakshakAI** | 14B security MODEL only (HF: rakshak-cwe-14b-sft-final) | Sirf slide 3 ki security line: "RakshakAI 14B secures RAKSHAK-NET" |
+
+- Repo, demo, README, paper sab **RAKSHAK-NET** branding use karte hain — deck ko match karna hai.
+- Deck find-replace: `Rakshak AI` → `RAKSHAK-NET` (Google Slides: Edit → Find and replace / PowerPoint: Cmd+Shift+H). Slide 3 ke model-mention ko as-is rakho.
