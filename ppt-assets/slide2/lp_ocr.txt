@@ -1,0 +1,42 @@
+PROBLEM
+
+e Police data sits in silos
+FIRs, CDRs and money trails live in separate district systems — one suspect's
+
+full picture takes days of manual cross-state requests. A central national
+database is legally impossible: policing is a State subject.
+
+e One person, many names
+
+Mohd - Mohamad - Hles¥@ — the same person written three ways across Hindi,
+English and Hinglish records. Manual matching misses links, cannot scale.
+
+e@ Generic Al is not court evidence
+
+LLM interfaces hallucinate links that do not exist. Investigators need every
+claim traceable to a source document — or it fails in court.
+
+SOLUTION
+
+e Identity Resolution
+4-feature hybrid scoring fuses FIR, CDR and financial records into one
+canonical schema and resolves multilingual names into a single entity
+with confidence scores (live: Mohd @ 4tes1@ > MATCH).
+
+@ District Vault Mesh
+The UPI pattern: signed queries travel between district vaults — FIR data
+
+never leaves its district. Cross-state answers in seconds, on the only
+architecture that is legally deployable today.
+
+e Evidence-Grounded Intelligence
+A temporal knowledge graph where every link carries its source + SHA-256
+hash; victims unmask only behind dual-signed warrants; every human
+
+decision lands ina. tamper evident leadaar.
+USP — WHY ONLY US
+e Constitutional by design mesh, never a central database — legally deployable
+e Zero hallucination no LLM in the serving path - answers cite evidence
+
+e Live today, fully offline 3 vaults + gateway + workbench - 119/119 tests
+
