@@ -1,0 +1,19 @@
+PROBLEM SOLUTION
+
+e Canonical Fusion — one CCTNS-shaped schema unifies
+FIRs, CDRs, financial trails; no legacy migration.
+
+e Identity Resolution — 4-feature hybrid scoring resolves names
+across Hindi, English and Hinglish.
+
+e District Vault Mesh — signed queries travel between vaults;
+FIR data never leaves its district.
+
+e Warrant Gate — protected victim data unmasks only behind
+a dual-signed, scoped, expiring warrant.
+
+e Tamper-Evident Ledgers — reviews, warrants and mesh exchanges
+are SHA-256 hash-chained.
+
+e RakshakAI Self-Security — a 14B fine-tuned model scans the
+platform's own code for vulnerabilities.

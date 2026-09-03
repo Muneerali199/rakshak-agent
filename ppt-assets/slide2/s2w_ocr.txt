@@ -1,0 +1,73 @@
+Team Venom
+
+RAKSHAK-NET — A SOVEREIGN CRIMINAL-INTELLIGENCE MESH FOR INDIAN POLICING
+
+PROBLEM OVERVIEW
+
+FIRs, CDRs and financial trails sit in separate
+district silos — no cross-district view of a case.
+
+Policing is a State subject (Seventh Schedule) —
+a central national crime database is legally impossible.
+
+Identity matching across Hindi, English and
+Hinglish is manual — Mohd / Mohamad / Ata.
+
+One cross-district check takes days of manual
+file correspondence between states.
+
+Generic LLM tools hallucinate links that don't
+exist — unacceptable as court evidence.
+
+PROBLEM SOLUTION
+
+¢ Canonical FusiwmCCTNS-shaped schema unifies FIRs, CDRs, financial trails; no legacy migratio
+
+e Identity Reseldtieature hybrid scoring resolves names across Hindi, English and Hinglish.
+
+¢ District Vault M¢skd queries travel between vaults; FIR data never leaves its district.
+
+e Warrant Gatestected victim data unmasks only behind a dual-signed, scoped, expiring warrant
+
+e Tamper-Evidentrbkedgersvarrants and mesh exchanges are SHA-256 hash-chained.
+
+e RakshakAIl Self-Sek4iifiye-tuned model scans the platform's own code for vulnerabilities.
+
+DELHI VAULT
+:8001
+
+own FIR/CDR/FIN
+graph
+
+INVESTIGATING
+
+OFFICERS
+
+HIERARCHICAL
+DIAGRAM
+
+MESH GATEWAY
+
+query routing - receipt verification
+hash-chained exchange ledger
+
+MUMBAI VAULT
+
+:8002
+
+own FIR/CDR/FIN
+graph
+
+SENIOR OFFICERS
+(SP+ countersign)
+
+JAIPUR VAULT
+
+:8003
+
+own FIR/CDR/FIN
+graph
+
+NCRB / COURT
+AUDITORS
+
