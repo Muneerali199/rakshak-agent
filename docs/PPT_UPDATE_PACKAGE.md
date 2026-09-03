@@ -234,3 +234,14 @@ hand the `ppt-assets/mermaid/*.mmd` files to anyone with mermaid.live for quick 
 
 - Repo, demo, README, paper sab **RAKSHAK-NET** branding use karte hain — deck ko match karna hai.
 - Deck find-replace: `Rakshak AI` → `RAKSHAK-NET` (Google Slides: Edit → Find and replace / PowerPoint: Cmd+Shift+H). Slide 3 ke model-mention ko as-is rakho.
+
+### UPDATE — FINAL (user decision): deck name stays "Rakshak AI"
+
+| Name | Kya hai | Kahan |
+| --- | --- | --- |
+| **Rakshak AI** (space ke saath) | THE PLATFORM — deck-wide | slides 1, 2, 6 sab jagah |
+| **RakshakAI** (bina space) | 14B security MODEL only | slide 3 security line + HF link |
+| RAKSHAK-NET | repo/internal codename | GitHub README bridge note added |
+
+Deck-to-repo mismatch solve: README pe alias line laga di gayi hai — judge GitHub
+khole toh "Rakshak AI = RAKSHAK-NET" dono dikhega, confusion zero.

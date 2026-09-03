@@ -2,6 +2,9 @@
 
 **The UPI of criminal intelligence — a constitutional evidence mesh.**
 
+> *Also presented as **Rakshak AI** in the SIH 2026 idea-submission deck — same platform,
+> internal codename RAKSHAK-NET. The 14B security model is **RakshakAI** (no space).*
+
 Policing in India is a **State subject** (Seventh Schedule) — a central national crime
 database is *legally impossible*. So RAKSHAK-NET does what India has already proven twice:
 **UPI** made banks interoperable without centralizing money; **Account Aggregator (DEPA)**
