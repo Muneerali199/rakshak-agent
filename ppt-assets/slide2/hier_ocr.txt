@@ -1,0 +1,18 @@
+How to deploy RAKSHAK-NET?
+
+Core Infrastructure
+
+Deploy District Vaults for data
+storage and security.
+
+Administration End-User Application
+
+Deploy Mesh Gateway for query
+routing and ledger management.
+
+Deploy Investigator Workbench for
+officers and auditors.
+
+Mad
+
+with % Napki

@@ -1,0 +1,39 @@
+ADMINISTRATION
+
+CORE INFRASTRUCTURE
+
+END-USER APPLICATION
+
+HIERARCHICAL DIAGRAM
+
+(
+MESH GATEWAY
+NPCI-style switch - :8000
+e Query routing e Receipt verification
+L e Hash-chained exchange ledger e Warrant registry
+(-
+DELHI VAULT MUMBAI VAULT JAIPUR VAULT
+:8001 18002 18003
+own FIR/CDR/FIN graph own FIR/CDR/FIN graph own FIR/CDR/FIN graph
++ SQLite ledgers + SQLite ledgers + SQLite ledgers
+LS
+
+HASH{CHAINED RECEIPTS -
+
+3 TAMPER-EVIDENT LEDGERS
+
+'
+
+INVESTIGATOR WORKBENCH
+
+live analyst UI - React 19 + React Flow
+
+INVESTIGATING SENIOR OFFICERS NCRB / COURT
+OFFICERS (SP+) AUDITORS
+case graph - FIR ingest warrant countersign evidence chain reports
+
+mesh queries
+
+four-eyes gate ledger verification
+
+signed queries travel between tiers - FIR data never leaves its vault
