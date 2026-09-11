@@ -11,7 +11,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."          # repo root (app/)
 
 LOG_DIR="backend/output/logs"
-PORTS=(8000 8010 8011 8012 8013 3000 5173)
+PORTS=(8000 8001 8002 8003 8010 8011 8012 8013 3000 5173)
 
 echo "▸ 1/5  killing anything on demo ports (${PORTS[*]})…"
 for PORT in "${PORTS[@]}"; do
@@ -26,6 +26,11 @@ for PORT in "${PORTS[@]}"; do
   PIDS=$(lsof -ti ":$PORT" 2>/dev/null || true)
   [ -n "$PIDS" ] && kill -9 $PIDS 2>/dev/null || true
 done
+sleep 1
+FOUND=$(lsof -ti :8000 -ti :8001 -ti :8002 -ti :8003 -ti :3000 2>/dev/null || true)
+if [ -n "$FOUND" ]; then
+  echo "   warning: still held after kill -9: $FOUND"
+fi
 
 echo "▸ 2/5  wiping demo state (benchmark, vault partitions, ledgers, sentinel)…"
 rm -rf backend/output backend/output-vaults
