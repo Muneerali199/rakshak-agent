@@ -1,0 +1,71 @@
+<mxfile host="app.diagrams.net" agent="rakshak-deck" version="26.0.3">
+  <diagram id="slide2-tiers" name="Slide 2 Story">
+    <mxGraphModel dx="0" dy="0" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="620" pageHeight="720" math="0" shadow="0" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ============ TOP: ADMINISTRATION (human) ============ -->
+        <mxCell id="adminPanel" value="ADMINISTRATION" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=2;sketch=1;jiggle=2;fontSize=13;fontStyle=1;fontColor=#3a3a3a;verticalAlign=top;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="60" y="10" width="500" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="ncrb" value="NCRB admin" style="shape=actor;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#3a3a3a;strokeWidth=2;sketch=1;jiggle=2;fontSize=11;fontColor=#3a3a3a;verticalLabelPosition=bottom;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="285" y="30" width="50" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- audits arrow -->
+        <mxCell id="e1" value="audits everything" style="endArrow=classic;html=1;strokeColor=#3a3a3a;strokeWidth=2;sketch=1;jiggle=2;fontSize=11;fontColor=#3a3a3a;labelBackgroundColor=#ffffff;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="ncrb" target="meshPanel">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============ MIDDLE: THE MESH ============ -->
+        <mxCell id="meshPanel" value="THE MESH" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;fillColor=#FFCD28;strokeColor=#D79B00;strokeWidth=3;sketch=1;jiggle=2;fontSize=14;fontStyle=1;fontColor=#3a3a3a;verticalAlign=top;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="60" y="205" width="500" height="225" as="geometry" />
+        </mxCell>
+        <mxCell id="delhi" value="Delhi" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;sketch=1;jiggle=2;fontSize=12;fontStyle=1;fontColor=#3a3a3a;" vertex="1" parent="1">
+          <mxGeometry x="95" y="265" width="120" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="mumbai" value="Mumbai" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;sketch=1;jiggle=2;fontSize=12;fontStyle=1;fontColor=#3a3a3a;" vertex="1" parent="1">
+          <mxGeometry x="250" y="265" width="120" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="jaipur" value="Jaipur" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;sketch=1;jiggle=2;fontSize=12;fontStyle=1;fontColor=#3a3a3a;" vertex="1" parent="1">
+          <mxGeometry x="405" y="265" width="120" height="44" as="geometry" />
+        </mxCell>
+        <!-- city links -->
+        <mxCell id="e4" style="startArrow=classic;endArrow=classic;html=1;strokeColor=#3a3a3a;strokeWidth=1.6;sketch=1;jiggle=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="delhi" target="mumbai">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" style="startArrow=classic;endArrow=classic;html=1;strokeColor=#3a3a3a;strokeWidth=1.6;sketch=1;jiggle=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="mumbai" target="jaipur">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="meshCap" value="records stay — answers travel" style="text;html=1;align=center;verticalAlign=middle;fontSize=12;fontStyle=2;fontColor=#3a3a3a;sketch=1;jiggle=1.5;" vertex="1" parent="1">
+          <mxGeometry x="100" y="350" width="420" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="upiCap" value="linked — like UPI links banks" style="text;html=1;align=center;verticalAlign=middle;fontSize=12;fontColor=#6b6b6b;sketch=1;jiggle=1.5;" vertex="1" parent="1">
+          <mxGeometry x="100" y="382" width="420" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- ============ BOTTOM: INVESTIGATORS (humans) ============ -->
+        <mxCell id="invPanel" value="INVESTIGATORS" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=2;sketch=1;jiggle=2;fontSize=13;fontStyle=1;fontColor=#3a3a3a;verticalAlign=top;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="60" y="530" width="500" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="officer" value="officer" style="shape=actor;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#3a3a3a;strokeWidth=2;sketch=1;jiggle=2;fontSize=11;fontColor=#3a3a3a;verticalLabelPosition=bottom;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="155" y="555" width="50" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="sp" value="SP+" style="shape=actor;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#3a3a3a;strokeWidth=2;sketch=1;jiggle=2;fontSize=11;fontColor=#3a3a3a;verticalLabelPosition=bottom;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="415" y="555" width="50" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- asks / answers arrow -->
+        <mxCell id="e2" value="asks · gets answers" style="endArrow=classic;startArrow=classic;html=1;strokeColor=#3a3a3a;strokeWidth=2;sketch=1;jiggle=2;fontSize=11;fontColor=#3a3a3a;labelBackgroundColor=#ffffff;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.15;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="officer" target="meshPanel">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- approves arrow -->
+        <mxCell id="e3" value="approves" style="endArrow=classic;html=1;strokeColor=#3a3a3a;strokeWidth=2;sketch=1;jiggle=2;fontSize=11;fontColor=#3a3a3a;labelBackgroundColor=#ffffff;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.85;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="sp" target="meshPanel">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

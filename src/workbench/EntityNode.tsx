@@ -9,6 +9,7 @@ export interface EntityNodeData {
   risk: number | null
   role?: string | null
   isRoot?: boolean
+  focusTick?: number
   [key: string]: unknown
 }
 
@@ -54,10 +55,11 @@ export default function EntityNode({ data, selected }: NodeProps) {
         'backdrop-blur-md border shadow-lg transition-all duration-200',
         'bg-slate-900/80 border-slate-700/50',
         selected ? 'ring-2 ring-cyan-400/60 shadow-cyan-500/10' : '',
-        highRisk ? 'ring-2 ring-red-500/50 shadow-red-500/20' : '',
+        isRoot
+          ? 'z-10 scale-[1.04] border-cyan-400/70 ring-2 ring-cyan-400 shadow-[0_0_26px_rgba(34,211,238,0.35)]'
+          : highRisk ? 'ring-2 ring-red-500/50 shadow-red-500/20' : '',
         isVictim ? 'border-dashed border-purple-400/50' : '',
-        isRoot && !highRisk ? 'ring-1 ring-cyan-400/30' : '',
-        isHub && !highRisk ? 'shadow-cyan-500/5' : '',
+        isHub && !highRisk && !isRoot ? 'shadow-cyan-500/5' : '',
       ].filter(Boolean).join(' ')}
     >
       <Handle type="target" position={Position.Left} className="!h-2 !w-2 !border-0 !bg-slate-600" />
@@ -74,10 +76,17 @@ export default function EntityNode({ data, selected }: NodeProps) {
         ))}
       </div>
 
-      {/* Root indicator — top left */}
+      {/* Focus badge — the entity you clicked in the rail / are investigating.
+          key={focusTick} remounts it on every new focus so the ping replays. */}
       {isRoot && (
-        <div className="absolute -top-1.5 left-2 flex items-center">
-          <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.8)]" />
+        <div key={d.focusTick} className="absolute -top-3.5 left-1/2 z-20 -translate-x-1/2">
+          <span className="flex items-center gap-1.5 whitespace-nowrap rounded-full border border-cyan-400/60 bg-[#0a0f1c] px-2.5 py-0.5 font-mono text-[8px] font-semibold uppercase tracking-[0.22em] text-cyan-300 shadow-[0_0_14px_rgba(34,211,238,0.45)]">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-300 opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-cyan-300" />
+            </span>
+            focus
+          </span>
         </div>
       )}
 

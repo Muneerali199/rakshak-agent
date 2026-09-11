@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rakshak AI — Research & References (clickable)</title>
+<style>
+  :root {
+    --ink: #3a3a3a; --soft: #6b6b6b; --paper: #ffffff; --green: #1e7d4f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Bradley Hand", "Segoe Print", "Comic Sans MS", cursive, sans-serif;
+    background: var(--paper); color: var(--ink);
+    max-width: 880px; margin: 0 auto; padding: 40px 28px 64px;
+    background-image: radial-gradient(#a8a8a8 0.6px, transparent 0.6px);
+    background-size: 26px 26px;
+  }
+  h1 { font-size: 40px; text-align: center; letter-spacing: 0.5px; }
+  .squiggle {
+    width: 300px; height: 10px; margin: 6px auto 10px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='10'%3E%3Cpath d='M2 5 q 12 -7 25 0 t 25 0 t 25 0 t 25 0 t 25 0 t 25 0 t 25 0 t 25 0 t 25 0 t 25 0 t 25 0' fill='none' stroke='%235b8def' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center;
+  }
+  .sub { text-align: center; color: var(--soft); font-family: Georgia, serif;
+         font-style: italic; margin-bottom: 36px; font-size: 15px; }
+  .row {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 14px 10px; border-bottom: 2px dashed #dedede;
+  }
+  .badge {
+    flex: 0 0 34px; height: 34px; border: 2.4px solid; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; font-weight: bold; margin-top: 2px;
+  }
+  .c { flex: 1; }
+  .t { font-size: 18px; font-weight: bold; }
+  .tag { float: right; font-size: 13px; font-weight: bold; margin-top: 3px; }
+  .v { font-size: 13.5px; color: var(--soft); font-family: Georgia, serif;
+       font-style: italic; margin-top: 3px; }
+  .u { font-size: 13.5px; margin-top: 4px; font-family: "SF Mono", Menlo, monospace; }
+  .u a { color: #2563eb; text-decoration: underline; word-break: break-all; }
+  .proof {
+    margin-top: 40px; border: 2.4px solid var(--ink); border-radius: 12px;
+    padding: 20px 24px; background: #f7f7f7;
+  }
+  .proof h2 { font-size: 22px; margin-bottom: 12px; }
+  .proof .u { font-size: 14px; }
+  .foot { text-align: center; color: #9a9a9a; font-family: Georgia, serif;
+          font-style: italic; margin-top: 34px; font-size: 12.5px; }
+</style>
+</head>
+<body>
+  <h1>Research &amp; References</h1>
+  <div class="squiggle"></div>
+  <p class="sub">Every citation maps to a module we actually built — click any link</p>
+
+  <div class="row"><div class="badge" style="border-color:#5b8def;color:#5b8def">1</div>
+    <div class="c"><span class="tag" style="color:#5b8def">→ timestamped edges</span>
+      <div class="t">Rossi et al. — Temporal Graph Networks</div>
+      <div class="v">Machine Learning journal, 2020</div>
+      <div class="u"><a href="https://arxiv.org/abs/2006.10637" target="_blank">arxiv.org/abs/2006.10637</a></div>
+    </div></div>
+
+  <div class="row"><div class="badge" style="border-color:#33b57c;color:#33b57c">2</div>
+    <div class="c"><span class="tag" style="color:#33b57c">→ graph layers</span>
+      <div class="t">Boccaletti et al. — Multilayer Networks</div>
+      <div class="v">Physics Reports, 2014</div>
+      <div class="u"><a href="https://arxiv.org/abs/1407.0742" target="_blank">arxiv.org/abs/1407.0742</a></div>
+    </div></div>
+
+  <div class="row"><div class="badge" style="border-color:#f09231;color:#f09231">3</div>
+    <div class="c"><span class="tag" style="color:#f09231">→ identity resolution</span>
+      <div class="t">Christen — Data Matching</div>
+      <div class="v">Springer, 2012</div>
+      <div class="u"><a href="https://doi.org/10.1007/978-3-642-31164-2" target="_blank">doi.org/10.1007/978-3-642-31164-2</a></div>
+    </div></div>
+
+  <div class="row"><div class="badge" style="border-color:#e26fa4;color:#e26fa4">4</div>
+    <div class="c"><span class="tag" style="color:#e26fa4">→ Hinglish NER</span>
+      <div class="t">COMI-LINGUA — Expert-Annotated Hinglish Dataset</div>
+      <div class="v">Findings of EMNLP 2025 · 125K+ instances, 376K annotations</div>
+      <div class="u"><a href="https://arxiv.org/abs/2503.21670" target="_blank">arxiv.org/abs/2503.21670</a> ·
+        <a href="https://aclanthology.org/2025.findings-emnlp.422/" target="_blank">aclanthology.org/2025.findings-emnlp.422</a></div>
+    </div></div>
+
+  <div class="row"><div class="badge" style="border-color:#d9b02f;color:#d9b02f">5</div>
+    <div class="c"><span class="tag" style="color:#d9b02f">→ मोहम्मद ↔ Mohd</span>
+      <div class="t">AI4Bharat IndicXlit · Bhashini</div>
+      <div class="v">IIT Madras AI4Bharat · MeitY national language mission</div>
+      <div class="u"><a href="https://github.com/AI4Bharat/IndicXlit" target="_blank">github.com/AI4Bharat/IndicXlit</a> ·
+        <a href="https://bhashini.gov.in" target="_blank">bhashini.gov.in</a></div>
+    </div></div>
+
+  <div class="row"><div class="badge" style="border-color:#5b8def;color:#5b8def">6</div>
+    <div class="c"><span class="tag" style="color:#5b8def">→ evidence trace</span>
+      <div class="t">Ying et al. — GNNExplainer</div>
+      <div class="v">NeurIPS, 2019</div>
+      <div class="u"><a href="https://arxiv.org/abs/1903.03894" target="_blank">arxiv.org/abs/1903.03894</a></div>
+    </div></div>
+
+  <div class="row"><div class="badge" style="border-color:#33b57c;color:#33b57c">7</div>
+    <div class="c"><span class="tag" style="color:#33b57c">→ RakshakAI 14B</span>
+      <div class="t">Qwen2.5-Coder Technical Report + LoRA</div>
+      <div class="v">Alibaba Cloud, 2024 · Hu et al., 2021</div>
+      <div class="u"><a href="https://arxiv.org/abs/2409.12186" target="_blank">arxiv.org/abs/2409.12186</a> ·
+        <a href="https://arxiv.org/abs/2106.09685" target="_blank">arxiv.org/abs/2106.09685</a></div>
+    </div></div>
+
+  <div class="row"><div class="badge" style="border-color:#f09231;color:#f09231">8</div>
+    <div class="c"><span class="tag" style="color:#f09231">→ crime-data grounding</span>
+      <div class="t">NCRB — Crime in India 2024</div>
+      <div class="v">Ministry of Home Affairs · 58.8 lakh cognizable offences</div>
+      <div class="u"><a href="https://ncrb.gov.in" target="_blank">ncrb.gov.in</a></div>
+    </div></div>
+
+  <div class="proof">
+    <h2>Prototype &amp; Proof</h2>
+    <div class="u">repo — <a href="https://github.com/Muneerali199/rakshak-agent" target="_blank">github.com/Muneerali199/rakshak-agent</a></div>
+    <div class="u">model — <a href="https://huggingface.co/Muneerali199/rakshak-cwe-14b-sft-final" target="_blank">huggingface.co/Muneerali199/rakshak-cwe-14b-sft-final</a></div>
+    <div class="u">demo — scripts/run_mesh.sh (gateway + 3 district vaults, fully offline)</div>
+    <div class="u">live screenshots — mesh-fir · warrant-gate · report-2 (in repo root)</div>
+  </div>
+
+  <p class="foot">RAKSHAK-NET · Team Venom · SIH 2026 · PS SIH26189</p>
+</body>
+</html>

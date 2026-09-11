@@ -26,7 +26,7 @@ def get_citizen(id):
 
 def test_paper_example_is_critical_cwe89():
     out = scan(PAPER_EXAMPLE)
-    assert out["engine"] == "rule-based-fallback"      # honest label without the model
+    assert out["engine"] == "rules"                     # honest label: rules are the primary engine
     sqli = [f for f in out["findings"] if f["cwe"] == "CWE-89"]
     assert sqli, "paper's vulnerable endpoint was not flagged"
     top = sqli[0]
@@ -82,7 +82,7 @@ def test_api_scan_endpoint_roundtrip():
         r = c.post("/api/scan", json={"code": PAPER_EXAMPLE, "filename": "api/routes.py"})
         assert r.status_code == 200, r.text
         d = r.json()
-        assert d["engine"] == "rule-based-fallback"
+        assert d["engine"] == "rules"
         assert d["summary"]["by_cwe"].get("CWE-89", 0) >= 1
         assert "human review" in d["disclosure"]
 

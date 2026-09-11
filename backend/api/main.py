@@ -39,7 +39,8 @@ from .query import DISCLOSURE as QUERY_DISCLOSURE, answer_question
 from .review_store import ReviewStore
 from .scanner import scan as run_scan
 from . import vault_config
-from .sentinel import ENDPOINT_LEVELS, SentinelStore, build_manifest, model_pin, scan_own_codebase
+from .sentinel import (ENDPOINT_LEVELS, SentinelStore, build_manifest, check_manifest,
+                       model_pin, release_manifest_check, scan_own_codebase)
 from .warrants import WarrantStore
 from mesh import client as mesh_client, protocol as mesh_protocol
 from .schemas import (
@@ -143,11 +144,19 @@ async def lifespan(app: FastAPI):
     # the report — its security posture is itself tamper-evident evidence.
     sentinel = SentinelStore(str(BENCH_DIR / "sentinel.db"))
     scan_report = scan_own_codebase(Path(__file__).resolve().parent.parent)
-    scan_report["engine"] = "rule-based-fallback"
+    scan_report["engine"] = "rules"
     sentinel.log("BOOT_SCAN", scan_report)
     sentinel.log("MODEL_PIN", model_pin())
+    # Component integrity: this boot's manifest COMPARED against the previous
+    # boot's (from the ledger) — detection, not just display. An optional
+    # RAKSHAK_RELEASE_MANIFEST (outside the app tree) pins a trusted reference.
+    manifest = build_manifest(Path(__file__).resolve().parent.parent)
+    sentinel.log("MANIFEST", check_manifest(manifest, sentinel.latest("MANIFEST")))
+    release = release_manifest_check(manifest, os.getenv("RAKSHAK_RELEASE_MANIFEST", ""))
+    if release:
+        sentinel.log("MANIFEST_RELEASE", release)
     STATE["sentinel"] = sentinel
-    STATE["manifest"] = build_manifest(Path(__file__).resolve().parent.parent)
+    STATE["manifest"] = manifest
     yield
     STATE.clear()
 
@@ -827,6 +836,8 @@ def api_security_posture() -> dict:
     sentinel = STATE.get("sentinel")
     latest = sentinel.latest("BOOT_SCAN") if sentinel else None
     pin = sentinel.latest("MODEL_PIN") if sentinel else None
+    manifest_check = sentinel.latest("MANIFEST") if sentinel else None
+    manifest_release = sentinel.latest("MANIFEST_RELEASE") if sentinel else None
     return {
         "levels": {route: {"level": lvl, "note": note}
                    for route, (lvl, note) in sorted(ENDPOINT_LEVELS.items())},
@@ -835,6 +846,8 @@ def api_security_posture() -> dict:
                        "chain_hash": latest["chain_hash"]} if latest else None),
         "model_pin": (json.loads(pin["report"]) if pin else None),
         "manifest": STATE.get("manifest"),
+        "manifest_check": (json.loads(manifest_check["report"]) if manifest_check else None),
+        "manifest_release": (json.loads(manifest_release["report"]) if manifest_release else None),
         "ledgers": {
             "reviews": STATE["reviews"].verify_chain() if STATE.get("reviews") else None,
             "warrants": STATE["warrants"].verify_chain() if STATE.get("warrants") else None,
@@ -843,8 +856,9 @@ def api_security_posture() -> dict:
         "mesh": {"enabled": vault_config.mesh_enabled(), "vault": vault_config.vault_id()},
         "disclosure": ("self-security posture: graded endpoint levels (MLPS-inspired), "
                        "boot self-scan hash-chained into the sentinel ledger, build "
-                       "manifest over all backend sources; the system proves its own "
-                       "integrity rather than asserting it"),
+                       "manifest over all backend sources COMPARED against the previous "
+                       "boot (and an optional trusted release manifest); tamper-evident "
+                       "audit trail, not tamper-proof storage"),
     }
 
 

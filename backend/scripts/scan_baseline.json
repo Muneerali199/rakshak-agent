@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "generated": "2026-09-08T20:18:39+00:00",
+  "note": "known findings accepted by the team \u2014 the CI gate fails only on NEW findings",
+  "findings": [
+    {
+      "fingerprint": "282d238c0f7cd4cce82fa16a293f0ca0",
+      "file": "backend/api/scanner.py",
+      "line": 69,
+      "cwe": "CWE-78",
+      "severity": "CRITICAL",
+      "title": "Shell invocation enabled",
+      "rule_id": "RA-CWE-78-002"
+    },
+    {
+      "fingerprint": "791a7c9b85126f8e11ccceacc9d17f1b",
+      "file": "backend/api/schemas.py",
+      "line": 187,
+      "cwe": "CWE-89",
+      "severity": "CRITICAL",
+      "title": "SQL Injection via f-string",
+      "rule_id": "RA-CWE-89-001"
+    }
+  ]
+}

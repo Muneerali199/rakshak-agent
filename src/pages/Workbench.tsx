@@ -32,6 +32,7 @@ export default function Workbench() {
   const [entities, setEntities] = useState<EntitySummary[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
   const [raw, setRaw] = useState<SubgraphResponse | null>(null)
+  const [focusTick, setFocusTick] = useState(0)
   const [selectedEdge, setSelectedEdge] = useState<string | null>(null)
   const [layers, setLayers] = useState<LayerName[]>(DEFAULT_LAYERS)
   const [minConf, setMinConf] = useState(0.5)
@@ -72,12 +73,16 @@ export default function Workbench() {
       .catch(() => {})
   }, [])
 
-  // fetch subgraph when the active entity, depth, time window, or data version changes
+  // fetch subgraph when the active entity, depth, time window, or data version changes.
+  // focusTick bumps on each arrival → replays the focus ping/glow on the newly
+  // focused node (rail click, node click, query result, FIR ingest)
   useEffect(() => {
     if (!activeId) return
     setSelectedEdge(null)
     const end = timeEnd ? new Date(timeEnd).toISOString().slice(0, 10) : undefined
-    api.subgraph(activeId, depth, undefined, undefined, end).then(setRaw).catch(() => setRaw(null))
+    api.subgraph(activeId, depth, undefined, undefined, end)
+      .then((r) => { setRaw(r); setFocusTick((t) => t + 1) })
+      .catch(() => setRaw(null))
   }, [activeId, depth, timeEnd, dataVersion])
 
   // after a live FIR ingestion: refocus on the newly-created accused node and refetch
@@ -188,7 +193,7 @@ export default function Workbench() {
   )
   const canvas = (
     <div className="relative h-full">
-      <GraphCanvas subgraph={filtered} onEdgeClick={pickEdge} onNodeClick={focusNode} selectedEdge={selectedEdge} />
+      <GraphCanvas subgraph={filtered} onEdgeClick={pickEdge} onNodeClick={focusNode} selectedEdge={selectedEdge} focusTick={focusTick} />
       {timeRange && (
         <TimeSlider
           minTs={timeRange.min}

@@ -1,4 +1,5 @@
-# RAKSHAK synthetic benchmark generator — runtime dependencies: NONE.
-# The generator uses only the Python 3.9+ standard library, so it runs anywhere
-# with no install step. The line below is for running the test suite only.
+# RAKSHAK backend — everything needed to run the API and the test suite.
+# runtime: pip install -r api/requirements.txt   (API layer only)
+# dev/test: pip install -r requirements.txt      (API layer + pytest)
+-r api/requirements.txt
 pytest>=7.0

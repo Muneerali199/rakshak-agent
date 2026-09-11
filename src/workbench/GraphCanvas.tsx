@@ -23,6 +23,7 @@ interface LaneBox { name: LayerName; top: number; height: number }
 function layout(
   sg: SubgraphResponse,
   onEdgeClick: (edgeId: string) => void,
+  focusTick: number,
 ): { nodes: Node[]; edges: Edge[]; lanes: LaneBox[] } {
   const laneOf = (layers: LayerName[]): LayerName =>
     LANES.find((l) => layers.includes(l)) ?? 'communication'
@@ -61,6 +62,7 @@ function layout(
         label: n.label, type: n.type, layers: n.layers, risk: n.risk,
         role: (n.meta?.role as string | undefined) ?? null,
         isRoot: n.id === sg.root,
+        focusTick: n.id === sg.root ? focusTick : undefined,
       } as EntityNodeData,
     }
   })
@@ -73,6 +75,7 @@ function layout(
     data: {
       layer: e.layer, creation_method: e.creation_method,
       confidence: e.confidence, etype: e.type, review_status: e.review_status,
+      focusGlow: e.source === sg.root || e.target === sg.root,
       onEdgeClick,
     } as LayeredEdgeData,
   }))
@@ -82,17 +85,21 @@ function layout(
 const HINT_KEY = 'rakshak-workbench-hint-dismissed'
 
 export default function GraphCanvas({
-  subgraph, onEdgeClick, onNodeClick, selectedEdge,
+  subgraph, onEdgeClick, onNodeClick, selectedEdge, focusTick,
 }: {
   subgraph: SubgraphResponse | null
   onEdgeClick: (edgeId: string) => void
   onNodeClick?: (nodeId: string) => void
   selectedEdge: string | null
+  focusTick: number
 }) {
   const { nodes, edges, lanes } = useMemo(
-    () => (subgraph ? layout(subgraph, onEdgeClick) : { nodes: [], edges: [], lanes: [] }),
-    [subgraph, onEdgeClick],
+    () => (subgraph ? layout(subgraph, onEdgeClick, focusTick) : { nodes: [], edges: [], lanes: [] }),
+    [subgraph, onEdgeClick, focusTick],
   )
+
+  // the focused entity — for the "investigating" banner
+  const rootNode = subgraph?.nodes.find((n) => n.id === subgraph.root) ?? null
 
   const styledEdges = useMemo(
     () => edges.map((e) => ({ ...e, selected: e.id === selectedEdge })),
@@ -130,6 +137,30 @@ export default function GraphCanvas({
             <li><span className="mr-1 font-mono text-[#00f0ff]">3.</span>Click an <b className="text-zinc-200">edge</b> to inspect its evidence</li>
             <li><span className="mr-1 font-mono text-[#00f0ff]">4.</span>Accept / Reject / Modify — logged &amp; hashed</li>
           </ol>
+        </div>
+      )}
+
+      {/* focus banner — whose network am I looking at? */}
+      {rootNode && (
+        <div className="pointer-events-none absolute left-1/2 top-2 z-10 w-max max-w-[75%] -translate-x-1/2">
+          <div className="flex items-center gap-2.5 rounded-full border border-cyan-400/25 bg-slate-900/90 py-1.5 pl-3 pr-3.5 shadow-lg backdrop-blur-md">
+            <span className="relative flex h-2 w-2 shrink-0">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan-400" />
+            </span>
+            <span className="shrink-0 font-mono text-[8px] uppercase tracking-[0.28em] text-cyan-400/80">
+              investigating
+            </span>
+            <span className="truncate text-xs font-semibold text-slate-100" title={rootNode.label}>
+              {rootNode.label}
+            </span>
+            <span className="hidden shrink-0 rounded border border-slate-700/60 px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-wider text-slate-500 sm:inline">
+              {rootNode.type.toLowerCase()}
+            </span>
+            <span className="hidden shrink-0 font-mono text-[8px] text-slate-600 md:inline">
+              {rootNode.id}
+            </span>
+          </div>
         </div>
       )}
 

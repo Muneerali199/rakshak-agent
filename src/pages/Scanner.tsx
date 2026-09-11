@@ -71,6 +71,23 @@ export default function Scanner() {
         </div>
       </header>
 
+      {/* demo-scope banner — this page is the interactive toy, the CLI is the product */}
+      <div className="shrink-0 border-b border-amber-500/20 bg-amber-500/[0.06] px-4 py-2">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10px] leading-relaxed">
+          <span className="rounded border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 uppercase tracking-wider text-amber-400">
+            single-file demo
+          </span>
+          <span className="text-zinc-400">
+            This page demonstrates the engine interactively. For real repositories use the
+            CLI — <code className="text-[#00f0ff]">python backend/scripts/scan_repo.py ./repo</code> —
+            or the CI gate: local by default, your code never leaves your machine.
+          </span>
+          <span className="text-zinc-600">
+            Don't paste confidential source code into a demo deployment you don't trust.
+          </span>
+        </div>
+      </div>
+
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
         {/* input */}
         <section className="flex min-h-0 flex-1 flex-col border-b border-zinc-800 p-4 lg:border-b-0 lg:border-r">

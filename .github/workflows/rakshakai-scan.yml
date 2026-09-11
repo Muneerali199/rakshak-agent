@@ -1,0 +1,106 @@
+# RakshakAI security gate — the platform's own code, scanned on every change.
+#
+# Policy (mirrors docs/JUDGE_DEMO.md "security claims"):
+#   * deterministic RULES are the required gate: NEW findings at/above the
+#     severity threshold fail the build (baseline = accepted knowns);
+#   * the 14B model is OPTIONAL and never blocking (manual dispatch job);
+#   * pip-audit is a separate, optional job (Python deps only — it does not
+#     cover JavaScript, containers, or OS packages).
+#
+# The rules gate needs zero pip installs — the scanner client and rule engine
+# are pure standard library.
+name: rakshakai-scan
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write   # upload-sarif
+
+jobs:
+  rules-scan:
+    name: rules gate (required)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Scan source tree (deterministic rules, fail on NEW CRITICAL)
+        run: >
+          python backend/scripts/scan_repo.py
+          backend/api backend/mesh backend/scripts
+          --fail-on CRITICAL
+          --baseline backend/scripts/scan_baseline.json
+          --sarif rakshakai.sarif
+          --json rakshakai.json
+
+      - name: Upload SARIF to code scanning
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: rakshakai.sarif
+          category: rakshakai-rules
+
+      - name: Upload reports (artifact)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rakshakai-scan
+          path: |
+            rakshakai.sarif
+            rakshakai.json
+          retention-days: 14
+
+  model-scan:
+    name: rakshakai-14b (optional, non-blocking)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Classify with the fine-tuned 14B model (advisory findings only)
+        env:
+          RAKSHAK_AI_URL: ${{ secrets.RAKSHAK_AI_URL }}
+        run: >
+          python backend/scripts/scan_repo.py
+          backend/api backend/mesh backend/scripts
+          --model
+          --sarif rakshakai-model.sarif
+          --json rakshakai-model.json
+      - name: Upload model reports (artifact)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rakshakai-model-scan
+          path: |
+            rakshakai-model.sarif
+            rakshakai-model.json
+          retention-days: 14
+        # Model findings never fail this job: results carry engine + model status;
+        # a model endpoint failure is reported as model_error, not a clean scan.
+
+  pip-audit:
+    name: dependency CVEs (optional, Python only)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: pip-audit backend API dependencies
+        run: |
+          pip install pip-audit
+          pip-audit -r backend/api/requirements.txt
+        # Covers Python dependencies declared in requirements files only —
+        # not JavaScript packages, container images, or OS libraries.

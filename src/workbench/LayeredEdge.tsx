@@ -13,6 +13,7 @@ export interface LayeredEdgeData {
   confidence: number
   etype: string
   review_status?: ReviewStatus
+  focusGlow?: boolean
   onEdgeClick?: (edgeId: string) => void
   [key: string]: unknown
 }
@@ -31,9 +32,13 @@ export default function LayeredEdge(props: EdgeProps) {
   const accepted = d.review_status === 'ACCEPTED'
   const rejected = d.review_status === 'REJECTED'
   const solid = !inferred || accepted
+  const focus = !!d.focusGlow && !rejected
   const color = inferred && !accepted ? '#64748b' : LAYER_COLOR[d.layer]
-  const opacity = rejected ? 0.12 : solid ? 1 : 0.4 + 0.6 * d.confidence
-  const width = selected ? 3.5 : solid ? 2.5 : 1.5
+  const baseOpacity = solid ? 1 : 0.4 + 0.6 * d.confidence
+  // edges touching the focus entity stay bright + glow; peripheral ones dim,
+  // so "the data connected from him" pops out at depth 2–3
+  const opacity = rejected ? 0.12 : focus ? baseOpacity : selected ? baseOpacity : 0.45 * baseOpacity
+  const width = selected ? 3.5 : focus ? 3 : solid ? 2.5 : 1.5
 
   const labelText = rejected
     ? `${d.etype.toLowerCase()} · rejected`
@@ -55,7 +60,11 @@ export default function LayeredEdge(props: EdgeProps) {
           strokeWidth: width,
           strokeDasharray: solid ? undefined : '8 8',
           opacity,
-          filter: selected ? `drop-shadow(0 0 5px ${color})` : undefined,
+          filter: selected
+            ? `drop-shadow(0 0 5px ${color})`
+            : focus
+              ? `drop-shadow(0 0 3px ${color}90)`
+              : undefined,
           transition: 'stroke-width 0.15s, opacity 0.15s',
         }}
       />

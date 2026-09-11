@@ -1,12 +1,12 @@
 """RakshakAI code scanner — the platform's self-security layer (paper §18).
 
-MVP engine: deterministic, line-based rules for the CWE classes that dominate
+PRIMARY engine: deterministic, line-based rules for the CWE classes that dominate
 government-web compromises (SQLi, command injection, XSS, hardcoded secrets,
-weak hashing, path traversal). Honest labeling: results carry
-``engine: "rule-based-fallback"`` until the fine-tuned 14B model
-(``RAKSHAK_AI_URL`` → vLLM OpenAI-compatible endpoint) is configured, in which
-case the model's classification is used with rule-based results as the
-verified fallback. Pure standard library.
+weak hashing, path traversal). Every result carries an honest ``engine`` label:
+``"rules"`` for the deterministic engine (the default, blocking path), or
+``"rakshakai-14b"`` when the optional fine-tuned 14B model
+(``RAKSHAK_AI_URL`` → vLLM OpenAI-compatible endpoint) is configured — model
+findings are advisory and never gate a build. Pure standard library.
 """
 from __future__ import annotations
 
@@ -24,9 +24,9 @@ class Finding(dict):
 
 
 def _finding(cwe: str, title: str, severity: str, line_no: int, line: str,
-             why: str, fix: str) -> Finding:
+             why: str, fix: str, column: int | None = None) -> Finding:
     return Finding(
-        cwe=cwe, title=title, severity=severity, line=line_no,
+        cwe=cwe, title=title, severity=severity, line=line_no, column=column,
         snippet=line.strip()[:160], reason=why, remediation=fix,
     )
 
@@ -112,9 +112,11 @@ def scan_rules(code: str) -> list[Finding]:
         if stripped.startswith("#"):                    # comments are not execution paths
             continue
         for rx, cwe, title, sev, why, fix in _RULES:
-            if rx.search(line) and (cwe, title, line_no) not in seen:
+            m = rx.search(line)
+            if m and (cwe, title, line_no) not in seen:
                 seen.add((cwe, title, line_no))
-                findings.append(_finding(cwe, title, sev, line_no, line, why, fix))
+                findings.append(_finding(cwe, title, sev, line_no, line, why, fix,
+                                         column=m.start() + 1))
     findings.sort(key=lambda f: (f["line"], _SEVERITY_ORDER[f["severity"]]))
     return findings
 
@@ -123,7 +125,7 @@ def scan_with_model(code: str) -> list[Finding] | None:
     """Ask the fine-tuned 14B model (vLLM, OpenAI-compatible) to classify the code.
 
     Returns None when the hook is not configured or unreachable — the caller then
-    falls back to the deterministic rule engine and discloses it.
+    reports the deterministic rule-engine results with an explicit model status.
     """
     if not RAKSHAK_AI_URL:
         return None
@@ -157,7 +159,7 @@ def scan_with_model(code: str) -> list[Finding] | None:
             ))
         return out
     except Exception:
-        return None                                      # offline → deterministic fallback
+        return None                                      # endpoint down → explicit model_error upstream
 
 
 def summarize(findings: list[Finding]) -> dict:
@@ -170,13 +172,13 @@ def summarize(findings: list[Finding]) -> dict:
 
 
 def scan(code: str) -> dict:
-    """Model first (when configured), rule engine as verified fallback — always disclosed."""
+    """Rules first (primary, always), model findings added when configured — always disclosed."""
     model = scan_with_model(code)
     if model is not None:
-        engine, findings, note = "rakshakai-14b", model, "classified by the fine-tuned 14B model"
+        engine, findings, note = "rakshakai-14b", model, "classified by the fine-tuned 14B model (advisory)"
     else:
-        engine, findings, note = "rule-based-fallback", scan_rules(code), \
-            "deterministic rule engine (set RAKSHAK_AI_URL to serve the fine-tuned 14B model)"
+        engine, findings, note = "rules", scan_rules(code), \
+            "deterministic rule engine (primary; set RAKSHAK_AI_URL to also classify with the 14B model)"
     return {
         "engine": engine,
         "engine_note": note,

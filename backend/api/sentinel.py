@@ -10,8 +10,11 @@ Inspired by China's MLPS 2.0 (graded protection levels) and Cryptography Law
     scanner over its own source tree and hash-chains the report into a sentinel
     ledger. The system's security posture is itself tamper-evident evidence.
   * **Component integrity** — a build manifest (SHA-256 over every backend source
-    file) is computed at boot; if a RakshakAI model file is configured
-    (``RAKSHAK_MODEL_PATH``), its hash is pinned and verified the same way.
+    file) is computed at boot and COMPARED against the previous boot's manifest
+    (hash-chained into the ledger); an optional ``RAKSHAK_RELEASE_MANIFEST``
+    (stored outside the app tree) pins a trusted release-time reference. If a
+    RakshakAI model file is configured (``RAKSHAK_MODEL_PATH``), its hash is
+    pinned and verified the same way.
 """
 from __future__ import annotations
 
@@ -149,7 +152,7 @@ def scan_own_codebase(root: Path) -> dict:
 
 
 def build_manifest(root: Path) -> dict:
-    """SHA-256 over every backend source file — tamper-evident code integrity."""
+    """SHA-256 over every backend source file — the boot-time code fingerprint."""
     h = hashlib.sha256()
     files = 0
     for path in sorted(root.rglob("*.py")):
@@ -159,6 +162,66 @@ def build_manifest(root: Path) -> dict:
         h.update(path.read_bytes())
         files += 1
     return {"files": files, "manifest_sha256": h.hexdigest()}
+
+
+def check_manifest(manifest: dict, previous: dict | None) -> dict:
+    """Compare this boot's manifest against the previous boot's (from the ledger).
+
+    A bare manifest proves nothing — detection requires comparison against a
+    trusted reference. Here the reference is the last MANIFEST event in the
+    sentinel ledger; ``RAKSHAK_RELEASE_MANIFEST`` (see release_manifest_check)
+    can additionally pin an external, release-time manifest.
+
+    Honest scope: this is tamper-EVIDENT, not tamper-proof — an attacker with
+    write access to both the source tree and the ledger could rewrite history.
+    The mitigation is anchoring the ledger head (or the release manifest)
+    outside the application directory.
+    """
+    cur = manifest["manifest_sha256"]
+    if previous is None:
+        return {"manifest_sha256": cur, "files": manifest["files"], "first_boot": True,
+                "changed": False,
+                "note": "first boot — no previous manifest on record; this hash is now the reference"}
+    try:
+        prev_hash = json.loads(previous["report"])["manifest_sha256"] \
+            if isinstance(previous.get("report"), str) else previous.get("manifest_sha256")
+    except (KeyError, json.JSONDecodeError):
+        prev_hash = None
+    changed = prev_hash != cur
+    return {"manifest_sha256": cur, "files": manifest["files"], "first_boot": False,
+            "previous_sha256": prev_hash, "changed": changed,
+            "note": "source tree differs from the previous boot" if changed
+                    else "source tree matches the previous boot"}
+
+
+def release_manifest_check(manifest: dict, release_path: str) -> dict | None:
+    """Compare against a trusted release-time manifest stored OUTSIDE the app tree.
+
+    ``release_path`` is a JSON file in build_manifest format, produced at release
+    time and kept somewhere an application-level attacker cannot rewrite (e.g. a
+    signed deployment artifact). Returns None when no release manifest is
+    configured — honest absence, never a silent pass.
+    """
+    path = (release_path or "").strip()
+    if not path:
+        return None
+    p = Path(path)
+    if not p.exists():
+        return {"configured": True, "exists": False,
+                "matches_release": False,
+                "note": "configured release manifest is missing — treat as a mismatch"}
+    try:
+        rel = json.loads(p.read_text(encoding="utf-8"))
+        matches = rel.get("manifest_sha256") == manifest["manifest_sha256"]
+        return {"configured": True, "exists": True,
+                "release_manifest": rel.get("manifest_sha256"),
+                "current_manifest": manifest["manifest_sha256"],
+                "matches_release": matches,
+                "note": "source tree matches the trusted release manifest" if matches
+                        else "SOURCE TREE DIFFERS FROM THE TRUSTED RELEASE MANIFEST"}
+    except (json.JSONDecodeError, OSError) as exc:
+        return {"configured": True, "exists": True, "matches_release": False,
+                "note": f"release manifest unreadable: {exc}"}
 
 
 def model_pin() -> dict:

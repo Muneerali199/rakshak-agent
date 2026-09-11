@@ -12,6 +12,18 @@ dist
 dist-ssr
 *.local
 
+# Generated benchmark / mesh data (rebuilt by scripts/partition_bench.py)
+backend/output/
+backend/output-vaults/
+backend/__pycache__/
+backend/**/__pycache__/
+**/__pycache__/
+*.pyc
+
+# Deck-production working files
+*.bak.png
+*.bak
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -2,8 +2,8 @@
 
 **The UPI of criminal intelligence — a constitutional evidence mesh.**
 
-> *Also presented as **Rakshak AI** in the SIH 2026 idea-submission deck — same platform,
-> internal codename RAKSHAK-NET. The 14B security model is **RakshakAI** (no space).*
+> *The SIH 2026 idea-submission deck presents this platform as **RAKSHAK-NET** — the
+> standardized deck-wide name. The 14B security model is **RakshakAI** (no space).*
 
 Policing in India is a **State subject** (Seventh Schedule) — a central national crime
 database is *legally impossible*. So RAKSHAK-NET does what India has already proven twice:
@@ -69,8 +69,8 @@ protection it lacked too: see RakshakAI Sentinel below).
 | **Blindspot analysis** (honest AI) | ✅ built · missing layers + inferred-ratio + source diversity + temporal gaps → corroboration score | [`backend/analytics/blindspot.py`](backend/analytics/blindspot.py) |
 | **RakshakAI Sentinel** (self-security) | ✅ built · graded endpoint levels (MLPS-inspired) · boot self-scan hash-chained · build manifest · `/api/security/posture` | [`backend/api/sentinel.py`](backend/api/sentinel.py) |
 | IndicXlit adapter (AI4Bharat) | ✅ built · neural transliteration when locally installed, honest fallback otherwise · zero new hard deps | [`backend/resolve/indic_xlit.py`](backend/resolve/indic_xlit.py) |
-| RakshakAI code scanner (§18) | ✅ built · rule engine + `RAKSHAK_AI_URL` 14B hook · `/scanner` UI | [`backend/api/scanner.py`](backend/api/scanner.py) |
-| FastAPI service (20 endpoints) + Mesh gateway | ✅ built · **119/119 tests** | [`backend/api`](backend/api/main.py) |
+| RakshakAI code scanner (§18) | ✅ built · **CLI whole-repo scan + CI gate (rules fail on NEW CRITICAL)** · opt-in 14B hook · `/scanner` demo UI | [`backend/scripts/scan_repo.py`](backend/scripts/scan_repo.py) |
+| FastAPI service (20 endpoints) + Mesh gateway | ✅ built · **139/139 tests** | [`backend/api`](backend/api/main.py) |
 | Investigator Workbench + Scanner UI | ✅ live · responsive · **File-FIR w/ live mesh receipts · warrant-gate modal · blindspot panel · escalation sparklines · vault badge · time-travel slider** | [`src/workbench`](src/workbench) |
 | RakshakAI 14B model | 🤖 published (supplementary, hook-ready) | [HF ↗](https://huggingface.co/Muneerali199/rakshak-cwe-14b-sft-final) |
 
@@ -152,22 +152,27 @@ sighting). Generic LLM interfaces risk hallucinating connections that do not exi
 ## Architecture
 
 ```
-                          ┌─────────────────  FRONTEND (Vite + React 19 + Tailwind)  ─────────────────┐
-                          │   Landing page  ·  /workbench  (React Flow, 3-pane analyst UI)             │
-                          └───────────────────────────────┬───────────────────────────────────────────┘
-                                                           │  src/lib/api.ts  (typed fetch, CORS)
-                          ┌────────────────────────────────▼──────────────────────────────────────────┐
-                          │                       FastAPI  (backend/api)                                │
-                          │  /resolve   /graph/subgraph   /evidence/{id}   /entities   /health          │
-                          └───────┬──────────────────────┬───────────────────────┬─────────────────────┘
-                                  │                       │                       │
-                     ┌────────────▼─────────┐  ┌──────────▼──────────┐  ┌─────────▼─────────────┐
-                     │  resolve  (Phase 3)  │  │   graph  (Phase 4)   │  │  synthgen  (Phase 2)  │
-                     │  hybrid identity     │  │  3-layer temporal    │  │  synthetic FIR/CDR/   │
-                     │  resolution (§9)     │  │  graph + provenance  │  │  FIN + ground truth   │
-                     └──────────────────────┘  └──────────────────────┘  └───────────────────────┘
-                                    stdlib-only · deterministic (seeded) · cite the proposal by §
+                          ┌────────────────── Workbench / Frontend (Vite + React 19 + Tailwind) ──────────────────┐
+                          │   Landing · /workbench (React Flow) · /report/{id} · /scanner                      │
+                          └───────────────────────────────┬────────────────────────────────────────────────────┘
+                                                          │  src/lib/api.ts  (typed fetch, CORS)
+                          ┌───────────────────────────────▼────────────────────────────────────────────────────┐
+                          │                      MESH GATEWAY  (:8000 — NPCI-style switch)                     │
+                          │   /mesh/health · /mesh/route · POST /mesh/query · /mesh/receipts · /mesh/verify     │
+                          │   stores signed exchange RECEIPTS in a hash-chained SQLite ledger — never case data │
+                          └──────────┬───────────────────────────┬──────────────────────────┬─────────────────┘
+                                     │ HMAC-signed envelopes     │                          │
+                          ┌──────────▼─────────┐   ┌────────────▼───────────┐   ┌────────────▼──────────┐
+                          │  DELHI vault :8001  │   │  MUMBAI vault :8002    │   │  JAIPUR vault :8003   │
+                          │  // data stays here │   │  // data stays here    │   │  // data stays here   │
+                          └─────────────────────┘   └────────────────────────┘   └───────────────────────┘
+                              each vault = full FastAPI instance (backend/api) + its own SQLite graph
 ```
+
+One command, whole mesh: `scripts/run_mesh.sh` boots gateway + 3 vaults + workbench. Single-node
+dev still works: `uvicorn api.main:app` (from `backend/`) — a vault *is* the FastAPI app; the
+gateway is a thin routing/signing layer on top. See
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the full component map.
 
 **Stack.** Frontend: Vite · React 19 · TypeScript · Tailwind v3 (shadcn/ui) · @xyflow/react · GSAP +
 Framer Motion. Backend: Python 3.9+ stdlib (core) · FastAPI + Uvicorn (API). *Proposal targets Neo4j +
@@ -192,7 +197,7 @@ python3 tests/test_graph.py                  # 6/6
 
 ```bash
 # terminal 1 — backend API (from app/backend)
-pip install -r api/requirements.txt
+pip install -r requirements.txt             # full dev suite (API deps + pytest); runtime subset: api/requirements.txt
 uvicorn api.main:app --port 8000             # builds the seed-42 graph on first boot
 #   → OpenAPI docs at http://localhost:8000/docs
 
@@ -203,8 +208,11 @@ pnpm dev                                     # → http://localhost:5173/workben
 
 Override the API base with `VITE_API_URL` if the backend isn't on `localhost:8000`.
 
-> **Note:** the frontend is **pnpm-managed** (`.pnpm/`, `pnpm-lock.yaml`) — use `pnpm`, not `npm`
-> (mixing the two corrupts `node_modules`).
+### Run the tests
+
+```bash
+cd app/backend && python3 -m pytest -q      # 139 tests — see docs/TESTING.md
+```
 
 ### Frontend scripts
 
@@ -233,6 +241,21 @@ pnpm lint       # eslint
 | `POST` | `/api/scan` | RakshakAI code security scan (§18) — rule engine or 14B model hook |
 | `GET` | `/api/experiments/a` | Experiment A: exact vs fuzzy-only vs hybrid baselines (§22) |
 | `GET` | `/api/health` | Liveness + graph size |
+| `POST` | `/api/ingest/fir` | Live FIR ingestion — paste raw FIR → regex NER with source spans → cross-district collision alerts |
+| `POST` | `/api/warrants` | Create warrant artifact (scoped, expiring, revocable — DEPA consent model) |
+| `POST` | `/api/warrants/{id}/approve` | SP+ dual-sign approval (four-eyes principle) |
+| `POST` | `/api/warrants/{id}/revoke` | Revoke a live warrant |
+| `GET` | `/api/warrants/verify` | Verify the warrant ledger hash chain |
+| `GET` | `/api/warrants` | List warrants (audit view) |
+| `GET` | `/api/escalation` | Stalking-escalation signals (Women Safety): weekly trajectory + night-call CRITICAL alerts |
+| `GET` | `/api/security/posture` | RakshakAI Sentinel: graded endpoint levels, boot self-scan, build manifest |
+| `GET` | `/api/blindspot/{entity_id}` | Honest-AI blindspot analysis: missing layers, corroboration score |
+| `GET` | `/api/report/{entity_id}` | Court-ready evidence-chain report (hash-verified rows + review log) |
+| `GET` | `/mesh/health` | Gateway liveness + reachable vaults |
+| `POST` | `/mesh/route` | Vault-side: receive a signed envelope, answer locally, return receipt |
+| `POST` | `/mesh/query` | App-side fan-out: sign + route one query to every district vault |
+| `GET` | `/mesh/receipts` | Hash-chained exchange ledger (receipts, never case data) |
+| `GET` | `/mesh/verify` | Walk the exchange ledger — names the first broken record |
 
 Example — `POST /api/resolve` with `{"name_a":"Mohammad Arif","name_b":"मोहम्मद आरिफ़"}` →
 `{"decision":"MATCH","confidence":0.94,"features":{"name":0.97,"phonetic":1.0,...},"calibrated":false}`.
@@ -253,11 +276,22 @@ app/                            ← git repo root
 │  ├─ synthgen/                 Phase 2 — synthetic FIR/CDR/FIN generator + ground truth   (stdlib)
 │  ├─ resolve/                  Phase 3 — hybrid entity resolution + §23 evaluation         (stdlib)
 │  ├─ graph/                    Phase 4 seed — 3-layer temporal graph + provenance/SHA-256  (stdlib)
-│  ├─ api/                      FastAPI service (schemas + endpoints)                        (fastapi)
-│  └─ tests/                    test_synthgen · test_resolve · test_graph · test_api
+│  ├─ analytics/                Anomaly detection · blindspot · stalking escalation         (stdlib)
+│  ├─ mesh/                     District vault mesh: gateway · client · protocol · ledger   (stdlib)
+│  ├─ experiments/              Experiment A baselines (§22)
+│  ├─ api/                      FastAPI service — main · schemas · query · warrants ·
+│  │                            ingest · scanner · sentinel · review_store · vault_config
+│  ├─ scripts/ + output/        run_mesh.sh · generated synthetic data · per-vault data
+│  └─ tests/                    test_synthgen · test_resolve · test_graph · test_api + scanner/sentinel suites (139 tests)
+├─ ppt-assets/                  SIH deck visuals: drawio sources + 2× exports · technical icons/logos ·
+│  │                            napkin generators · composite scripts (see ppt-assets/README.md)
+├─ scripts/run_mesh.sh          Boots gateway :8000 + 3 vaults :8001-8003 + workbench :3000
 └─ docs/
-   ├─ HACKATHON_EXECUTION_PLAN.md   API contracts, UI spec, 10-minute demo script
-   └─ huggingface/                  MODEL_CARD.md · DATASETS.md
+   ├─ ARCHITECTURE.md             Full system architecture + component map
+   ├─ HACKATHON_EXECUTION_PLAN.md API contracts, UI spec, 10-minute demo script
+   ├─ DEMO_SCRIPT.md              5-minute demo script
+   ├─ TESTING.md                  What to test: pytest suite, API/mesh smoke tests, UI checklist
+   └─ huggingface/                MODEL_CARD.md · DATASETS.md
 ```
 
 ---
@@ -265,17 +299,60 @@ app/                            ← git repo root
 ## RakshakAI code-security layer
 
 RakshakAI is the secure-by-design component. It is **not** used for criminal-network analysis — its
-sole job is to review the platform's own code.
+sole job is to review the platform's own code. Since police data must not leave the district, the
+scanner runs **where the code lives** — local CLI + CI gate — never a hosted paste-your-code service.
 
-- **Model:** [`Muneerali199/rakshak-cwe-14b-sft-final`](https://huggingface.co/Muneerali199/rakshak-cwe-14b-sft-final)
-  — LoRA/SFT adapter on `Qwen/Qwen2.5-Coder-14B-Instruct` for CWE / vulnerability detection.
+**Engines (always disclosed per finding):**
+- **`rules` — the primary, deterministic engine** (stdlib-only): SQLi, command injection, XSS,
+  hardcoded secrets, weak hashing, path traversal — the CWE classes that dominate
+  government-web compromises. Drives every gate.
+- **`rakshakai-14b` — opt-in, advisory, never blocking**: [`Muneerali199/rakshak-cwe-14b-sft-final`](https://huggingface.co/Muneerali199/rakshak-cwe-14b-sft-final)
+  (LoRA/SFT on `Qwen2.5-Coder-14B-Instruct`) via `RAKSHAK_AI_URL` (vLLM, OpenAI-compatible).
+  Endpoint failures are reported as `model_error` — never a clean scan. Network is never implicit:
+  without `--model`/`--model-url` nothing leaves the machine.
+
+**Usage:**
+```bash
+# whole-repo scan from the repo root (local-only by default)
+python backend/scripts/scan_repo.py backend/api backend/mesh backend/scripts
+
+# CI gate — fail only on NEW findings at/above a severity, against a committed baseline
+python backend/scripts/scan_repo.py backend/api backend/mesh \
+  --fail-on CRITICAL --baseline backend/scripts/scan_baseline.json --sarif rakshakai.sarif
+
+# baseline known findings (accepted by the team)
+python backend/scripts/scan_repo.py . --write-baseline backend/scripts/scan_baseline.json
+```
+Exit codes: `0` gate passed · `1` new findings at/above threshold · `2` scanner/config error.
+GitHub workflow: [`.github/workflows/rakshakai-scan.yml`](.github/workflows/rakshakai-scan.yml) —
+rules gate on every push/PR (SARIF → code scanning), optional non-blocking 14B + `pip-audit` jobs.
+The `/scanner` page stays as an **interactive single-file demo** with a confidential-code warning.
+
+**Sentinel (runtime integrity, at boot):** every boot re-scans the platform's own code, and the
+build manifest (SHA-256 over all backend sources) is **compared against the previous boot's
+manifest** in the hash-chained sentinel ledger — plus an optional trusted `RAKSHAK_RELEASE_MANIFEST`
+(stored outside the app tree) for release-pinned verification. See
+`/api/security/posture` → `manifest_check`.
+
+**Honest claims we make (and don't):**
+
+| We say | We never say |
+| --- | --- |
+| Detects selected CWE patterns before deployment | "Prevents attacks" / "finds all vulnerabilities" |
+| Runs locally or in CI — source stays on your machine by default | "Air-gapped" when a remote model endpoint is configured |
+| Produces SARIF for code-scanning workflows | "Catches zero-days" |
+| Tamper-**evident** audit records (hash-chained) | "Tamper-**proof** storage" |
+| No LLM in the serving path → no LLM hallucination mode | "Zero hallucinations" as an absolute product claim |
+| Checks deployed source integrity against a trusted manifest at boot | "Protects production at runtime" |
+
+The scanner client and rule engine are **standard-library only** (local 14B inference is not — it
+needs a model runtime such as vLLM). RakshakAI stays **supplementary** for gating decisions until
+benchmarked against established static-analysis tools (Semgrep, SonarQube, Bandit).
+
 - **Datasets:** [`Muneerali199` on Hugging Face](https://huggingface.co/Muneerali199/datasets) —
   `rakshak-cwe-v3-data`, `rakshak-sft-dataset`, `RakshakAI-v4-instruct`, `RakshakAI-phase-b`, and more.
 - See [`docs/huggingface/MODEL_CARD.md`](docs/huggingface/MODEL_CARD.md) and
   [`docs/huggingface/DATASETS.md`](docs/huggingface/DATASETS.md).
-
-Consistent with the proposal, RakshakAI is a **supplementary** security layer until it is benchmarked
-against established static-analysis tools (Semgrep, SonarQube, Bandit).
 
 ---
 
@@ -314,7 +391,11 @@ hotspots, and never profiles potential victims.
 - 📊 Datasets: https://huggingface.co/Muneerali199/datasets
 - 🛠️ Hackathon execution plan: [`docs/HACKATHON_EXECUTION_PLAN.md`](docs/HACKATHON_EXECUTION_PLAN.md)
 - 🎬 **5-minute demo script: [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md)**
+- 🎯 **Judge demo flow + rehearsed Q&A: [`docs/JUDGE_DEMO.md`](docs/JUDGE_DEMO.md)**
+- ✅ **What to test: [`docs/TESTING.md`](docs/TESTING.md)**
+- 🚀 Deployment: [`docs/DEPLOY.md`](docs/DEPLOY.md)
 - 🗺️ Winning-feature plan: [`docs/NEXT_STEPS_PLAN.md`](docs/NEXT_STEPS_PLAN.md)
+- 🎨 Deck visuals production: [`ppt-assets/README.md`](ppt-assets/README.md)
 
 ---
 
