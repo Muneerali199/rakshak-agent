@@ -34,15 +34,21 @@ Scored against the synthetic ground truth. All §23 targets are met on both the 
 
 | Metric | Target | Default (seed 42) | Large (seed 3) |
 | --- | --- | --- | --- |
-| Pairwise Precision | > 0.85 | **0.998** | **0.946** |
-| Pairwise Recall | > 0.80 | **0.999** | **0.999** |
-| B-cubed F1 | — | 0.997 | 0.976 |
-| False-Merge Rate | < 0.01 | **0.00002** | **0.00007** |
-| False-Split Rate | < 0.05 | **0.0007** | **0.0006** |
+| Pairwise Precision | > 0.85 | **0.9858** | **0.9506** |
+| Pairwise Recall | > 0.80 | **0.9985** | **0.9992** |
+| B-cubed Precision | — | 0.9854 | 0.9559 |
+| B-cubed Recall | — | 0.9965 | 0.9974 |
+| B-cubed F1 | — | 0.9909 | 0.9762 |
+| False-Merge Rate | < 0.01 | **0.00012** | **0.00007** |
+| False-Split Rate | < 0.05 | **0.00155** | **0.00076** |
+
+Same-name planted traps merged: 4/6 (default seed 42), 25/40 (large seed 3).
 
 Per-type: **PHONE / ACCOUNT / VEHICLE / LOCATION resolve at F1 = 1.0** (deterministic
-identifiers); **PERSON** F1 ≈ 0.97, carrying all the difficulty (Devanagari, honorifics,
-case, typos, name-order swaps, romanization variants).
+identifiers); **PERSON** carries all the difficulty (Devanagari, honorifics, case, typos,
+name-order swaps, romanization variants) — the only non-perfect table above is PERSON.
+References to "F1 ≈ 0.97" apply to the large preset; the default 50-person preset scores
+slightly lower in precision and higher in recall as shown.
 
 > Numbers are reproducible: fixed seed + stdlib-only + no wall-clock in the pipeline. Regenerate
 > with the commands above. Per the proposal's disclaimer, these are results **on the synthetic

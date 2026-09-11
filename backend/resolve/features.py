@@ -3,8 +3,9 @@
 Implements the MVP's **4 of 8** features (§26): identifier, name, phonetic, and
 attribute similarity. Transliteration is applied as a *normalization* step
 (:mod:`resolve.normalize`) that feeds name/phonetic, so cross-script Hindi↔English
-names compare directly. The deferred four — temporal, context TF-IDF, and graph
-neighborhood — arrive with the Phase-4 graph.
+names compare directly. Deferred to Phase 4 (they need the temporal graph):
+temporal interval overlap, context TF-IDF on co-occurring entities, and
+graph-neighborhood Jaccard.
 
 Aggregate score (§8.3):  ``s(a,b) = Σ_k w_k · φ_k(a,b)``  with ``Σ w_k = 1`` and
 each ``φ_k ∈ [0,1]``.  Decision: MATCH if ``s ≥ θ_high``, REJECT if ``s ≤ θ_low``,
