@@ -8,12 +8,15 @@
 
 ## What is running right now
 
+> **Ops first:** clean boot in one command → `bash scripts/demo_reset.sh`
+> (full day-of script, Q&A, contingency cards → **[FINAL_ROUND_RUNBOOK.md](FINAL_ROUND_RUNBOOK.md)**).
+
 | Service | URL | Purpose |
 | --- | --- | --- |
-| Investigator Workbench | http://localhost:3000 | **this is what you screen-share** |
-| Single-node API (:8000) | http://localhost:8000/docs | OpenAPI explorer (single vault demo) |
-| Mesh gateway :8010 | http://localhost:8010/mesh/health | switches on receipts, never case data |
-| Delhi / Mumbai / Jaipur vaults | :8011 :8012 :8013 | district vaults answering locally |
+| Investigator Workbench | http://localhost:3000/workbench | **this is what you screen-share** |
+| Mesh gateway :8000 | http://localhost:8000/mesh/health | NPCI-style switch — receipts only, never case data |
+| Delhi / Mumbai / Jaipur vaults | :8001 :8002 :8003 | district vaults answering locally |
+| Header doc | http://localhost:3000 | landing page |
 | Automated suite | `cd app/backend && python3 -m pytest -q` | 139 / 139 |
 
 ---
@@ -22,7 +25,7 @@
 
 1. **Landing → Workbench** — *"click a node, drag the graph."*
 2. **Query rail** — type:
-   `how are Abdool Guptaa and Suneeta Daas connected`
+   `how are Nehaa Kumaar and Aniil Singh connected`
    → *"2-step connection … every step cites its evidence."*
    **Say:** `retrieval-only — no LLM in the serving path, so it cannot hallucinate. It
    either cites a source edge or refuses. Watch:` type `is Zzark Zulu linked to anyone`
@@ -39,14 +42,16 @@
 
 ## 5-minute flow (add the mesh — the pitch, not just the demo)
 
-1. (Mesh tab / via API) inject an FIR into **Delhi** referencing
-   `+91-8044997278`, `AC7234309805`, `UP78GC4978`:
-   - Mumbai answers: **PHONE 2 CDRs, VEHICLE 1 FIR**
-   - Jaipur answers: **ACCOUNT 6 FINs, PHONE 5 CDRs**
+1. (Mesh tab / via API) Route an `ENTITY_LOOKUP` envelope from Delhi for
+   `ACCOUNT:AC7332214188` (Mumbai record) + `ACCOUNT:AC8168505423` (Jaipur record):
+   - Mumbai answers: **ACCOUNT 4 FIN records**
+   - Jaipur answers: **ACCOUNT 2+3 FIN records**
    - `all_verified: True` — every receipt signature checked.
-   **Say:** `Delhi asked, it never sent the FIR — Mumbai and Jaipur answered with
-   signed receipts containing record ids only. The switch's ledger stores exchanges,
-   never case data — hash-chained, `/mesh/verify` names the first broken record.`
+   **Say:** `Delhi asked about accounts; Mumbai and Jaipur answered with signed receipts
+   containing record IDs only — no narratives, no names. The switch's ledger stores
+   exchanges, never case data — hash-chained, gateway ledger names the first broken record.`
+   **Demo envelope** (if you need a curl): `ACCOUNT:AC7332214188, ACCOUNT:AC8168505423`
+   with origin `delhi`, secret `demo-delhi`.
 2. **Receipts ledger** → show latest exchange → `entity_keys` + hit summaries, no
    case content. **This is the UPI moment:** *money stays in the bank, messages travel.*
 3. **Anomalies + Escalation + Blindspot panels** — circular money flows (P/R 1.000),
@@ -76,10 +81,11 @@
 ## News you can use (data-integrity checks)
 
 ```bash
-curl -s http://localhost:8000/api/health                    # graph size
-curl -s http://localhost:8000/api/reviews/verify            # review chain
-curl -s http://localhost:8000/api/warrants/verify           # warrant chain
-curl -s http://localhost:8010/mesh/verify                   # exchange chain
+curl -s http://localhost:8000/mesh/health            # gateway: vaults + ledger ok
+curl -s http://localhost:8001/api/health              # delhi vault
+curl -s http://localhost:8001/api/reviews/verify      # review chain
+curl -s http://localhost:8001/api/warrants/verify     # warrant chain
+curl -s http://localhost:8001/api/security/posture    # boot scan + manifest
 ```
 
 ## Likely judge questions — rehearsed answers
@@ -114,4 +120,8 @@ cd app/backend && python3 -m pytest -q          # 139 passed
 ```
 
 Manual browser checklist: `/:3000` landing → `/workbench` graph + time-travel slider →
-query rail → evidence panel → File FIR → warrant modal → `/report/{id}` → `/scanner`.
+query rail (`contact Aniil Singh`) → evidence panel → File FIR → warrant modal →
+`/report/{id}` → `/scanner`.
+
+**Everything above is cross-checked on 2026-09-11. For the full day-of script, Q&A
+rehearsal, and contingency cards → see [FINAL_ROUND_RUNBOOK.md](FINAL_ROUND_RUNBOOK.md).**
