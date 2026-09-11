@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "generated": "2026-09-11T16:16:30+00:00",
+  "note": "known findings accepted by the team \u2014 the CI gate fails only on NEW findings",
+  "findings": [
+    {
+      "fingerprint": "7c68ed17d2248b8877e3b80366b7920d",
+      "file": "api/scanner.py",
+      "line": 69,
+      "cwe": "CWE-78",
+      "severity": "CRITICAL",
+      "title": "Shell invocation enabled",
+      "rule_id": "RA-CWE-78-002"
+    },
+    {
+      "fingerprint": "94f208a27e1b1d5691455363088ff93b",
+      "file": "api/schemas.py",
+      "line": 187,
+      "cwe": "CWE-89",
+      "severity": "CRITICAL",
+      "title": "SQL Injection via f-string",
+      "rule_id": "RA-CWE-89-001"
+    },
+    {
+      "fingerprint": "90e05e8948a90215fb4389e44153967a",
+      "file": "tests/test_scan_repo.py",
+      "line": 29,
+      "cwe": "CWE-798",
+      "severity": "HIGH",
+      "title": "Hardcoded credential",
+      "rule_id": "RA-CWE-798-001"
+    },
+    {
+      "fingerprint": "42cf25b35be4312c4cbce2dbf3a2f14b",
+      "file": "tests/test_scan_repo.py",
+      "line": 31,
+      "cwe": "CWE-89",
+      "severity": "CRITICAL",
+      "title": "SQL Injection via f-string",
+      "rule_id": "RA-CWE-89-001"
+    },
+    {
+      "fingerprint": "bc467b74e8b23e591a5d8b24cfa0fd17",
+      "file": "tests/test_scanner.py",
+      "line": 22,
+      "cwe": "CWE-89",
+      "severity": "CRITICAL",
+      "title": "SQL Injection via f-string",
+      "rule_id": "RA-CWE-89-001"
+    },
+    {
+      "fingerprint": "a84c284df7a53faddbd8b80c08e74bad",
+      "file": "tests/test_scanner.py",
+      "line": 48,
+      "cwe": "CWE-78",
+      "severity": "CRITICAL",
+      "title": "Shell invocation enabled",
+      "rule_id": "RA-CWE-78-002"
+    },
+    {
+      "fingerprint": "cf6047828d59b168db458848a4c64e32",
+      "file": "tests/test_scanner.py",
+      "line": 56,
+      "cwe": "CWE-798",
+      "severity": "HIGH",
+      "title": "Hardcoded credential",
+      "rule_id": "RA-CWE-798-001"
+    },
+    {
+      "fingerprint": "4ba9a62e732b2cc3abec7ebe361228a2",
+      "file": "tests/test_scanner.py",
+      "line": 62,
+      "cwe": "CWE-22",
+      "severity": "HIGH",
+      "title": "Path traversal via f-string",
+      "rule_id": "RA-CWE-22-001"
+    },
+    {
+      "fingerprint": "dea15e90f0e32ea6499d69c9204534ca",
+      "file": "tests/test_scanner.py",
+      "line": 62,
+      "cwe": "CWE-327",
+      "severity": "MEDIUM",
+      "title": "Weak hash algorithm",
+      "rule_id": "RA-CWE-327-001"
+    },
+    {
+      "fingerprint": "a072723be73e9a079bd845e9da4e0eb3",
+      "file": "tests/test_scanner.py",
+      "line": 69,
+      "cwe": "CWE-78",
+      "severity": "CRITICAL",
+      "title": "OS command injection",
+      "rule_id": "RA-CWE-78-001"
+    },
+    {
+      "fingerprint": "57efe56bca0a15fd2bec159a7bc0b182",
+      "file": "tests/test_scanner.py",
+      "line": 69,
+      "cwe": "CWE-798",
+      "severity": "HIGH",
+      "title": "Hardcoded credential",
+      "rule_id": "RA-CWE-798-001"
+    }
+  ]
+}
