@@ -141,6 +141,29 @@ def _compute_influence(graph) -> dict:
     return out
 
 
+def _compute_fir_involvements(graph) -> dict:
+    """Distinct-FIR involvement per PERSON — the repeat-offender signal (§ PS-6).
+
+    Counts the distinct *source documents* (FIR record ids) a resolved person is
+    linked to through EXTRACTED LOCATED_AT edges — i.e. how many separate FIRs
+    name them (as accused, complainant, or co-mention). One FIR = one event, so
+    ``fir_count >= 2`` is the **repeat-involvement** flag an investigating officer
+    would look for (a history-sheet lead), distinct from network degree: a person
+    can be high-degree by volume while being seen in a single FIR — or appear
+    across many FIRs with low degree. Deterministic and auditable, like risk.
+    """
+    prov: dict[str, set] = {nid: set() for nid in graph.nodes}
+    for e in graph.edges.values():
+        if e.type != "LOCATED_AT" or e.creation_method != "EXTRACTED":
+            continue
+        rid = e.provenance
+        if not rid or rid.startswith("co-mention"):
+            continue
+        for nid in (e.source, e.target):
+            prov.setdefault(nid, set()).add(rid)
+    return {nid: len(p) for nid, p in prov.items() if nid in graph.nodes}
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     if not (BENCH_DIR / "mentions.jsonl").exists():
@@ -452,8 +475,11 @@ def api_entities(type: str = "PERSON", limit: int = 20) -> list[dict]:
     """
     g, risk = STATE["graph"], STATE["risk"]
     inf = _compute_influence(g)
+    firs = _compute_fir_involvements(g)
     ents = [{"id": n.id, "label": n.label, "type": n.type, "risk": risk.get(n.id),
-             "influence": inf.get(n.id), "layers": sorted(n.layers), "meta": n.meta}
+             "influence": inf.get(n.id), "fir_count": firs.get(n.id, 0),
+             "repeat_offender": firs.get(n.id, 0) >= 2,
+             "layers": sorted(n.layers), "meta": n.meta}
             for n in g.nodes.values() if n.type == type]
     ents.sort(key=lambda e: ((e["risk"] is not None, e["risk"] or 0), e["influence"] or 0),
               reverse=True)

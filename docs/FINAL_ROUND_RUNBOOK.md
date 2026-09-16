@@ -174,7 +174,7 @@ Backup line: `any suspicious activity` → "7 analytical anomalies on file. Top:
 
 ---
 
-## 3. Judge Q&A — 7 core answers (rehearse verbatim)
+## 3. Judge Q&A — 9 core answers (rehearse verbatim)
 
 **Q1: "Where is the AI in this?"**
 > "Three layers. (1) The rules engine is deterministic — 6 CWE classes, no neural,
@@ -232,6 +232,25 @@ Backup line: `any suspicious activity` → "7 analytical anomalies on file. Top:
 > factor for cross-layer reach (communication + financial + spatial). It's audited
 > against the same graph the report shows, and the workbench badges the top-3 hubs
 > with a ★. It's a lead-finder for investigation, not a verdict."
+
+**Q8: "How do you spot repeat offenders — the history-sheet criminals?"**
+> "Every resolved person carries a **repeat-involvement signal**: the number of
+> *distinct FIRs* that name them (their LOCATED_AT edge provenance). ≥2 FIRs flips
+> a deterministic `repeat_offender` flag — e.g. Nehaa Kumaar '3 FIRs', Sunita Das
+> '2 FIRs' — shown right in the entity list. It's a *history-sheet lead* for the
+> investigating officer, not a determination of guilt, and it stays honest: it
+> counts only FIRs actually in the vault's graph."
+
+**Q9: "How will the government actually get data — especially social media?"**
+> "We ingest only what is **lawfully obtained** — we do not scrape anything.
+> Live adapters: FIR, CDR, financial transactions, spatial. Eventually:
+> CDR arrives via a lawful request under the Telegraph Act / BNSS; financial
+> trails via banks under PMLA-aligned requests; **social-media data comes only
+> through the legal channel the IT Act provides** — a court-ordered / direction
+> based request to the platform, which returns account metadata we then run
+> through the *same* extract → link → graph pipeline. The legal boundary is the
+> architecture: each district keeps its own records, and protected data unmasks
+> only behind the warrant gate. No scraped feed, no foreign cloud."
 
 ---
 

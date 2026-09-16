@@ -93,6 +93,11 @@ export default function QueryRail({
                     <span className="flex items-center gap-1 font-mono text-[8px] uppercase tracking-wider text-slate-600">
                       <span>{e.type.toLowerCase()}</span>
                       {isVictim && <span className="text-purple-400"> · shielded</span>}
+                      {e.repeat_offender && (
+                        <span className="text-orange-400">
+                          · repeat · {e.fir_count} FIRs
+                        </span>
+                      )}
                       {isHub && (
                         <span className="text-amber-400">· influence hub ★</span>
                       )}

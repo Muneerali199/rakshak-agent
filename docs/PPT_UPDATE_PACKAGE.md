@@ -110,6 +110,9 @@ impossible. So we did what UPI did for banks and DEPA did for data sharing."*
   claim cites its edges. Zero LLM in the serving path.
 - Three tamper-evident hash-chained ledgers: human reviews, warrant events, mesh exchanges.
 - RakshakAI (14B, published on Hugging Face) secures the platform's own code.
+- **Lawful intake only — we never scrape.** Social-media / CDR / financial data enter via
+  the legal channels (IT Act request, Telegraph Act / BNSS, PMLA-aligned) and flow through
+  the *same* extract → link → graph pipeline. The legal boundary *is* the mesh.
 
 **Speaker note:** point at the diagram — *"The gateway is the NPCI switch. It stores
 receipts, never case data. Delhi, Mumbai, Jaipur each keep their own graph."*
@@ -180,6 +183,12 @@ log and a blindspot honesty score."*
   the next FIR; victims are shielded, never profiled.
 - Investigating officers: days of cross-district correspondence collapse to one signed query.
 - Courts & auditors: every claim traceable to a hash-verified source row.
+
+**NEW (Phase 6) — repeat-offender line to add to the stats:**
+- *"Repeat-involvement signal: every suspect carries their **distinct-FIR count** —
+  ≥2 flags a history-sheet lead (`Nehaa Kumaar · 3 FIRs`), deterministic and
+  audit-able, so officers find the serial offender, not just the well-connected one."*
+- Screenshot: `repeat-offender-live.png` (in repo root) shows the badge in the entity list.
 
 ---
 

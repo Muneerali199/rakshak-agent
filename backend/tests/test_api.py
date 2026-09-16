@@ -97,6 +97,20 @@ def test_health():
         assert h["status"] == "ok" and h["nodes"] > 0 and h["edges"] > 0
 
 
+def test_repeat_offender_signal():
+    """Every PERSON carries fir_count + repeat_offender; the repeat flag is on
+    whenever a person is linked to ≥2 distinct FIR documents (history-sheet lead)."""
+    with _client() as c:
+        ents = c.get("/api/entities", params={"type": "PERSON"}).json()
+        assert ents, "expected some person entities"
+        for e in ents:
+            assert "fir_count" in e and "repeat_offender" in e
+            assert e["fir_count"] >= 0
+            assert e["repeat_offender"] == (e["fir_count"] >= 2)
+        repeats = [e for e in ents if e["repeat_offender"]]
+        assert repeats, "seed-42 should contain at least one repeat-involved person"
+
+
 if __name__ == "__main__":
     import traceback
 

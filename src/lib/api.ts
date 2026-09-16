@@ -100,6 +100,8 @@ export interface EntitySummary {
   type: NodeType
   risk: number | null
   influence: number | null
+  fir_count: number
+  repeat_offender: boolean
   layers: LayerName[]
   meta: Record<string, unknown>
 }
