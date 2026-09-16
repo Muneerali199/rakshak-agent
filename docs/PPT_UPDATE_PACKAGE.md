@@ -3,6 +3,10 @@
 >Everything needed to rebuild `Venom_Rakshak-ai.pdf` into a winner-pattern deck:
 >slide-by-slide copy-paste content, which generated diagram goes where, and speaker notes.
 >
+>**NEWER + VERIFIED:** `PPT_CHANGELOG.md` is the exact what-to-edit-now list, checked
+>against the actual 14 Sep deck file (per-slide status + missing Phase 1–6 items).
+>Use the CHANGELOG first for the edit pass, this package for the full rebuild content.
+>
 >**Benchmarked against two SIH 2025 winning decks** (`sih winner ppt 2025.pdf` — Raksha-Setu,
 >PS 25184 and `sih winning ppt.pdf` — EcoWipe, PS 25070) + the official `SIH2026-IDEA-Presentation-Format`.
 
