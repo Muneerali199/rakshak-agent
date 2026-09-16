@@ -24,7 +24,8 @@ from api.ingest import extract_entities     # noqa: E402
 
 SAMPLE = ("दिनांक 12/04/2026 को शिकायतकर्ता Sunita Devi ने बताया कि Ramesh Kumar ने "
           "उसे +91-8044997278 से धमकी भरा कॉल किया। संदिग्ध का वाहन UP78 GC 4978 देखा गया। "
-          "पैसे खाता AC7234309805 में ट्रांसफर हुए। धारा 354D लगाई गई।")
+          "पैसे खाता AC7234309805 में ट्रांसफर हुए। धारा 354D लगाई गई। संदिग्ध का संबंध "
+          "Desi Traders Pvt Ltd कंपनी से बताया गया और वह करोल बाग मार्केट में रुका हुआ देखा गया।")
 
 
 class _Client:
@@ -68,6 +69,32 @@ def test_ner_extracts_indian_identifiers_with_spans():
         if e.span != (0, 0):
             assert e.surface in SAMPLE[e.span[0]:e.span[1] + 2] or \
                    SAMPLE[e.span[0]:e.span[1]] in e.surface
+
+
+def test_ner_extracts_organizations_and_locations():
+    ents = extract_entities(SAMPLE)
+    by_kind = {}
+    for e in ents:
+        by_kind.setdefault(e.kind, []).append(e)
+    org = {e.surface for e in by_kind.get("ORGANIZATION", [])}
+    loc = {e.surface for e in by_kind.get("LOCATION", [])}
+    assert org == {"Desi Traders Pvt Ltd"}             # suffix-driven company phrase
+    assert loc == {"करोल बाग मार्केट"}                  # Devanagari place marker
+    # organisation/location tokens never double-extract as persons
+    for e in ents:
+        assert not (e.kind == "PERSON" and e.surface in
+                    ("Desi", "Traders", "Pvt", "Ltd", "करोल बाग", "मार्केट"))
+
+
+def test_ner_location_noise_guards():
+    assert {e.surface for e in extract_entities(
+        "They met at Karol Bagh Road near Kumar Traders.")} == \
+        {"Karol Bagh Road", "Kumar Traders"}
+    assert {e.surface for e in extract_entities(
+        "Stolen from Sector 22 market at evening.")} == {"Sector 22"}
+    # the "नगर" tail of a larger word must not become a location
+    assert not any(e.kind == "LOCATION" for e in
+                   extract_entities("वह पटनागर में रहता है।"))
 
 
 def test_ner_anti_noise_rules():

@@ -64,8 +64,8 @@ export default function QueryBar({
 
           {res.results.length > 0 && (
             <ul className="mt-2 space-y-1 border-t border-zinc-800 pt-2">
-              {res.results.map((r) => (
-                <li key={r.edge_id}>
+              {res.results.map((r, i) => (
+                <li key={`${r.edge_id}-${i}`}>
                   <button onClick={() => onResult(r.focus_entity_id, r.edge_id)}
                           className="flex w-full items-center justify-between gap-3 rounded px-2 py-1.5 text-left hover:bg-white/[0.04]">
                     <span className="min-w-0 truncate font-mono text-[10px] text-zinc-300">{r.claim}</span>

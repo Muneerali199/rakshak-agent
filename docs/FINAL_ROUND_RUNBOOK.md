@@ -88,8 +88,14 @@ Fill:
 - Complainant: `Sunita Devi`
 - Accused: `Ramesh Kumar`
 
-Click **Ingest into case graph** → `✓ merged · 116 nodes · 250 edges`
+Click **Ingest into case graph** → `✓ merged · 119 nodes · 254 edges`
 Point at: `Victim-shield applied`, `No cross-case collisions`
+
+> Load-sample already demonstrates **7 entity kinds** highlighted inline:
+> person (name fields), phone, bank account, vehicle, IPC section, plus the two
+> Phase-6 additions — an **organization** (`Desi Traders Pvt Ltd`, Landmark icon)
+> and a **Devanagari location** (`करोल बाग मार्केट`, MapPin icon). Both become
+> graph nodes (Organization → pink, Location → amber) linked to the accused.
 
 ### 2d. Report page (30 sec)
 
@@ -105,36 +111,54 @@ Open tab C (`/report/AC:AC0076617711`):
 
 ### 2e. Scanner (1 min)
 
-Open tab B (`/scanner`). Click **Scan with RakshakAI**.
+Open tab B (`/scanner`). The scan **auto-runs on page load** — pipeline
+animates ("enumerating lines" → "verdict"), then a clean result renders with a
+green chip **`● rules engine · fully offline`**.
 
 - Engine: `rules` (deterministic, primary)
 - Findings: 4 — CWE-89 SQLi (CRITICAL ×2), CWE-78 OS injection (CRITICAL), CWE-798 hardcoded credential (HIGH)
-- HITL disclaimer visible
+- HITL disclaimer visible alongside an honest note: "no model call, no internet, nothing leaves your machine"
+- A **Re-scan** button re-runs it live on demand.
 
 > "The platform scans its own code before every deploy.
-> Deterministic rules are the gate; the 14B model is advisory, never blocking."
+> Deterministic rules are the gate; the 14B model is advisory, never blocking.
+> This scanner runs entirely on this machine — nothing leaves it."
 
 If 14B endpoint available (`RAKSHAK_AI_URL` set): toggle `--model` to show advisory findings appearing alongside rules findings.
 
 ### 2f. CLI gate (1 min) — run from terminal
 
+**One command from anywhere** (repo-root `scan.sh` — cd's into `backend`, runs
+unbuffered so watch output streams live):
+
 ```bash
-cd backend
-
-# PASS — baseline clean
-python3 scripts/scan_repo.py . --baseline scan_baseline.json
-# → gate: PASS (0 new findings)
-
-# Plant a SQLi
-echo 'x = f"SELECT * FROM t WHERE id={uid}"' > /tmp/_sqli_test.py
-
-# FAIL
-python3 scripts/scan_repo.py /tmp/_sqli_test.py --baseline scan_baseline.json
-# → gate: FAIL (1 new CRITICAL)
-
-# Restore
-rm /tmp/_sqli_test.py
+./scan.sh            # == python3 -u backend/scripts/scan_repo.py . --baseline backend/scan_baseline.json
+# PASS — baseline clean → gate: PASS (11 known · 0 new) · exit 0
 ```
+
+Exit codes: `0` PASS · `1` FAIL (new finding ≥ CRITICAL) · `2` error.
+
+**Offline 3-step proof (`scan_demo.sh`, ~1 s, zero typing)** — plant → FAIL →
+restore, all automated:
+
+```bash
+./scan_demo.sh
+# 1 clean PASS → 2 planted SQLi FAIL (exit 1, NEW CRITICAL RA-CWE-89-001) → 3 removed PASS (exit 0)
+```
+
+**Live watch (30 sec) — the best "code is secure" proof:**
+
+```bash
+./scan.sh --watch
+```
+
+In a second terminal, plant a SQLi inside the repo scope, watch the gate flip
+to FAIL live, then delete it and watch PASS return — all caught 0.8s after save,
+with the same rules + baseline as the CI job. Stop with Ctrl-C. (Reference
+output: `watch-demo-cycle.log` at the repo root.)
+
+> "The platform scans its own code continuously. Deterministic rules are the
+> gate; save a new SQLi and the terminal turns red before you commit."
 
 ### 2g. Ask-box (30 sec)
 
@@ -150,14 +174,21 @@ Backup line: `any suspicious activity` → "7 analytical anomalies on file. Top:
 
 ---
 
-## 3. Judge Q&A — 5 core answers (rehearse verbatim)
+## 3. Judge Q&A — 7 core answers (rehearse verbatim)
 
 **Q1: "Where is the AI in this?"**
 > "Three layers. (1) The rules engine is deterministic — 6 CWE classes, no neural,
 > failsafe on boot. (2) The 14B advisory auditor classifies CWE types, never blocking.
-> (3) IndicXlit transliterates 21 Indic languages offline — 11M params, ~274 MB,
-> runs on district hardware. The resolution engine is deliberately deterministic
+> (3) Transliteration runs fully on the box for cross-script names — IndicXlit
+> (AI4Bharat, 11M params, 21 Indic languages) when the neural export is installed;
+> this demo box uses the built-in rule romanizer, disclosed via the same switch, and
+> either way no cloud call. The resolution engine is deliberately deterministic
 > because identity merges are irreversible — we prioritise explainability over accuracy."
+
+> NOTE to narrator: say **exactly** what `engine_name()` returns. On this box it is
+> `builtin-rule-romanizer`. Do NOT claim live neural IndicXlit — a judge can test
+> `python3 -c "from resolve.indic_xlit import engine_name; print(engine_name())"`,
+> so the spoken claim must match stdout.
 
 **Q2: "F1 0.9935 — isn't that too good? What's the trick?"**
 > "Honest answer: we generated the benchmark ourselves with planted ground truth.
@@ -184,6 +215,23 @@ Backup line: `any suspicious activity` → "7 analytical anomalies on file. Top:
 > IO requests → SP countersigns (four-eyes principle) → hash-chained audit trail.
 > Local processing only; no data leaves the district data centre. Synthetic data
 > only for prototype — real-data pilot requires DPA/District Magistrate approval."
+
+**Q6: "Which data sources do you actually ingest?"**
+> "Live adapters today: FIR narratives, CDR, financial transactions, and spatial
+> (station/police-post). That's the ps-6 subset we wired end-to-end — every source
+> runs through the same extract → link → graph pipeline. Social-media, criminal
+> history, and intel-report adapters are Phase 5: the schema is in place, same
+> ingest contract, but we don't fake a source on an offline demo box."
+> "Entity reach now spans 7 kinds from live text: person, phone, bank account,
+> vehicle, IPC section, organization, and location — organizations ('Desi Traders
+> Pvt Ltd') and Devanagari places ('करोल बाग मार्केट') are regex-extracted with
+> source-span citations, the same evidence-grounding contract as phones."
+
+**Q7: "How do you find the key person — the influencer — in a network?"**
+> "A deterministic hub score, not a model: distinct neighbours × a layer-breadth
+> factor for cross-layer reach (communication + financial + spatial). It's audited
+> against the same graph the report shows, and the workbench badges the top-3 hubs
+> with a ★. It's a lead-finder for investigation, not a verdict."
 
 ---
 
@@ -216,6 +264,7 @@ Backup line: `any suspicious activity` → "7 analytical anomalies on file. Top:
 | UI not loading | `VITE_API_URL=http://localhost:8001 npm run dev` from `app/` root |
 | CLI gate shows FAIL on reset code | Run `python3 scripts/scan_repo.py . --write-baseline scan_baseline.json` to re-baseline after any code change |
 | Judge asks "show me the 14B model running" | Narrator: "The 14B endpoint is not configured for this demo; the rules engine is the primary gate. The model is advisory and non-blocking." Do NOT improvise a model call. |
+| Judge asks "show me neural IndicXlit" | Narrator: "Transliteration here is the built-in rule romanizer — `engine_name()` shows it. The IndicXlit neural export needs the AI4Bharat toolkit and isn't installed on this box." Do NOT claim it is. |
 | Manifest shows `changed: true` | Expected after code edits. First boot always shows `changed: true`. After second boot with no code changes, it returns `changed: false`. |
 | Ask-box refuses your question | Expected. Reframed: "Notice it refused — it won't hallucinate an answer. This is by design." |
 
@@ -232,7 +281,7 @@ Backup line: `any suspicious activity` → "7 analytical anomalies on file. Top:
 | Bursts P / R | P 0% / R — (delhi, no bursts planted) | Honest |
 | Scanner findings (self-scan) | 11 known, 2 CRITICAL | scan_baseline.json |
 | 14B model | Qwen2.5-Coder-14B + LoRA, temp 0 | HuggingFace card |
-| IndicXlit | 11M params, ~274 MB, 21 Indic languages | Web verified |
+| Transliteration live on demo box | builtin-rule-romanizer (`engine_name()`) — neural IndicXlit export not installed | resolve/indic_xlit.py |
 | Review records post-demo | hash-chained, `ok: true` | /api/reviews/verify |
 | Warrant records post-demo | hash-chained, `ok: true` | /api/warrants/verify |
 

@@ -8,7 +8,7 @@ export type Decision = 'MATCH' | 'UNCERTAIN' | 'NON_MATCH'
 export type LayerName = 'communication' | 'financial' | 'spatial'
 export type CreationMethod = 'EXTRACTED' | 'INFERRED'
 export type ReviewStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED'
-export type NodeType = 'PERSON' | 'PHONE' | 'ACCOUNT' | 'LOCATION' | 'VEHICLE'
+export type NodeType = 'PERSON' | 'PHONE' | 'ACCOUNT' | 'LOCATION' | 'VEHICLE' | 'ORGANIZATION'
 
 export interface FeatureBreakdown {
   identifier: number | null
@@ -99,6 +99,7 @@ export interface EntitySummary {
   label: string
   type: NodeType
   risk: number | null
+  influence: number | null
   layers: LayerName[]
   meta: Record<string, unknown>
 }

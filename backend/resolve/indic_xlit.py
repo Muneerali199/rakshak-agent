@@ -2,13 +2,14 @@
 
 The production path for cross-script name matching: AI4Bharat's IndicXlit model
 (``ai4bharat/IndicXlit``, 11 Indic scripts ↔ Latin, open-source, runs fully
-offline once downloaded — no API key, no cloud call, MeghRaj-ready).
+offline) — when a ``transformers``-loadable IndicXlit export is available
+locally, transliteration is neural.
 
-Design rule — **zero new hard dependencies**: the core stays stdlib-only and the
-demo stays air-gapped. If ``transformers`` + a locally cached IndicXlit model are
-present, transliteration is neural; otherwise the built-in rule-based romanizer
-(:func:`resolve.normalize.transliterate`) runs instead, and :func:`engine_name`
-discloses exactly which engine answered. Nothing here ever phones home.
+Reality on this box: no neural export is installed (the upstream repo ships a
+Fairseq checkpoint, not ``transformers`` artifacts), so the built-in rule-based
+romanizer (:func:`resolve.normalize.transliterate`) answers, and
+:func:`engine_name` discloses exactly which engine answered. The neural path
+never phones home and never blocks matching when it is absent.
 """
 from __future__ import annotations
 

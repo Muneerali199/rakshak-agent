@@ -8,12 +8,23 @@ import { useMemo, useState } from 'react'
 import {
   FilePlus2, Loader2, AlertTriangle, Shield, ArrowRight,
   Phone, Building2, Car, User, Scale, X, Network, BadgeCheck, BadgeX,
+  MapPin, Landmark,
 } from 'lucide-react'
 import {
   api, ApiError, type ExtractedEntityOut, type IngestResponse,
 } from '@/lib/api'
 
-const SAMPLE = 'दिनांक 12/04/2026 को शिकायतकर्ता Sunita Devi ने बताया कि Ramesh Kumar ने उसे +91-8044997278 से धमकी भरा कॉल किया। संदिग्ध का वाहन UP78 GC 4978 देखा गया। पैसे खाता AC7234309805 में ट्रांसफर हुए। धारा 354D लगाई गई।'
+const DEFAULT_COMPLAINANT = 'Sunita Devi'
+const DEFAULT_ACCUSED = 'Ramesh Kumar'
+
+const narrativeDate = () => {
+  const d = new Date()
+  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`
+}
+
+const todayISO = () => new Date().toLocaleDateString('en-CA')
+
+const SAMPLE = `दिनांक ${narrativeDate()} को शिकायतकर्ता ${DEFAULT_COMPLAINANT} ने बताया कि ${DEFAULT_ACCUSED} ने उसे +91-8044997278 से धमकी भरा कॉल किया। संदिग्ध का वाहन UP78 GC 4978 देखा गया। पैसे खाता AC7234309805 में ट्रांसफर हुए। धारा 354D लगाई गई। संदिग्ध का संबंध Desi Traders Pvt Ltd कंपनी से बताया गया और वह करोल बाग मार्केट में रुका हुआ देखा गया।`
 
 const KIND_STYLE: Record<string, { color: string; bg: string; label: string }> = {
   PERSON: { color: '#7dd3fc', bg: 'rgba(125,211,252,0.12)', label: 'Person' },
@@ -21,10 +32,13 @@ const KIND_STYLE: Record<string, { color: string; bg: string; label: string }> =
   ACCOUNT: { color: '#34d399', bg: 'rgba(52,211,153,0.12)', label: 'Account' },
   VEHICLE: { color: '#c084fc', bg: 'rgba(192,132,252,0.12)', label: 'Vehicle' },
   IPC: { color: '#fbbf24', bg: 'rgba(251,191,36,0.12)', label: 'IPC' },
+  ORGANIZATION: { color: '#f472b6', bg: 'rgba(244,114,182,0.12)', label: 'Organization' },
+  LOCATION: { color: '#4ade80', bg: 'rgba(74,222,128,0.12)', label: 'Location' },
 }
 
 const KIND_ICON: Record<string, typeof Phone> = {
   PERSON: User, PHONE: Phone, ACCOUNT: Building2, VEHICLE: Car, IPC: Scale,
+  ORGANIZATION: Landmark, LOCATION: MapPin,
 }
 
 // Render the narrative with entity spans highlighted — the "forensic" moment.
@@ -74,11 +88,31 @@ export default function FileFirPanel({
   const [narrative, setNarrative] = useState('')
   const [district, setDistrict] = useState('Delhi')
   const [station, setStation] = useState('PS Karol Bagh')
-  const [complainant, setComplainant] = useState('Sunita Devi')
-  const [accused, setAccused] = useState('Ramesh Kumar')
+  const [date, setDate] = useState(todayISO())
+  const [complainant, setComplainant] = useState(DEFAULT_COMPLAINANT)
+  const [accused, setAccused] = useState(DEFAULT_ACCUSED)
   const [busy, setBusy] = useState(false)
   const [res, setRes] = useState<IngestResponse | null>(null)
   const [err, setErr] = useState<string | null>(null)
+
+  // Field-driven narrative: swap the sample-injected names so the highlighted
+  // entities ALWAYS match what the investigator typed, not what the sample said.
+  const setComplainantAndSync = (v: string) => {
+    setComplainant(v)
+    const name = v.trim() || DEFAULT_COMPLAINANT
+    setNarrative((t) => t.split(DEFAULT_COMPLAINANT).join(name))
+  }
+  const setAccusedAndSync = (v: string) => {
+    setAccused(v)
+    const name = v.trim() || DEFAULT_ACCUSED
+    setNarrative((t) => t.split(DEFAULT_ACCUSED).join(name))
+  }
+  const loadSample = () => {
+    setNarrative(SAMPLE)
+    setComplainant(DEFAULT_COMPLAINANT)
+    setAccused(DEFAULT_ACCUSED)
+    setDate(todayISO())
+  }
 
   async function submit() {
     setBusy(true); setErr(null)
@@ -87,7 +121,7 @@ export default function FileFirPanel({
         narrative: narrative.trim(),
         district: district.trim(),
         police_station: station.trim(),
-        date: new Date().toISOString().slice(0, 10),
+        date,
         complainant_name: complainant.trim() || undefined,
         accused_names: accused.split(',').map((s) => s.trim()).filter(Boolean),
       })
@@ -135,15 +169,20 @@ export default function FileFirPanel({
                          className="w-full rounded-md border border-slate-700/50 bg-slate-900/60 px-2.5 py-1.5 text-xs text-slate-100 outline-none focus:border-cyan-400/40" />
                 </label>
                 <label className="block">
+                  <span className="mb-1 block font-mono text-[9px] uppercase tracking-wider text-slate-500">FIR date</span>
+                  <input type="date" value={date} onChange={(e) => setDate(e.target.value)}
+                         className="w-full rounded-md border border-slate-700/50 bg-slate-900/60 px-2.5 py-1.5 text-xs text-slate-100 outline-none focus:border-cyan-400/40 [color-scheme:dark]" />
+                </label>
+                <label className="block">
                   <span className="mb-1 flex items-center gap-1 font-mono text-[9px] uppercase tracking-wider text-slate-500">
                     <Shield size={9} className="text-purple-400" /> Complainant (shielded)
                   </span>
-                  <input value={complainant} onChange={(e) => setComplainant(e.target.value)}
-                         className="w-full rounded-md border border-purple-400/30 bg-slate-900/60 px-2.5 py-1.5 text-xs text-slate-100 outline-none focus:border-purple-400/50" />
+<input value={complainant} onChange={(e) => setComplainantAndSync(e.target.value)}
+                       className="w-full rounded-md border border-purple-400/30 bg-slate-900/60 px-2.5 py-1.5 text-xs text-slate-100 outline-none focus:border-purple-400/50" />
                 </label>
                 <label className="block">
                   <span className="mb-1 block font-mono text-[9px] uppercase tracking-wider text-slate-500">Accused (comma-sep)</span>
-                  <input value={accused} onChange={(e) => setAccused(e.target.value)}
+                  <input value={accused} onChange={(e) => setAccusedAndSync(e.target.value)}
                          className="w-full rounded-md border border-slate-700/50 bg-slate-900/60 px-2.5 py-1.5 text-xs text-slate-100 outline-none focus:border-cyan-400/40" />
                 </label>
               </div>
@@ -151,7 +190,7 @@ export default function FileFirPanel({
               <label className="block">
                 <span className="mb-1 flex items-center justify-between font-mono text-[9px] uppercase tracking-wider text-slate-500">
                   <span>FIR narrative — Hindi / English / Hinglish</span>
-                  <button onClick={() => setNarrative(SAMPLE)}
+                  <button onClick={loadSample}
                           className="text-cyan-500 transition-colors hover:text-cyan-300">
                     load sample
                   </button>

@@ -10,6 +10,15 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."          # repo root (app/)
 
+# Prefer the backend venv (3.11, has torch/transformers for neural IndicXlit);
+# fall back to system python3 when the venv isn't there. Absolute path so the
+# `(cd backend …)` subshells below keep resolving it.
+if [ -x "backend/.venv/bin/python" ]; then
+  PY="$(pwd)/backend/.venv/bin/python"
+else
+  PY="python3"
+fi
+
 LOG_DIR="backend/output/logs"
 PORTS=(8000 8001 8002 8003 8010 8011 8012 8013 3000 5173)
 
@@ -36,10 +45,10 @@ echo "▸ 2/5  wiping demo state (benchmark, vault partitions, ledgers, sentinel
 rm -rf backend/output backend/output-vaults
 
 echo "▸ 3/5  regenerating seed-42 benchmark…"
-(cd backend && python3 -m synthgen --seed 42 --out output)
+(cd backend && $PY -m synthgen --seed 42 --out output)
 
 echo "▸ 4/5  partitioning into district vaults…"
-(cd backend && python3 scripts/partition_bench.py)
+(cd backend && $PY scripts/partition_bench.py)
 
 export RAKSHAK_VAULT_SECRETS='{"delhi":"demo-delhi","mumbai":"demo-mumbai","jaipur":"demo-jaipur"}'
 
@@ -47,14 +56,14 @@ mkdir -p "$LOG_DIR"
 
 echo "▸ 5/5  booting: gateway :8000 · vaults :8001-8003 · UI :3000 → delhi vault"
 
-(cd backend && nohup python3 -m uvicorn mesh.gateway:app --port 8000 \
+(cd backend && nohup $PY -m uvicorn mesh.gateway:app --port 8000 \
    > "../$LOG_DIR/gateway.log" 2>&1 & disown)
 
 for V in delhi:8001 mumbai:8002 jaipur:8003; do
   VID="${V%%:*}"; PORT="${V##*:}"
   (cd backend && RAKSHAK_VAULT_ID="$VID" RAKSHAK_BENCH_DIR="output-vaults/$VID" \
      RAKSHAK_GATEWAY_URL="http://localhost:8000" \
-     nohup python3 -m uvicorn api.main:app --port "$PORT" \
+     nohup $PY -m uvicorn api.main:app --port "$PORT" \
      > "../$LOG_DIR/vault-$VID.log" 2>&1 & disown)
 done
 

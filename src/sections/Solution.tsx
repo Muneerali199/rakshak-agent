@@ -34,7 +34,7 @@ const MODULES = [
     title: 'RakshakAI Code Security',
     tag: 'SECURE-BY-DESIGN',
     accent: '#ff2d55',
-    desc: 'A Qwen2.5-Coder-14B model fine-tuned on CWE vulnerability data scans the platform’s own codebase — detecting weaknesses and reviewing auth logic before insecure code ever ships.',
+    desc: 'The platform scans its own code before every deploy: deterministic CWE rules gate each commit, and a Qwen2.5-Coder-14B model fine-tuned on CWE vulnerability data reviews edge cases as a non-blocking advisor — insecure code never ships.',
     points: ['CWE detection & classification', 'Dependency & auth-logic review', 'Secure-by-design, not a runtime firewall'],
   },
 ]

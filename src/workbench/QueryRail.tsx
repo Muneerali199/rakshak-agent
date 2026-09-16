@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   ShieldAlert, ChevronDown, ChevronRight, Layers, Sliders,
-  User, Search, Zap, AlertTriangle, TrendingUp, MoonStar, Shield, EyeOff,
+  User, Search, Zap, AlertTriangle, TrendingUp, MoonStar, Shield, EyeOff, Star,
 } from 'lucide-react'
 import {
   api, LAYER_COLOR, LAYER_LABEL, type AnomaliesResponse, type Anomaly,
@@ -30,6 +30,17 @@ export default function QueryRail({
   showInferred: boolean
   setShowInferred: (b: boolean) => void
 }) {
+  // Top-3 cross-layer hubs (degree × layer-breadth) — badged with a ★ so the
+  // network-relay suspect is visible at a glance (PS-6 key influencers).
+  const topHubs = useMemo(() => {
+    const withInf = entities
+      .filter((e) => (e.influence ?? 0) > 0)
+      .sort((a, b) => (b.influence ?? 0) - (a.influence ?? 0))
+      .slice(0, 3)
+      .map((e) => e.id)
+    return new Set(withInf)
+  }, [entities])
+
   return (
     <aside className="flex h-full w-80 shrink-0 flex-col gap-4 overflow-y-auto border-r border-white/5 bg-[#0a0f1c] p-3">
       <EscalationPanel onPick={onPick} />
@@ -50,6 +61,7 @@ export default function QueryRail({
             const riskPct = e.risk != null ? Math.round(e.risk * 100) : null
             const isActive = e.id === activeId
             const isVictim = (e.meta?.role as string) === 'victim'
+            const isHub = topHubs.has(e.id)
             return (
               <li key={e.id}>
                 <button
@@ -69,11 +81,21 @@ export default function QueryRail({
                       }`}
                       title={e.label}
                     >
+                      {isHub && (
+                        <Star
+                          size={10}
+                          fill="#fbbf24"
+                          className="mr-1 inline -translate-y-px text-amber-400"
+                        />
+                      )}
                       {e.label}
                     </span>
-                    <span className="font-mono text-[8px] uppercase tracking-wider text-slate-600">
-                      {e.type.toLowerCase()}
+                    <span className="flex items-center gap-1 font-mono text-[8px] uppercase tracking-wider text-slate-600">
+                      <span>{e.type.toLowerCase()}</span>
                       {isVictim && <span className="text-purple-400"> · shielded</span>}
+                      {isHub && (
+                        <span className="text-amber-400">· influence hub ★</span>
+                      )}
                     </span>
                   </div>
 

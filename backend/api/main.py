@@ -119,6 +119,28 @@ def _compute_risk(graph) -> dict:
     return {nid: round(1 / (1 + math.exp(-(len(neigh[nid]) - mean) / std)), 3) for nid in scored}
 
 
+def _compute_influence(graph) -> dict:
+    """Cross-layer hub score for PERSONs: degree × (1 + 0.25 × (breadth − 1)).
+
+    Degree (distinct neighbours) is the connectivity signal; the layer count is
+    breadth — a suspect who touches communication + financial + spatial
+    infrastructure is operationally more influential than one who only makes
+    calls (§ key-influencers, PS-6). Layers come from the node's assigned layers,
+    so the score is deterministic and auditable against the graph, like risk.
+    """
+    neigh: dict[str, set] = {nid: set() for nid in graph.nodes}
+    for e in graph.edges.values():
+        neigh[e.source].add(e.target)
+        neigh[e.target].add(e.source)
+    out: dict[str, float] = {}
+    for nid, n in graph.nodes.items():
+        if n.type != "PERSON":
+            continue
+        breadth = max(0, len(n.layers) - 1)
+        out[nid] = round(len(neigh.get(nid, set())) * (1 + 0.25 * breadth), 3)
+    return out
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     if not (BENCH_DIR / "mentions.jsonl").exists():
@@ -217,6 +239,10 @@ def _local_hit_summaries(entity_keys: list[str]) -> list[dict]:
                 nar = _re.sub(r"[^0-9A-Za-z]", "", r.get("narrative", "")).upper()
                 if value in nar:
                     record_ids.append(r["record_id"])
+        elif kind == "ORGANIZATION":
+            for r in bench.get("fir", []):
+                if value.lower() in r.get("narrative", "").lower():
+                    record_ids.append(r["record_id"])
         if record_ids:
             summaries.append({"entity_key": key, "record_count": len(record_ids),
                               "record_ids": sorted(record_ids)[:10]})
@@ -254,7 +280,7 @@ def _mesh_fanout_for_entities(entities: list[ExtractedEntity]) -> MeshFanout | N
     if not vault_config.mesh_enabled():
         return None
     keys = sorted({f"{e.kind}:{e.normalized}" for e in entities
-                   if e.kind in ("PHONE", "ACCOUNT", "VEHICLE")})
+                   if e.kind in ("PHONE", "ACCOUNT", "VEHICLE", "ORGANIZATION")})
     if not keys:
         return None
     res = mesh_client.fanout_entity_lookup(
@@ -419,12 +445,18 @@ def api_subgraph(
 
 @app.get("/api/entities")
 def api_entities(type: str = "PERSON", limit: int = 20) -> list[dict]:
-    """List entities (default PERSON) ranked by risk — a convenience for the UI/demo."""
+    """List entities (default PERSON) ranked by risk — a convenience for the UI/demo.
+
+    ``influence`` (cross-layer hub score, PERSONs only) rides along so the
+    workbench can badge classic network-relay hubs without a second round-trip.
+    """
     g, risk = STATE["graph"], STATE["risk"]
+    inf = _compute_influence(g)
     ents = [{"id": n.id, "label": n.label, "type": n.type, "risk": risk.get(n.id),
-             "layers": sorted(n.layers), "meta": n.meta}
+             "influence": inf.get(n.id), "layers": sorted(n.layers), "meta": n.meta}
             for n in g.nodes.values() if n.type == type]
-    ents.sort(key=lambda e: (e["risk"] is not None, e["risk"] or 0), reverse=True)
+    ents.sort(key=lambda e: ((e["risk"] is not None, e["risk"] or 0), e["influence"] or 0),
+              reverse=True)
     return ents[:limit]
 
 

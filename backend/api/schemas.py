@@ -72,7 +72,7 @@ class ResolveResponse(BaseModel):
 class GraphNode(BaseModel):
     id: str
     label: str
-    type: Literal["PERSON", "PHONE", "ACCOUNT", "LOCATION", "VEHICLE"]
+    type: Literal["PERSON", "PHONE", "ACCOUNT", "LOCATION", "VEHICLE", "ORGANIZATION"]
     layers: list[Layer]
     risk: float | None = Field(None, ge=0, le=1)
     meta: dict = {}

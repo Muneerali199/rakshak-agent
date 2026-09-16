@@ -1,5 +1,5 @@
 import { Handle, Position, type NodeProps } from '@xyflow/react'
-import { User, Phone, Building2, MapPin, Car, Shield } from 'lucide-react'
+import { User, Phone, Building2, MapPin, Car, Shield, Landmark } from 'lucide-react'
 import { LAYER_COLOR, type LayerName, type NodeType } from '@/lib/api'
 
 export interface EntityNodeData {
@@ -19,6 +19,7 @@ const ICON_MAP: Record<NodeType, typeof User> = {
   ACCOUNT: Building2,
   LOCATION: MapPin,
   VEHICLE: Car,
+  ORGANIZATION: Landmark,
 }
 
 const ICON_TINT: Record<NodeType, string> = {
@@ -27,6 +28,7 @@ const ICON_TINT: Record<NodeType, string> = {
   ACCOUNT: '#34d399',
   LOCATION: '#fbbf24',
   VEHICLE: '#c084fc',
+  ORGANIZATION: '#f472b6',
 }
 
 const TYPE_SUBLABEL: Record<NodeType, string> = {
@@ -35,6 +37,7 @@ const TYPE_SUBLABEL: Record<NodeType, string> = {
   ACCOUNT: 'Account',
   LOCATION: 'Location',
   VEHICLE: 'Vehicle',
+  ORGANIZATION: 'Organization',
 }
 
 export default function EntityNode({ data, selected }: NodeProps) {

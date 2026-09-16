@@ -4,7 +4,7 @@ This is the demo's core moment: an investigator pastes raw FIR narrative text
 (Hindi / English / Hinglish) and the system:
 
   1. extracts entities with regex NER (phones, bank accounts, vehicles, IPC sections,
-     names, locations) — deterministic, no LLM, fully auditable;
+     names, organizations, locations) — deterministic, no LLM, fully auditable;
   2. checks every extracted entity against the existing case graph for
      **cross-district linkage** (the same phone/account/vehicle/person appearing in
      FIRs from *other* districts — the unsolved problem of Indian policing);
@@ -51,7 +51,37 @@ _NAME_EN_RE = re.compile(r"\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,2})\b")
 _STOP_NAMES = {
     "FIR", "PS", "IPC", "BNS", "Cr", "No", "Mr", "Ms", "Mrs", "Shri", "Smt",
     "House", "Road", "Street", "Police", "Station", "District", "State",
+    "Limited", "Ltd", "Enterprises", "Trading", "Motors", "Transport",
+    "Industries", "Agencies", "Finances", "Foundation", "Trust", "Company",
+    "Market", "Bazaar", "Sector",
 }
+
+# Organisation names: a Capitalised title (1-4 words, may join with &) ending in a
+# company-form suffix. The suffix is the strong signal — "Desi Traders Pvt Ltd",
+# "SRM Enterprises", "Ratan & Sons Ltd". Persons like "Kumar Traders" are still
+# shops/godowns in an FIR context, so they legitimately classify as organisations.
+_ORG_RE = re.compile(
+    r"\b((?:[A-Z][A-Za-z0-9.'-]*)(?:\s+(?:&\s+)?[A-Z][A-Za-z0-9.'-]*){0,3}\s+"
+    r"(?:Pvt\.?\s*Ltd\.?|Limited|Ltd\.?|LLP|LLC|Inc\.?|Enterprises?|Traders?|"
+    r"Trading|Motors|Autos?|Transports?|Agencies?|Industries?|Constructions?|"
+    r"Finances?|Financiers?|Foundations?|Trust(?:ees)?|Company|& ?Co\.?))\b"
+)
+
+# Place names: a short Devanagari or English phrase ending in a place marker
+# ("करोल बाग मार्केट", "Sector 22", "Karol Bagh Road"). Markers are the strong
+# signal; the 0-2 word prefix is descriptive. Negative lookarounds stop the marker
+# from matching mid-word (e.g. the "नगर" tail of "पटनागर").
+_LOC_RE = re.compile(
+    r"(?:"
+    r"(?<![\u0900-\u097F])(?:[\u0900-\u097F]+\s+){0,2}"
+    r"(?:मार्केट|बाज़ार|बाजार|बाज़ार|मोहल्ला|इलाक़ा|इलाका|गाँव|गांव|नगर|"
+    r"कॉलोनी|कालोनी|चौक|मार्ग|सड़क)(?![\u0900-\u097F])"
+    r"|(?<![A-Za-z])(?:[A-Z][a-z]+\s+){0,2}"
+    r"(?:Market|Bazaar|Bazar|Mandi|Road|Marg|Street|Colony|Circle|Chowk|"
+    r"Village|Square)(?!\w)"
+    r"|(?<![A-Za-z])(?:Sector|सेक्टर)\s*\d+(?!\d)"
+    r")"
+)
 
 # District list for grounding (matches synthgen pools)
 _KNOWN_DISTRICTS = [
@@ -63,7 +93,7 @@ _KNOWN_DISTRICTS = [
 
 @dataclass
 class ExtractedEntity:
-    kind: str           # PERSON | PHONE | ACCOUNT | VEHICLE | IPC | LOCATION
+    kind: str           # PERSON | PHONE | ACCOUNT | VEHICLE | IPC | LOCATION | ORGANIZATION
     surface: str        # as it appears in the text
     normalized: str     # graph key form
     span: tuple[int, int]
@@ -96,6 +126,17 @@ def extract_entities(text: str) -> list[ExtractedEntity]:
         out.append(ExtractedEntity(kind=kind, surface=surface,
                                    normalized=normalized, span=span))
 
+    # organisation + location spans first so the name heuristic can skip them
+    org_spans = [m.span() for m in _ORG_RE.finditer(text)]
+    loc_spans = [m.span() for m in _LOC_RE.finditer(text)]
+
+    for m in _ORG_RE.finditer(text):
+        raw = " ".join(m.group(1).split())
+        _add("ORGANIZATION", m.group(1).strip(), raw, m.span())
+
+    for m in _LOC_RE.finditer(text):
+        _add("LOCATION", m.group(0).strip(), m.group(0).strip(), m.span())
+
     for m in _PHONE_RE.finditer(text):
         raw = m.group(1)
         _add("PHONE", m.group(0), deterministic_key("PHONE", "+91" + raw), m.span())
@@ -111,9 +152,13 @@ def extract_entities(text: str) -> list[ExtractedEntity]:
     for m in _IPC_RE.finditer(text):
         _add("IPC", m.group(0), m.group(1).upper(), m.span())
 
+    # name spans must not fall inside an organisation/location phrase
+    skip = org_spans + loc_spans
     for m in _NAME_EN_RE.finditer(text):
         name = m.group(1)
         if any(t in _STOP_NAMES for t in name.split()):
+            continue
+        if any(s <= m.start() and m.end() <= e for (s, e) in skip):
             continue
         _add("PERSON", name, name.strip().title(), m.span())
 
@@ -154,6 +199,14 @@ def find_cross_case_links(entities: list[ExtractedEntity], bench: dict,
             vkey = deterministic_key("VEHICLE", re.sub(r"[\s-]+", "", vm.group(1)).upper())
             fir_by_vehicle.setdefault(vkey, []).append(r)
 
+    # organisation names too (lower-cased, white-space-collapsed)
+    fir_by_org: dict[str, list[dict]] = {}
+    for r in bench.get("fir", []):
+        nar = r.get("narrative", "")
+        for om in _ORG_RE.finditer(nar):
+            okey = " ".join(om.group(1).split()).lower()
+            fir_by_org.setdefault(okey, []).append(r)
+
     for ent in entities:
         others: list[dict] = []
         if ent.kind == "PHONE":
@@ -166,6 +219,10 @@ def find_cross_case_links(entities: list[ExtractedEntity], bench: dict,
                                "district": "financial-layer"})
         elif ent.kind == "VEHICLE":
             for r in fir_by_vehicle.get(ent.normalized, []):
+                others.append({"record_id": r["record_id"], "source": "FIR",
+                               "district": r.get("district", "unknown")})
+        elif ent.kind == "ORGANIZATION":
+            for r in fir_by_org.get(ent.normalized.lower(), []):
                 others.append({"record_id": r["record_id"], "source": "FIR",
                                "district": r.get("district", "unknown")})
 
@@ -228,6 +285,12 @@ def merge_into_graph(graph, bench: dict, record: dict,
         elif ent.kind == "VEHICLE":
             nid = "VH:" + ent.normalized
             graph._node(nid, ent.surface, "VEHICLE", SPATIAL)
+        elif ent.kind == "ORGANIZATION":
+            nid = "OG:" + ent.normalized
+            graph._node(nid, ent.surface, "ORGANIZATION", COMMUNICATION)
+        elif ent.kind == "LOCATION":
+            nid = "LOC:" + deterministic_key("LOCATION", ent.normalized)
+            graph._node(nid, ent.surface, "LOCATION", SPATIAL)
         else:
             continue
         ent.node_id = nid
@@ -253,10 +316,16 @@ def merge_into_graph(graph, bench: dict, record: dict,
         e = graph._edge(cid, loc_id, "LOCATED_AT", ts, prov, 1.0, "EXTRACTED")
         new_edges.append({"edge_id": e.id, "type": "LOCATED_AT", "source": cid, "target": loc_id})
         for (kind, _), nid in node_of.items():
-            etype = "USES" if kind == "PHONE" else "OWNED"
-            layer = SPATIAL if kind == "VEHICLE" else None
-            e = graph._edge(cid, nid, etype, ts, prov, 0.55, "INFERRED", layer=layer)
-            new_edges.append({"edge_id": e.id, "type": etype, "source": cid, "target": nid})
+            if kind == "ORGANIZATION":
+                # company accused is linked to — colloquial but per relationship-map PS
+                e = graph._edge(cid, nid, "ASSOCIATE_OF", ts, prov, 0.6, "EXTRACTED")
+            elif kind == "LOCATION":
+                e = graph._edge(cid, nid, "LOCATED_AT", ts, prov, 1.0, "EXTRACTED")
+            else:
+                etype = "USES" if kind == "PHONE" else "OWNED"
+                layer = SPATIAL if kind == "VEHICLE" else None
+                e = graph._edge(cid, nid, etype, ts, prov, 0.55, "INFERRED", layer=layer)
+            new_edges.append({"edge_id": e.id, "type": e.type, "source": cid, "target": nid})
     if victim_id:
         e = graph._edge(victim_id, loc_id, "LOCATED_AT", ts, prov, 1.0, "EXTRACTED")
         new_edges.append({"edge_id": e.id, "type": "LOCATED_AT", "source": victim_id,

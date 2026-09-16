@@ -27,6 +27,7 @@ Usage:
   python backend/scripts/scan_repo.py . --fail-on HIGH --sarif out.sarif
   python backend/scripts/scan_repo.py . --write-baseline scan_baseline.json
   python backend/scripts/scan_repo.py . --baseline scan_baseline.json
+  python backend/scripts/scan_repo.py . --baseline scan_baseline.json --watch   # live re-scan
   python backend/scripts/scan_repo.py . --model            # opt-in 14B, non-blocking
 
 Run from the repository root so file paths in baselines/SARIF are stable.
@@ -39,6 +40,7 @@ import hashlib
 import json
 import os
 import sys
+import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -251,41 +253,14 @@ def write_baseline(path: Path, findings: list[dict]) -> None:
 
 # ──────────────────────────────── runner ────────────────────────────────────
 
-def run(argv: list[str]) -> int:
-    ap = argparse.ArgumentParser(prog="scan_repo", description=TOOL_NAME)
-    ap.add_argument("targets", nargs="+", help="files or directories to scan")
-    ap.add_argument("--ext", nargs="*", default=sorted(DEFAULT_EXTS),
-                    help="file extensions to scan (default: %(default)s)")
-    ap.add_argument("--exclude", nargs="*", default=[],
-                    help="extra path parts to exclude (on top of the defaults)")
-    ap.add_argument("--fail-on", choices=list(SEVERITY_RANK), default="CRITICAL",
-                    help="fail (exit 1) on NEW rule findings at/above this severity "
-                         "(default: %(default)s)")
-    ap.add_argument("--baseline", type=Path, help="baseline JSON — gate fails only on NEW findings")
-    ap.add_argument("--write-baseline", type=Path, metavar="PATH",
-                    help="write the current rule findings as a baseline and exit 0")
-    ap.add_argument("--json", type=Path, metavar="PATH", help="write a full JSON report")
-    ap.add_argument("--sarif", type=Path, metavar="PATH", help="write a SARIF 2.1.0 report")
-    ap.add_argument("--model", action="store_true",
-                    help="ALSO classify with the 14B model (non-blocking; uses $RAKSHAK_AI_URL)")
-    ap.add_argument("--model-url", metavar="URL",
-                    help="explicit 14B endpoint (overrides $RAKSHAK_AI_URL; enables --model)")
-    args = ap.parse_args(argv)
+def _run_gate(args: argparse.Namespace, files: list[Path],
+              banners: bool = True,
+              skipped: dict[str, int] | None = None) -> int:
+    """Scan ``files``, gate against the baseline, print the summary.
 
-    roots = [Path(t) for t in args.targets]
-    missing = [str(r) for r in roots if not r.exists()]
-    if missing:
-        print(f"error: target does not exist: {missing[0]}", file=sys.stderr)
-        return 2
-
-    exts = {e if e.startswith(".") else f".{e}" for e in args.ext}
-    exclude_parts = DEFAULT_EXCLUDE_PARTS | set(args.exclude)
-    try:
-        files, skipped = iter_files(roots, exts, exclude_parts, MAX_FILE_BYTES)
-    except OSError as exc:
-        print(f"error: {exc}", file=sys.stderr)
-        return 2
-
+    Shared by the one-shot CLI and ``--watch`` mode so the live monitor reports
+    exactly the same gate the CI job would evaluate. Returns the exit code.
+    """
     ids = rule_ids()
     use_model = bool(args.model or args.model_url)
     findings: list[dict] = []
@@ -339,7 +314,7 @@ def run(argv: list[str]) -> int:
             "endpoint_mode": endpoint_mode(use_model, args.model_url),
             "model_status": model_status,
         },
-        "files_scanned": len(files), "files_skipped": skipped,
+        "files_scanned": len(files), "files_skipped": skipped or {},
         "summary": {**by_sev, "total": len(rule_findings)},
         "baseline": ({"path": str(args.baseline), "known": baseline_known,
                       "new": len(new_findings)} if args.baseline else None),
@@ -355,19 +330,23 @@ def run(argv: list[str]) -> int:
         args.sarif.write_text(json.dumps(to_sarif(findings, len(files)), indent=2) + "\n",
                               encoding="utf-8")
 
-    # ── stdout summary ──
-    print(f"{TOOL_NAME} v{TOOL_VERSION}")
-    print("engine: rules (deterministic, primary)"
-          + (f" + rakshakai-14b (status: {model_status}, "
-             f"endpoint: {endpoint_mode(use_model, args.model_url)})"
-             if use_model else " · local-only, nothing leaves this machine"))
-    print(f"scanned {len(files)} file(s) · skipped "
-          f"{sum(skipped.values())} (excluded {skipped['excluded']}, "
-          f"binary {skipped['binary']}, oversize {skipped['oversize']})")
+    if banners:
+        print(f"{TOOL_NAME} v{TOOL_VERSION}")
+        print("engine: rules (deterministic, primary)"
+              + (f" + rakshakai-14b (status: {model_status}, "
+                 f"endpoint: {endpoint_mode(use_model, args.model_url)})"
+                 if use_model else " · local-only, nothing leaves this machine"))
+        print(f"scanned {len(files)} file(s) · skipped "
+              f"{sum((skipped or {}).values())} (excluded {(skipped or {}).get('excluded', 0)}, "
+              f"binary {(skipped or {}).get('binary', 0)}, oversize {(skipped or {}).get('oversize', 0)})")
     print(f"rule findings: {by_sev['CRITICAL']} CRITICAL · {by_sev['HIGH']} HIGH · "
           f"{by_sev['MEDIUM']} MEDIUM · {by_sev['LOW']} LOW")
-    for f in sorted(gate_hits, key=lambda x: -SEVERITY_RANK[x["severity"]])[:20]:
-        print(f"  NEW {f['severity']:<8} {f['file']}:{f['line']}  {f['rule_id']}  {f['title']}")
+    if banners:
+        for f in sorted(gate_hits, key=lambda x: -SEVERITY_RANK[x["severity"]])[:20]:
+            print(f"  NEW {f['severity']:<8} {f['file']}:{f['line']}  {f['rule_id']}  {f['title']}")
+    else:
+        for f in sorted(gate_hits, key=lambda x: -SEVERITY_RANK[x["severity"]])[:6]:
+            print(f"  NEW {f['severity']:<8} {f['file']}:{f['line']}  {f['rule_id']}  {f['title']}")
     if args.baseline:
         print(f"baseline: {baseline_known} known · {len(new_findings)} new")
     print(f"gate: {'FAIL' if gate_hits else 'PASS'} "
@@ -376,6 +355,93 @@ def run(argv: list[str]) -> int:
         print("note: model endpoint failed on some files — reported as model_error, "
               "NOT a clean scan (rules results stand; model is non-blocking)")
     return exit_code
+
+
+def run_watch(args: argparse.Namespace, roots: list[Path],
+              exts: set[str], exclude_parts: set[str]) -> int:
+    """Live watchdog — re-run the gate whenever any in-scope file changes.
+
+    Stdlib-only mtime polling (0.8s): every event re-runs the exact gate the CI
+    job uses, so a developer sees, live in their terminal, whether what they just
+    saved would pass the pipeline. Ctrl-C stops the watcher; gate failures keep
+    the watcher alive so the fix can be proven next.
+    """
+    last: dict[str, tuple[int, int]] = {}
+    print(f"{TOOL_NAME} v{TOOL_VERSION} — watching "
+          f"{', '.join(str(r) for r in roots)} (Ctrl-C to stop)")
+    try:
+        while True:
+            files, skipped = iter_files(roots, exts, exclude_parts, MAX_FILE_BYTES)
+            snap: dict[str, tuple[int, int]] = {}
+            for p in files:
+                st = p.stat()
+                snap[os.path.relpath(p)] = (st.st_mtime_ns, st.st_size)
+
+            if not last:
+                # first pass = initial snapshot: run the gate quietly, no "event"
+                last = snap
+                if files:
+                    _run_gate(args, files, banners=False)
+                time.sleep(0.8)
+                continue
+
+            changed = sorted(k for k in snap if snap[k] != last.get(k))
+            removed = sorted(k for k in last if k not in snap)
+            if changed or removed:
+                last = snap
+                if files:
+                    labels = changed + [f"removed: {k}" for k in removed]
+                    print(f"\n[{_dt.datetime.now().strftime('%H:%M:%S')}] event: "
+                          f"{', '.join(labels[:3])}" + (" …" if len(labels) > 3 else ""))
+                    _run_gate(args, files, banners=False)
+            time.sleep(0.8)
+    except KeyboardInterrupt:
+        print("\nwatch stopped — gate ran with the same rules + baseline as the CI job")
+        return 0
+
+
+def run(argv: list[str]) -> int:
+    ap = argparse.ArgumentParser(prog="scan_repo", description=TOOL_NAME)
+    ap.add_argument("targets", nargs="+", help="files or directories to scan")
+    ap.add_argument("--ext", nargs="*", default=sorted(DEFAULT_EXTS),
+                    help="file extensions to scan (default: %(default)s)")
+    ap.add_argument("--exclude", nargs="*", default=[],
+                    help="extra path parts to exclude (on top of the defaults)")
+    ap.add_argument("--fail-on", choices=list(SEVERITY_RANK), default="CRITICAL",
+                    help="fail (exit 1) on NEW rule findings at/above this severity "
+                         "(default: %(default)s)")
+    ap.add_argument("--baseline", type=Path, help="baseline JSON — gate fails only on NEW findings")
+    ap.add_argument("--write-baseline", type=Path, metavar="PATH",
+                    help="write the current rule findings as a baseline and exit 0")
+    ap.add_argument("--json", type=Path, metavar="PATH", help="write a full JSON report")
+    ap.add_argument("--sarif", type=Path, metavar="PATH", help="write a SARIF 2.1.0 report")
+    ap.add_argument("--watch", action="store_true",
+                    help="live watch mode: full gate re-run whenever any in-scope file "
+                         "changes (Ctrl-C to stop)")
+    ap.add_argument("--model", action="store_true",
+                    help="ALSO classify with the 14B model (non-blocking; uses $RAKSHAK_AI_URL)")
+    ap.add_argument("--model-url", metavar="URL",
+                    help="explicit 14B endpoint (overrides $RAKSHAK_AI_URL; enables --model)")
+    args = ap.parse_args(argv)
+
+    roots = [Path(t) for t in args.targets]
+    missing = [str(r) for r in roots if not r.exists()]
+    if missing:
+        print(f"error: target does not exist: {missing[0]}", file=sys.stderr)
+        return 2
+
+    exts = {e if e.startswith(".") else f".{e}" for e in args.ext}
+    exclude_parts = DEFAULT_EXCLUDE_PARTS | set(args.exclude)
+    try:
+        files, skipped = iter_files(roots, exts, exclude_parts, MAX_FILE_BYTES)
+    except OSError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    if args.watch:
+        return run_watch(args, roots, exts, exclude_parts)
+
+    return _run_gate(args, files, skipped=skipped)
 
 
 if __name__ == "__main__":
