@@ -176,6 +176,10 @@ Backup line: `any suspicious activity` → "7 analytical anomalies on file. Top:
 
 ## 3. Judge Q&A — 9 core answers (rehearse verbatim)
 
+> **Companion doc:** `QA_COMPETITOR_RESEARCH_CHEATSHEET.md` — competitor landscape
+> (CCTNS / ICJS / Palantir-type / IJOP / other teams), research "who did what"
+> one-liners, and 10 drill questions. Study that before the Q&A round.
+
 **Q1: "Where is the AI in this?"**
 > "Three layers. (1) The rules engine is deterministic — 6 CWE classes, no neural,
 > failsafe on boot. (2) The 14B advisory auditor classifies CWE types, never blocking.
