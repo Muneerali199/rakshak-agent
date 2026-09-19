@@ -111,3 +111,58 @@ advisory only); use "Next.js/Neo4j" anywhere as current.
 | `app/ppt-assets/01..08-*.png` | Slide 2/3/4/6 diagram fills |
 | `app/ppt-assets/technical/*.svg|png` | Slide 3 two-up (methodology + stack) |
 | regenerate anytime | `backend/.venv/bin/python ppt-assets/generate_diagrams.py` |
+
+---
+
+## 5 · GRAND FINALE AUDIT — `Venom_Rakshak-ai Grand_Final round_(1).pdf` (17 Sep 21:52)
+
+Verified slide-by-slide: PDF text layer + OCR of every embedded diagram image.
+**Score: 7.5/10 → ~9.5 with the 8 fixes below.**
+
+### Must-fix (credibility — do before uploading)
+
+1. **Slide 1: Team ID is blank** (`Team ID -`). Fill from the SIH portal. Every winner had it.
+2. **Slide 4: test count is wrong AND self-contradictory** — text layer says
+   "141 tests, all passing", the feasibility-grid image says "119/119 tests passing".
+   Actual = **142**. Make both read `142/142 tests, all passing`.
+3. **Slide 2: the 7-entity-kinds line is sitting under PROBLEM OVERVIEW** — it's a
+   feature ("Extracts 7 entity kinds live…"). Move it to KEY FEATURES as a 5th bullet.
+4. **Slide 6: "Foundation for our 6-layer graph architecture"** contradicts slide 3's
+   diagram ("communication · financial · spatial" = 3). Change to
+   "(3 live — communication · financial · spatial; 3 planned)".
+
+### Should-add (grand-finale differentiators, currently absent)
+
+5. **Slide 5: repeat-offender feature** (deck only has the NCRB hook) — add:
+   *"Every suspect carries a distinct-FIR count; ≥2 flags a history-sheet lead
+   (live: Nehaa Kumaar · 3 FIRs) — deterministic, audit-able."* + `repeat-offender-live.png`.
+6. **Slide 2 USP: key-influencer (★)** — word "influence" appears 0× in the whole deck.
+   Add: *"Key-influencer score (★) — the person bridging communication + financial +
+   spatial. A lead-finder, never a verdict."*
+7. **Slide 4 data-availability: lawful intake** — add: *"Lawful intake only — we never
+   scrape: social / CDR / financial via IT Act / BNSS / PMLA channels, same pipeline."*
+8. **Slide 6: GitHub repo link** next to the HF link:
+   `github.com/Muneerali199/rakshak-agent`.
+
+### Verify visually (OCR couldn't read)
+
+9. Slide 1 title graphic — OCR reads "SIH **2022**"; confirm it says **2026**.
+10. Slide 3 bottom strip (`s3_1`, below the flowchart) — unreadable even with
+    preprocessing; check it manually. Also ensure today's stack (Vite · React · FastAPI ·
+    stdlib core · SQLite) appears somewhere on slide 3 — the ten-steps image only names
+    "Neo4j · pgvector **scale-up**" (correctly labeled, but the *current* stack must be
+    visible too).
+11. Naming: deck uses **RAKSHAK.NET** consistently (headline + diagrams + workbench
+    screenshot). Decision doc said "Rakshak AI". Keep RAKSHAK.NET (matches repo alias
+    RAKSHAK-NET) or change everywhere — just one choice.
+
+### Confirmed good — don't touch
+
+- 6 slides = official format ✓ · problem/solution/USP/features structure ✓
+- Mesh, warrant gate, zero-LLM-in-serving-path, 3 ledgers, HITL ✓
+- 7-entity-kinds line now present (only misplaced) ✓
+- Slide 4 blindspot / no-fake-sources honesty block ✓
+- Feasibility grid = 5 types + risks→mitigations (winner pattern) ✓
+- Impact stats: 58.8L · 17,798 · 1,210/day · 55 min · 29.2% ✓
+- Prototype screenshots on slide 6 (workbench) + all 9 references incl. HF link ✓
+- Neo4j · pgvector correctly labeled "scale-up path", not current stack ✓
