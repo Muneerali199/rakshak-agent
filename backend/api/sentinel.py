@@ -56,6 +56,9 @@ ENDPOINT_LEVELS: dict[str, tuple[int, str]] = {
     "POST /api/resolve/evidence/pdf": (1, "officer session — auto-resolve uploaded PDF"),
     "GET /api/auth/status": (1, "public — auth architecture disclosure"),
     "POST /mesh/query": (3, "vault-to-vault — signed envelopes only"),
+    "POST /api/ocr/extract": (1, "officer session — offline Hindi+English OCR"),
+    "POST /api/ingest/extract": (1, "officer session — pluggable entity extractor (hybrid/indner)"),
+    "POST /api/resolve/person": (1, "officer session — deterministic person dossier"),
 }
 
 _SCHEMA = """

@@ -50,6 +50,56 @@ export interface EvidenceResolve {
   disclosure: string
 }
 
+export interface OcrResult {
+  filename?: string
+  preview: string
+  n_chars: number
+  text: string
+  lang: string
+  engine: string
+  version?: string
+  disclosure: string
+  extract?: ExtractResponse['entities']
+}
+
+export interface ExtractResponse {
+  entities: { kind: string; surface: string; normalized: string; span: [number, number] }[]
+  engine: string
+  model: string
+  disclosure: string
+  agreements?: { kind: string; surface: string }[]
+  disagreements?: { surface: string; regex: string; model: string; resolved: string }[]
+  regex_entities?: { kind: string; surface: string }[]
+  model_entities?: { kind: string; surface: string }[]
+}
+
+export interface PersonDossierFir {
+  record_id: string
+  role: string
+  district?: string
+  section?: string[]
+  age?: number
+  address?: string
+  police_station?: string
+  date?: string
+}
+export interface PersonDossier {
+  found: boolean
+  query: string
+  name?: string
+  id?: string
+  match_confidence?: number
+  aliases?: string[]
+  roles?: string[]
+  victim_shielded?: boolean
+  district?: string
+  firs?: PersonDossierFir[]
+  fir_count?: number
+  identifiers?: { phones: string[]; accounts: string[]; vehicles: string[] }
+  engine: string
+  disclosure: string
+}
+
 export interface ResolveRequest {
   name_a: string
   name_b: string
@@ -479,6 +529,47 @@ resolve: async (body: ResolveRequest): Promise<ResolveResponse> => {
     const detail = await res.json().catch(() => null)
     if (!res.ok) throw new ApiError(res.status, detail?.detail ?? `evidence pdf → ${res.status}`)
     return detail as EvidenceResolve
+  },
+  // ── OCR: offline Hindi+English text extraction from a scanned FIR ─────────
+  ocrExtract: async (file: File, auto = true): Promise<OcrResult> => {
+    const fd = new FormData()
+    fd.append('file', file)
+    const res = await fetch(`${BASE}/api/ocr/extract?auto=${auto}`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: fd,
+    })
+    const detail = (await res.json().catch(() => null)) as
+      | (OcrResult & { detail?: string })
+      | null
+    if (!res.ok) throw new ApiError(res.status, detail?.detail ?? `ocr → ${res.status}`)
+    return detail as OcrResult
+  },
+  // ── pluggable entity extractor (regex / hybrid / indner) ──────────────────
+  ingestExtract: async (text: string, engine = 'hybrid'): Promise<ExtractResponse> => {
+    const res = await fetch(`${BASE}/api/ingest/extract?engine=${engine}`, {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ text }),
+    })
+    const detail = (await res.json().catch(() => null)) as
+      | (ExtractResponse & { detail?: string })
+      | null
+    if (!res.ok) throw new ApiError(res.status, detail?.detail ?? `extract → ${res.status}`)
+    return detail as ExtractResponse
+  },
+  // ── deterministic person dossier ───────────────────────────────────────────
+  resolvePerson: async (name: string): Promise<PersonDossier> => {
+    const res = await fetch(`${BASE}/api/resolve/person`, {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ name }),
+    })
+    const detail = (await res.json().catch(() => null)) as
+      | (PersonDossier & { detail?: string })
+      | null
+    if (!res.ok) throw new ApiError(res.status, detail?.detail ?? `person dossier → ${res.status}`)
+    return detail as PersonDossier
   },
   // ── DigiLocker e-KYC officer auth ─────────────────────────────────────────
   requestOtp: async (aadhaar: string): Promise<AuthOtpResult> => {

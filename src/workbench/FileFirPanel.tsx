@@ -8,7 +8,7 @@ import { useMemo, useRef, useState } from 'react'
 import {
   FilePlus2, Loader2, AlertTriangle, Shield, ArrowRight,
   Phone, Building2, Car, User, Scale, X, Network, BadgeCheck, BadgeX,
-  MapPin, Landmark, Mic, Square, Volume2,
+  MapPin, Landmark, Mic, Square, Volume2, ScanLine,
 } from 'lucide-react'
 import {
   api, ApiError, type ExtractedEntityOut, type IngestResponse,
@@ -98,7 +98,40 @@ export default function FileFirPanel({
   const [dictating, setDictating] = useState(false)
   const [listening, setListening] = useState(false)
   const [micNote, setMicNote] = useState<string | null>(null)
+  const [scanning, setScanning] = useState(false)
+  const [scanError, setScanError] = useState<string | null>(null)
   const stopRef = useRef<() => void>(() => {})
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  // Offline OCR: scan a FIR photo/PDF, fill the narrative, auto-extract inline.
+  const onScanFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setScanning(true)
+    setScanError(null)
+    try {
+      const ocr = await api.ocrExtract(file, true)
+      if (!ocr.text.trim()) throw new Error('scan yielded no text — try a sharper photo')
+      setNarrative((prev) => {
+        const base = prev.trim()
+        return base ? `${base}\n${ocr.text.trim()}` : ocr.text.trim()
+      })
+      if (ocr.extract?.length) {
+        setRes((prev) =>
+          prev ?? ({
+            entities: ocr.extract,
+            record_id: 'preview-ocr',
+            timestamp: new Date().toISOString(),
+          } as unknown as IngestResponse))
+      }
+      setMicNote(`OCR · ${ocr.lang ?? 'hin+eng'} · ${ocr.n_chars} chars`)
+    } catch (ex) {
+      setScanError(ex instanceof Error ? ex.message : 'OCR failed')
+    } finally {
+      setScanning(false)
+    }
+  }
 
   // Field-driven narrative: swap the sample-injected names so the highlighted
   // entities ALWAYS match what the investigator typed, not what the sample said.
@@ -239,12 +272,31 @@ export default function FileFirPanel({
                               listening ? 'bg-emerald-500/15 text-emerald-400' : 'text-cyan-500 hover:bg-cyan-500/10'}`}>
                       <Volume2 size={11} /> listen
                     </button>
+                    <button onClick={() => fileRef.current?.click()}
+                            title="Scan a FIR photo / PDF — offline Hindi+English OCR"
+                            className="flex items-center gap-1 rounded px-1.5 py-0.5 text-cyan-500 transition-colors hover:bg-cyan-500/10">
+                      <ScanLine size={11} /> scan
+                    </button>
                     <button onClick={loadSample}
                             className="text-cyan-500 transition-colors hover:text-cyan-300">
                       load sample
                     </button>
                   </span>
                 </span>
+                <input ref={fileRef} type="file" accept="image/*,.pdf"
+                       className="hidden" onChange={onScanFile}
+                       title="OCR the uploaded scan into the narrative" />
+                {scanError && (
+                  <p className="mb-1 flex items-center gap-1.5 font-mono text-[9px] text-red-400">
+                    <ScanLine size={9} /> {scanError}
+                  </p>
+                )}
+                {scanning && (
+                  <p className="mb-1 flex items-center gap-1.5 font-mono text-[9px] text-cyan-400/90">
+                    {/* hold minimal text to avoid layout jump */}
+                    OCR: reading scan…
+                  </p>
+                )}
                 {micNote && (
                   <p className="mb-1 flex items-center gap-1.5 font-mono text-[9px] text-amber-400/90">
                     <Mic size={9} /> {micNote}

@@ -31,6 +31,18 @@ class EvidenceResolveIn(BaseModel):
                       examples=["Shikayatkarta Sunita Devi … संदिग्ध रमेश कुमार …"])
 
 
+class ExtractRequest(BaseModel):
+    text: str = Field(..., min_length=2, max_length=200_000,
+                      description="Narrative text to entity-extract (regex / hybrid / indner)",
+                      examples=["रमेश कुमार ने सुनीता देवी को धमकी दी, खाता AC0076617711"])
+
+
+class PersonResolveRequest(BaseModel):
+    name: str = Field(..., min_length=2, max_length=120,
+                      description="Person name in any script / spelling variant",
+                      examples=["Mohammad Arif", "मोहम्मद आरिफ़"])
+
+
 class AuthLogin(BaseModel):
     aadhaar: str = Field(..., min_length=12, max_length=12, pattern=r"^\d{12}$",
                          examples=["700011771177"])

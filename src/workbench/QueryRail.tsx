@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   ShieldAlert, ChevronDown, ChevronRight, Layers, Sliders,
   User, Search, Zap, AlertTriangle, TrendingUp, MoonStar, Shield, EyeOff, Star,
-  FileText, Upload, Loader2,
+  FileText, Upload, Loader2, Fingerprint,
 } from 'lucide-react'
 import {
   api, LAYER_COLOR, LAYER_LABEL, type AnomaliesResponse, type Anomaly,
   type BlindspotResponse, type EntitySummary, type EscalationResponse,
-  type EvidenceResolve, type LayerName, type ResolveResponse,
+  type EvidenceResolve, type LayerName, type PersonDossier, type ResolveResponse,
 } from '@/lib/api'
 
 const ALL_LAYERS: LayerName[] = ['communication', 'financial', 'spatial']
@@ -49,6 +49,7 @@ export default function QueryRail({
       {activeId && <BlindspotPanel entityId={activeId} />}
       <ResolveTester />
       <EvidenceAutoResolve />
+      <PersonDossierCard />
 
       {/* Entities by Risk */}
       <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3 backdrop-blur-md">
@@ -461,6 +462,140 @@ function EvidenceAutoResolve() {
             {res.disclosure}
           </p>
         </div>
+      )}
+    </div>
+  )
+}
+
+function PersonDossierCard() {
+  const [name, setName] = useState('')
+  const [res, setRes] = useState<PersonDossier | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+  const [open, setOpen] = useState(true)
+
+  async function run() {
+    if (name.trim().length < 2) { setErr('enter a name (any script)'); return }
+    setBusy(true); setErr(null)
+    try { setRes(await api.resolvePerson(name)) }
+    catch (e) { setErr(e instanceof Error ? e.message : 'dossier failed') }
+    finally { setBusy(false) }
+  }
+
+  return (
+    <div className="rounded-lg border border-cyan-400/15 bg-cyan-500/[0.03] p-3 backdrop-blur-md">
+      <button onClick={() => setOpen((o) => !o)}
+              className="mb-2 flex w-full items-center gap-1.5">
+        <Fingerprint size={12} className="text-cyan-400" />
+        <h3 className="font-mono text-[10px] uppercase tracking-[0.25em] text-slate-400">
+          Person dossier
+        </h3>
+        {open ? <ChevronDown size={10} className="ml-auto text-slate-600" />
+              : <ChevronRight size={10} className="ml-auto text-slate-600" />}
+      </button>
+      {open && (
+        <>
+          <div className="flex gap-1.5">
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && run()}
+              placeholder="Mohammad Arif / मोहम्मद आरिफ"
+              className="min-w-0 flex-1 rounded border border-cyan-400/20 bg-slate-900/60 px-2 py-1 text-[10px] text-slate-200 outline-none focus:border-cyan-400/40"
+            />
+            <button onClick={run} disabled={busy}
+                    className="flex items-center gap-1 rounded bg-cyan-500/10 px-2 py-1 font-mono text-[9px] text-cyan-300 transition-colors hover:bg-cyan-500/20 disabled:opacity-40">
+              {busy ? <Loader2 size={9} className="animate-spin" /> : <Zap size={9} />}
+              dossier
+            </button>
+          </div>
+          {err && (
+            <p className="mt-1.5 flex items-center gap-1 font-mono text-[8px] text-red-400">
+              <AlertTriangle size={8} /> {err}
+            </p>
+          )}
+          {res && res.found && (
+            <div className="mt-2 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="truncate font-mono text-[11px] font-semibold text-slate-200">
+                  {res.name}
+                </span>
+                <span className="shrink-0 font-mono text-[8px] text-cyan-400">
+                  match {(res.match_confidence ?? 0).toFixed(3)}
+                </span>
+              </div>
+              {res.aliases && res.aliases.length > 1 && (
+                <div className="flex flex-wrap gap-1">
+                  {res.aliases.map((a) => (
+                    <span key={a} className="rounded bg-slate-800/70 px-1 py-0.5 font-mono text-[8px] text-slate-400">
+                      {a}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="flex flex-wrap gap-1">
+                {res.roles?.map((r) => (
+                  <span key={r} className="flex items-center gap-0.5 rounded bg-cyan-500/10 px-1 py-0.5 font-mono text-[8px] text-cyan-300">
+                    <Shield size={7} /> {r}
+                  </span>
+                ))}
+                {res.victim_shielded && (
+                  <span className="flex items-center gap-0.5 rounded bg-purple-500/10 px-1 py-0.5 font-mono text-[8px] text-purple-300">
+                    <EyeOff size={7} /> victim-shielded
+                  </span>
+                )}
+              </div>
+              {res.firs && res.firs.length > 0 && (
+                <ul className="space-y-1">
+                  {res.firs.slice(0, 5).map((f) => (
+                    <li key={f.record_id}
+                        className="rounded border border-white/5 bg-white/[0.02] px-2 py-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-mono text-[9px] text-slate-300">{f.record_id}</span>
+                        <span className="font-mono text-[8px] text-amber-400/90">IPC {f.section?.join(', ')}</span>
+                      </div>
+                      <div className="mt-0.5 font-mono text-[8px] text-slate-500">
+                        {f.district} · {f.police_station ?? '—'} · {f.role}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {res.identifiers && (
+                <div className="grid grid-cols-3 gap-1.5">
+                  <div>
+                    <div className="font-mono text-[7px] uppercase text-slate-600">phones</div>
+                    <div className="truncate font-mono text-[9px] text-slate-400">
+                      {res.identifiers.phones.slice(0, 3).join(', ') || '—'}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="font-mono text-[7px] uppercase text-slate-600">accounts</div>
+                    <div className="truncate font-mono text-[9px] text-slate-400">
+                      {res.identifiers.accounts.slice(0, 3).join(', ') || '—'}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="font-mono text-[7px] uppercase text-slate-600">vehicles</div>
+                    <div className="truncate font-mono text-[9px] text-slate-400">
+                      {res.identifiers.vehicles.slice(0, 3).join(', ') || '—'}
+                    </div>
+                  </div>
+                </div>
+              )}
+              <p className="flex items-start gap-1 font-mono text-[8px] leading-relaxed text-slate-500">
+                <AlertTriangle size={8} className="mt-0.5 shrink-0 text-cyan-400/70" />
+                {res.disclosure}
+              </p>
+            </div>
+          )}
+          {res && !res.found && (
+            <p className="mt-1.5 flex items-start gap-1 font-mono text-[8px] leading-relaxed text-slate-500">
+              <AlertTriangle size={8} className="mt-0.5 shrink-0 text-amber-400/70" />
+              {res.disclosure}
+            </p>
+          )}
+        </>
       )}
     </div>
   )

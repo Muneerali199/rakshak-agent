@@ -19,6 +19,7 @@ from __future__ import annotations
 import math
 import json
 import os
+import tempfile
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from pathlib import Path
@@ -45,10 +46,11 @@ from .sentinel import (ENDPOINT_LEVELS, SentinelStore, build_manifest, check_man
 from .warrants import WarrantStore
 from mesh import client as mesh_client, protocol as mesh_protocol
 from voice import voice_status as _voice_status
+import ocr
 from .schemas import (
     AuditRecordSchema, AuthOtpRequest, AuthLogin, Decision, EscalationAlert, EscalationResponse,
-    EvidenceResolveIn, EvidenceResponse, ExtractedEntityOut, FeatureBreakdown, GraphEdge,
-    GraphNode, IngestRequest, IngestResponse, MeshFanout, MeshReceiptOut,
+    EvidenceResolveIn, EvidenceResponse, ExtractRequest, ExtractedEntityOut, FeatureBreakdown, GraphEdge,
+    GraphNode, IngestRequest, IngestResponse, MeshFanout, MeshReceiptOut, PersonResolveRequest,
     QueryResponse, ReportResponse,
     ReportRow, ResolveRequest, ResolveResponse, ReviewDecision,
     ReviewRequest, ReviewResponse, ReviewStatus, ScanRequest, ScanResponse,
@@ -62,6 +64,10 @@ BENCH_DIR = Path(os.getenv("RAKSHAK_BENCH_DIR",
 STATE: dict = {"graph": None, "bench": None, "records": {}, "risk": {}, "reviews": None,
                "anomalies": [], "anomaly_eval": None, "experiment_a": None,
                "escalation": [], "ingest_counter": 0, "warrants": None}
+
+# identity-resolution clusters are deterministic per bench directory; keep them
+# warm across restarts AND across test fixtures that mount the same dir.
+_CLUSTER_CACHE: dict = {}
 
 
 def _apply_decision(edge, decision: str, modifications: dict | None) -> None:
@@ -172,7 +178,10 @@ async def lifespan(app: FastAPI):
         from synthgen import GenConfig, generate
         generate(GenConfig(seed=42), BENCH_DIR)
     bench = load_benchmark(BENCH_DIR)
-    graph = build_graph(bench, resolve(bench)["clusters"])
+    key = str(BENCH_DIR.resolve())
+    if key not in _CLUSTER_CACHE:
+        _CLUSTER_CACHE[key] = resolve(bench)["clusters"]
+    graph = build_graph(bench, _CLUSTER_CACHE[key])
     store = ReviewStore(BENCH_DIR / "reviews.db")
     _overlay_reviews(graph, store)
     anomalies = detect_anomalies(bench)
@@ -468,6 +477,73 @@ def _evidence_resolve_text(text: str) -> dict:
         return out
     except Exception:                                       # noqa: BLE001
         raise HTTPException(500, "evidence resolution failed")
+
+
+def _ocr_status() -> dict:
+    return {"engine": ocr.ENGINE if ocr.available() else None,
+            "langs": ocr.LANGS,
+            "available": ocr.available(),
+            "disclosure": ocr._DISCLOSURE if ocr.available() else
+                          "tesseract not installed — OCR endpoint disabled (503)"}
+
+
+def _extract_status() -> dict:
+    from api.extract import engine_available
+    return {"engines": ["regex", "hybrid", "indner"],
+            "model_installed": engine_available()}
+
+
+@app.post("/api/ocr/extract", response_model=None)
+async def api_ocr_extract(request: Request, file: UploadFile | None = File(None),
+                          auto: bool = Query(False)) -> dict:
+    """Offline Hindi+English OCR (Tesseract). Optional auto entity extraction."""
+    _bearer(request, "ocr-extract", 1)
+    if file is None:
+        raise HTTPException(422, "file field (image or PDF) is required")
+    if not ocr.available():
+        raise HTTPException(503, "tesseract not available on this box")
+    suffix = Path(file.filename or "scan.png").suffix.lower()
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+        tmp.write(await file.read())
+        path = Path(tmp.name)
+    try:
+        res = ocr.extract_file_text(path)
+    except ValueError as exc:
+        raise HTTPException(415, str(exc))
+    except OSError as exc:
+        raise HTTPException(400, str(exc) or "OCR failed")
+    finally:
+        path.unlink(missing_ok=True)
+    out = {"filename": file.filename, "preview": res["text"][:300],
+           "n_chars": len(res["text"]), **res}
+    if auto:
+        out["extract"] = extract_entities(res["text"])
+    return out
+
+
+@app.post("/api/ingest/extract", response_model=None)
+def api_ingest_extract(request: Request, req: ExtractRequest,
+                       engine: str = Query("hybrid")) -> dict:
+    """Pluggable entity extractor — regex / hybrid / indner (model in backend)."""
+    _bearer(request, "ingest-extract", 1)
+    try:
+        from api.extract import run, ExtractorUnavailable
+        return run(req.text, engine)
+    except ExtractorUnavailable as exc:
+        raise HTTPException(400, str(exc))
+    except Exception:                                       # noqa: BLE001
+        raise HTTPException(500, "extractor failed")
+
+
+@app.post("/api/resolve/person", response_model=None)
+def api_resolve_person(request: Request, req: PersonResolveRequest) -> dict:
+    """Person dossier — complete cross-case profile by name (deterministic)."""
+    _bearer(request, "resolve-person", 1)
+    try:
+        from resolve.dossier import dossier
+        return dossier(STATE["graph"], STATE["bench"], req.name)
+    except Exception:                                       # noqa: BLE001
+        raise HTTPException(500, "person dossier failed")
 
 
 @app.post("/api/resolve", response_model=ResolveResponse)
@@ -1032,6 +1108,8 @@ def api_security_posture() -> dict:
         "manifest_release": (json.loads(manifest_release["report"]) if manifest_release else None),
         "auth": aauth.status() if aauth else None,
         "voice": _voice_status(),
+        "ocr": _ocr_status(),
+        "extract": _extract_status(),
         "ledgers": {
             "reviews": STATE["reviews"].verify_chain() if STATE.get("reviews") else None,
             "warrants": STATE["warrants"].verify_chain() if STATE.get("warrants") else None,
