@@ -177,6 +177,20 @@ vendors do the video game — different problem).
 > warrant gate, no Indian legal model, no FIR-centric mesh. And COPLINK proved this
 > category two decades ago — centralised. We're its privacy-first successor."
 
+**C11. "How do you verify officers / prevent impersonation? (DigiLocker e-KYC drill)"**
+> "Every write to the graph is bound to a DigiLocker e-KYC verified session,
+> delivered over API Setu — the officer's Aadhaar + OTP runs through the e-KYC
+> channel and a consent artifact is issued. Raw Aadhaar is never stored — masked
+> last-4 + an identity token — and the session token expires in 8 hours. Here's
+> the part a judge can *test*: the backend reads rank from the signed token. If we
+> log in as Inspector Malhotra (IO) and try to countersign a warrant, the API
+> returns 403 — rank ≥ 3 required. Self-approval is blocked the same way. Every
+> consent, login, denial, and logout lands in a hash-chained auth ledger."
+> **Sim creds for the judge** (synthetic): IO `officer.DEL-001` `700011771177`/`771177`;
+> SP `officer.DEL-003` — values visible in the UI and from `GET /api/auth/officers`.
+> Be explicit that the handshake is simulated offline (`bridge: digilocker-ekyc-sim`)
+> and says so; live DigiLocker/API Setu needs an API Setu agency account.
+
 ---
 
 ## Part D — Verify before quoting (do a 5-min check)

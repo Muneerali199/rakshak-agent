@@ -2,11 +2,12 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   ShieldAlert, ChevronDown, ChevronRight, Layers, Sliders,
   User, Search, Zap, AlertTriangle, TrendingUp, MoonStar, Shield, EyeOff, Star,
+  FileText, Upload, Loader2,
 } from 'lucide-react'
 import {
   api, LAYER_COLOR, LAYER_LABEL, type AnomaliesResponse, type Anomaly,
   type BlindspotResponse, type EntitySummary, type EscalationResponse,
-  type LayerName, type ResolveResponse,
+  type EvidenceResolve, type LayerName, type ResolveResponse,
 } from '@/lib/api'
 
 const ALL_LAYERS: LayerName[] = ['communication', 'financial', 'spatial']
@@ -47,6 +48,7 @@ export default function QueryRail({
       <AnomalyPanel onPick={onPick} />
       {activeId && <BlindspotPanel entityId={activeId} />}
       <ResolveTester />
+      <EvidenceAutoResolve />
 
       {/* Entities by Risk */}
       <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3 backdrop-blur-md">
@@ -322,6 +324,142 @@ function ResolveTester() {
               <AlertTriangle size={9} /> uncalibrated — treat as a lead, not a verdict
             </p>
           )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+const SAMPLE_EVIDENCE = `Statement of complainant — Sunita Devi (W/o Ramesh), S-12 GALI, BANJARA HILLS\n
+Shikayatkarta Sunita Devi ne bataya ki 12 Aug ko raat 9 baje accused Nehaa Kumaar aur Mr Mohammad Arif ne use phone par dhamkaya.\n
+फोन नंबर +91 8044997278 तथा खाता AC0076617711 का उपयोग किया गया। संदिग्ध रमेश कुमार ने मोहम्मद आरिफ़ को पैसे ट्रांसफर किए।\n
+Account citibank NRC-1000721; vehicle KA01MN2233 तेज़ रफ्तार से भागा।`
+
+const DECISION_STYLE: Record<EvidenceResolve['rows'][number]['decision'], { color: string; label: string }> = {
+  MATCH: { color: '#34d399', label: 'Match' },
+  UNCERTAIN: { color: '#fbbf24', label: 'Review' },
+  REJECT: { color: '#ef4444', label: 'Reject' },
+  NEW: { color: '#60a5fa', label: 'New' },
+}
+
+function EvidenceAutoResolve() {
+  const [text, setText] = useState('')
+  const [pdf, setPdf] = useState<File | null>(null)
+  const [res, setRes] = useState<EvidenceResolve | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+
+  async function runText() {
+    if (text.trim().length < 10) { setErr('paste the document text (min 10 chars)'); return }
+    setBusy(true); setErr(null)
+    try { setRes(await api.resolveEvidence(text)) }
+    catch (e) { setErr(e instanceof Error ? e.message : 'evidence resolve failed') }
+    finally { setBusy(false) }
+  }
+  async function runPdf() {
+    if (!pdf) { setErr('choose a PDF first'); return }
+    setBusy(true); setErr(null)
+    try { setRes(await api.resolveEvidencePdf(pdf)) }
+    catch (e) { setErr(e instanceof Error ? e.message : 'evidence pdf failed') }
+    finally { setBusy(false) }
+  }
+
+  return (
+    <div className="rounded-lg border border-violet-400/15 bg-violet-500/[0.03] p-3 backdrop-blur-md">
+      <div className="mb-2.5 flex items-center gap-1.5">
+        <FileText size={12} className="text-violet-400" />
+        <h3 className="font-mono text-[10px] uppercase tracking-[0.25em] text-slate-400">
+          Evidence · auto-resolve
+        </h3>
+      </div>
+      <textarea
+        value={text} onChange={(e) => setText(e.target.value)}
+        rows={3}
+        placeholder="Paste a document / FIR text — every person is resolved against the case graph automatically"
+        className="mb-1.5 w-full resize-y rounded-md border border-slate-700/50 bg-slate-900/60 px-2.5 py-1.5 text-[11px] leading-snug text-slate-100 outline-none transition-colors placeholder:text-slate-600 focus:border-violet-400/40"
+      />
+      <div className="mb-1.5 flex items-center gap-2">
+        <button
+          onClick={() => { setText(SAMPLE_EVIDENCE); setErr(null) }}
+          className="rounded-md border border-slate-700/50 bg-slate-900/50 px-2 py-1 font-mono text-[9px] text-slate-400 transition-colors hover:border-violet-400/40 hover:text-violet-300"
+        >
+          Load sample
+        </button>
+        <button
+          onClick={runText} disabled={busy || !text.trim()}
+          className="flex flex-1 items-center justify-center gap-1 rounded-md bg-violet-500/15 py-1.5 text-xs font-medium text-violet-300 transition-colors hover:bg-violet-500/25 disabled:opacity-50"
+        >
+          {busy ? <Loader2 size={11} className="animate-spin" /> : <Zap size={11} />}
+          Resolve text
+        </button>
+      </div>
+
+      <label className="mb-1 flex cursor-pointer items-center gap-1.5 rounded-md border border-dashed border-slate-700/60 bg-slate-900/40 px-2.5 py-2 transition-colors hover:border-violet-400/40">
+        <Upload size={11} className="text-slate-500" />
+        <span className="flex-1 truncate font-mono text-[10px] text-slate-400">
+          {pdf ? pdf.name : '…or upload a PDF (extracted server-side)'}
+        </span>
+        <input
+          type="file" accept="application/pdf,.pdf"
+          onChange={(e) => setPdf(e.target.files?.[0] ?? null)}
+          className="hidden"
+        />
+      </label>
+      {pdf && (
+        <button
+          onClick={runPdf} disabled={busy}
+          className="mb-1 flex w-full items-center justify-center gap-1 rounded-md bg-violet-500/15 py-1.5 text-xs font-medium text-violet-300 transition-colors hover:bg-violet-500/25 disabled:opacity-50"
+        >
+          {busy ? <Loader2 size={11} className="animate-spin" /> : <FileText size={11} />}
+          Resolve PDF
+        </button>
+      )}
+
+      {err && <p className="mt-2 flex items-center gap-1 text-[10px] text-red-400"><AlertTriangle size={9} /> {err}</p>}
+
+      {res && (
+        <div className="mt-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="font-mono text-[10px] text-slate-400">
+              {res.count} person{res.count === 1 ? '' : 's'} · {res.candidate_count} graph candidates
+            </span>
+            <span className="rounded px-1.5 py-0.5 font-mono text-[9px] text-violet-300" style={{ border: '1px solid #a78bfa40', background: '#a78bfa10' }}>
+              {res.engine}
+            </span>
+          </div>
+          <ul className="space-y-1.5">
+            {res.rows.map((r, i) => {
+              const d = DECISION_STYLE[r.decision]
+              return (
+                <li key={i} className="rounded-md border border-slate-800 bg-slate-900/50 px-2 py-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="min-w-0 truncate font-mono text-[11px] text-slate-100" title={r.surface}>{r.surface}</span>
+                    <span className="shrink-0 rounded px-1.5 py-0.5 font-mono text-[8px] uppercase"
+                      style={{ color: d.color, border: `1px solid ${d.color}50`, background: `${d.color}12` }}>
+                      {d.label} · {(r.confidence * 100).toFixed(0)}%
+                    </span>
+                  </div>
+                  <div className="mt-1 flex items-center justify-between gap-2">
+                    <span className="min-w-0 truncate text-[10px] text-slate-400">
+                      {r.match ? `→ ${r.match.label}` : 'no graph match'}
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-mono text-[8px] text-slate-600">N {r.basis.name.toFixed(2)} · P {r.basis.phonetic.toFixed(2)}</span>
+                      {r.route_to_review && (
+                        <span className="flex items-center gap-0.5 font-mono text-[8px] text-amber-400">
+                          <Shield size={8} /> review
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+          <p className="flex items-start gap-1 font-mono text-[8px] leading-relaxed text-slate-500">
+            <AlertTriangle size={8} className="mt-0.5 shrink-0 text-amber-400/70" />
+            {res.disclosure}
+          </p>
         </div>
       )}
     </div>

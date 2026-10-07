@@ -37,9 +37,13 @@ Posture should show:
 | A | http://localhost:3000/workbench | Main workbench (live graph) |
 | B | http://localhost:3000/scanner | Scanner interactive demo |
 | C | http://localhost:3000/report/AC:AC0076617711 | Evidence report (lead anomaly) |
-| D | http://localhost:3000/report/CRAMES | Report for live-filed FIR entity |
+| D | http://localhost:3000/login | Aadhaar officer login (opens workbench) |
+| E | http://localhost:3000/report/CRAMES | Report for live-filed FIR entity |
 
-Keep tab A focused. Switch to B/C/D only when narrating.
+Keep tab A focused (already past login from setup). Switch to B/C/D/E only when narrating.
+
+> First visit to `/workbench`, `/scanner`, or a `/report` redirects to the login tab;
+> after the login step in 2c the session persists for the whole demo (8h TTL).
 
 ---
 
@@ -74,7 +78,24 @@ Add: `uncalibrated — treat as a lead, not a verdict`
 
 ### 2c. File a FIR (1 min)
 
-Click **＋ File FIR** → modal opens. Click **load sample** or paste:
+The workbench is Aadhaar-gated — every write is bound to a verified officer session.
+(First time only this session.) Tab D `http://localhost:3000/login` should already be
+open — the first run happens now:
+
+1. **Login (15 sec)** — in tab D pick **Inspector Aryan Malhotra** from the demo
+   registry (or paste `700011771177` / OTP `771177`), purpose: *workbench login*.
+   → lands on the workbench. Point at the emerald **officer pill** (name · badge · role ·
+   masked Aadhaar) in the top bar — that is the token identity the backend trusts.
+2. Click **＋ File FIR** → modal opens. Either talk or click **load sample**:
+
+> **Voice moment (30 sec, optional)**: click **🎙 dictate** next to the narrative
+> label and speak a Hindi FIR — e.g. *"रमेश कुमार ने सुनीता देवी को धमकी दी,
+> खाता AC7234309805 में पैसे ट्रांसफर हुए, वाहन UP78 GC 4978"* — the transcript lands
+> in the textarea live (on-device hi-IN). Say: *"statement → Bhashini-channel STT →
+> officer-vetted narrative → graph; nothing leaves the box (bridge
+> `bhashini-ondevice-sim`)."* Then **🔊 listen** reads it back in Hindi.
+
+or paste:
 
 ```
 रात 9:30 बजे रमेश ने सुनीता देवी को फोन किया और धमकी दी।
@@ -89,13 +110,23 @@ Fill:
 - Accused: `Ramesh Kumar`
 
 Click **Ingest into case graph** → `✓ merged · 119 nodes · 254 edges`
-Point at: `Victim-shield applied`, `No cross-case collisions`
+Point at: `Victim-shield applied`, `No cross-case collisions`, and that the FIR is now
+`filed_by` your verified officer id (server read it from the bearer token — the client
+can't spoof it).
 
 > Load-sample already demonstrates **7 entity kinds** highlighted inline:
 > person (name fields), phone, bank account, vehicle, IPC section, plus the two
 > Phase-6 additions — an **organization** (`Desi Traders Pvt Ltd`, Landmark icon)
 > and a **Devanagari location** (`करोल बाग मार्केट`, MapPin icon). Both become
 > graph nodes (Organization → pink, Location → amber) linked to the accused.
+
+**Evidence auto-resolve moment (25 sec)**: in the left rail under *Identity
+Resolution* open **Evidence · auto-resolve** → **Load sample** → **Resolve text**.
+Every person in the doc is scored against the case graph in one pass — a `MATCH`
+(exact), a `Review` row with the amber *review* shield (HITL), and the engine chip
+`builtin-rule-romanizer`. Say: *"Document in → leads out: pasting the whole FIR
+resolves every person at once instead of typing pairs; ambiguous rows never become
+links without a human."* (Officer-only — the API returns 401 unauthenticated.)
 
 ### 2d. Report page (30 sec)
 
@@ -174,7 +205,7 @@ Backup line: `any suspicious activity` → "7 analytical anomalies on file. Top:
 
 ---
 
-## 3. Judge Q&A — 9 core answers (rehearse verbatim)
+## 3. Judge Q&A — 10 core answers (rehearse verbatim)
 
 > **Companion doc:** `QA_COMPETITOR_RESEARCH_CHEATSHEET.md` — competitor landscape
 > (CCTNS / ICJS / Palantir-type / IJOP / other teams), research "who did what"
@@ -255,6 +286,24 @@ Backup line: `any suspicious activity` → "7 analytical anomalies on file. Top:
 > through the *same* extract → link → graph pipeline. The legal boundary is the
 > architecture: each district keeps its own records, and protected data unmasks
 > only behind the warrant gate. No scraped feed, no foreign cloud."
+
+**Q10: "Who uses this? How do you know a real officer is signed in?"**
+> "Every write to the graph is bound to a **DigiLocker e-KYC verified officer
+> session**, delivered over API Setu — India's government API gateway. Aadhaar +
+> OTP runs through the e-KYC channel, a consent artifact is issued, and the raw
+> Aadhaar is never stored — masked last-4 + an identity token only. Login is
+> purpose-bound and the session token expires after 8 hours. The server reads the
+> officer's rank from the token, never from the client — a judge could not
+> self-promote. A **countersigning SP officer** is still required before the
+> warrant gate opens (four-eyes), and every identity event — consent, login,
+> denial, logout — is an entry in a **hash-chained auth ledger**, tamper-detectable
+> like the others."
+>
+> Note: this box runs the handshake **offline on synthetic officers and labels it**
+> (`bridge: digilocker-ekyc-sim` in the login response and `/api/auth/status`).
+> Production calls the live DigiLocker e-KYC API through API Setu — that needs an
+> API Setu agency account, which a judging box cannot claim. If a judge asks "is
+> this real", say exactly that.
 
 ---
 

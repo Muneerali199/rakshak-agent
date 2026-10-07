@@ -1,0 +1,371 @@
+{"caller": "+918828148932", "duration_sec": 63, "receiver": "+918044997278", "record_id": "CDR-000001", "source": "CDR", "timestamp": "2026-02-12T10:57:16", "tower": "Dadar, Mumbai"}
+{"caller": "+919540515319", "duration_sec": 8, "receiver": "+918329318393", "record_id": "CDR-000002", "source": "CDR", "timestamp": "2026-02-21T08:59:35", "tower": "Salt Lake, Kolkata"}
+{"caller": "+919874296717", "duration_sec": 8, "receiver": "+918823662994", "record_id": "CDR-000003", "source": "CDR", "timestamp": "2026-03-11T10:19:58", "tower": "Salt Lake, Kolkata"}
+{"caller": "+919773782639", "duration_sec": 15, "receiver": "+919923226025", "record_id": "CDR-000004", "source": "CDR", "timestamp": "2026-02-25T22:42:02", "tower": "Hazratganj, Lucknow"}
+{"caller": "+918171870262", "duration_sec": 380, "receiver": "+916472779010", "record_id": "CDR-000005", "source": "CDR", "timestamp": "2026-01-02T21:25:35", "tower": "Dadar, Mumbai"}
+{"caller": "+919540515319", "duration_sec": 380, "receiver": "+918891783908", "record_id": "CDR-000006", "source": "CDR", "timestamp": "2026-02-14T21:25:13", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+917613750606", "duration_sec": 63, "receiver": "+919769453147", "record_id": "CDR-000007", "source": "CDR", "timestamp": "2026-02-14T19:34:28", "tower": "Gomti Nagar, Lucknow"}
+{"caller": "+919769453147", "duration_sec": 63, "receiver": "+917990916998", "record_id": "CDR-000008", "source": "CDR", "timestamp": "2026-01-22T17:30:34", "tower": "Dadar, Mumbai"}
+{"caller": "+917613750606", "duration_sec": 8, "receiver": "+916436349578", "record_id": "CDR-000009", "source": "CDR", "timestamp": "2026-01-01T18:17:06", "tower": "Aminabad, Lucknow"}
+{"caller": "+919773782639", "duration_sec": 42, "receiver": "+918160607159", "record_id": "CDR-000010", "source": "CDR", "timestamp": "2026-04-11T22:31:37", "tower": "Aminabad, Lucknow"}
+{"caller": "+917278248963", "duration_sec": 120, "receiver": "+916112805982", "record_id": "CDR-000011", "source": "CDR", "timestamp": "2026-02-11T08:12:17", "tower": "Andheri, Mumbai"}
+{"caller": "+917613750606", "duration_sec": 63, "receiver": "+917054868740", "record_id": "CDR-000012", "source": "CDR", "timestamp": "2026-03-27T00:15:42", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+919923226025", "duration_sec": 63, "receiver": "+916974395339", "record_id": "CDR-000013", "source": "CDR", "timestamp": "2026-03-20T19:50:19", "tower": "Vaishali Nagar, Jaipur"}
+{"caller": "+918171870262", "duration_sec": 42, "receiver": "+918131869993", "record_id": "CDR-000014", "source": "CDR", "timestamp": "2026-01-24T01:46:24", "tower": "Connaught Place, New Delhi"}
+{"caller": "+917003791769", "duration_sec": 380, "receiver": "+916838637940", "record_id": "CDR-000015", "source": "CDR", "timestamp": "2026-03-28T05:02:42", "tower": "Sadar Bazar, Kanpur"}
+{"caller": "+918160607159", "duration_sec": 8, "receiver": "+917292706537", "record_id": "CDR-000016", "source": "CDR", "timestamp": "2026-03-27T03:27:52", "tower": "Sadar Bazar, Kanpur"}
+{"caller": "+916883561595", "duration_sec": 8, "receiver": "+919923226025", "record_id": "CDR-000017", "source": "CDR", "timestamp": "2026-01-01T18:14:01", "tower": "Salt Lake, Kolkata"}
+{"caller": "+917613750606", "duration_sec": 15, "receiver": "+919507527354", "record_id": "CDR-000018", "source": "CDR", "timestamp": "2026-04-19T14:45:46", "tower": "Andheri, Mumbai"}
+{"caller": "+917003791769", "duration_sec": 15, "receiver": "+918868501429", "record_id": "CDR-000019", "source": "CDR", "timestamp": "2026-04-23T07:41:04", "tower": "Aminabad, Lucknow"}
+{"caller": "+916163287083", "duration_sec": 8, "receiver": "+916838637940", "record_id": "CDR-000020", "source": "CDR", "timestamp": "2026-02-24T23:42:34", "tower": "Connaught Place, New Delhi"}
+{"caller": "+919540515319", "duration_sec": 120, "receiver": "+918329318393", "record_id": "CDR-000021", "source": "CDR", "timestamp": "2026-04-25T02:16:26", "tower": "Aminabad, Lucknow"}
+{"caller": "+916838637940", "duration_sec": 42, "receiver": "+918868501429", "record_id": "CDR-000022", "source": "CDR", "timestamp": "2026-04-04T07:37:17", "tower": "Gomti Nagar, Lucknow"}
+{"caller": "+919117980893", "duration_sec": 63, "receiver": "+919758692617", "record_id": "CDR-000023", "source": "CDR", "timestamp": "2026-04-13T07:49:12", "tower": "Civil Lines, Kanpur"}
+{"caller": "+919923226025", "duration_sec": 120, "receiver": "+916883561595", "record_id": "CDR-000024", "source": "CDR", "timestamp": "2026-01-22T16:06:49", "tower": "Sadar Bazar, Kanpur"}
+{"caller": "+916561497840", "duration_sec": 120, "receiver": "+916112805982", "record_id": "CDR-000025", "source": "CDR", "timestamp": "2026-03-30T00:42:59", "tower": "Gomti Nagar, Lucknow"}
+{"caller": "+918823662994", "duration_sec": 120, "receiver": "+916805310033", "record_id": "CDR-000026", "source": "CDR", "timestamp": "2026-01-20T01:26:39", "tower": "Aminabad, Lucknow"}
+{"caller": "+917990916998", "duration_sec": 15, "receiver": "+917689980940", "record_id": "CDR-000027", "source": "CDR", "timestamp": "2026-01-17T06:28:15", "tower": "Gomti Nagar, Lucknow"}
+{"caller": "+917278248963", "duration_sec": 15, "receiver": "+917845115447", "record_id": "CDR-000028", "source": "CDR", "timestamp": "2026-04-08T21:19:38", "tower": "Aminabad, Lucknow"}
+{"caller": "+917845115447", "duration_sec": 30, "receiver": "+916034324451", "record_id": "CDR-000029", "source": "CDR", "timestamp": "2026-04-10T17:09:37", "tower": "Dadar, Mumbai"}
+{"caller": "+918828148932", "duration_sec": 42, "receiver": "+919743487347", "record_id": "CDR-000030", "source": "CDR", "timestamp": "2026-02-05T05:37:05", "tower": "Dadar, Mumbai"}
+{"caller": "+918171870262", "duration_sec": 30, "receiver": "+919540515319", "record_id": "CDR-000031", "source": "CDR", "timestamp": "2026-02-19T21:25:32", "tower": "Civil Lines, Kanpur"}
+{"caller": "+919923226025", "duration_sec": 30, "receiver": "+916436349578", "record_id": "CDR-000032", "source": "CDR", "timestamp": "2026-02-01T13:23:43", "tower": "Dadar, Mumbai"}
+{"caller": "+918868501429", "duration_sec": 15, "receiver": "+916436349578", "record_id": "CDR-000033", "source": "CDR", "timestamp": "2026-03-05T16:52:36", "tower": "Sadar Bazar, Kanpur"}
+{"caller": "+918770054119", "duration_sec": 120, "receiver": "+916472779010", "record_id": "CDR-000034", "source": "CDR", "timestamp": "2026-01-23T13:25:06", "tower": "Vaishali Nagar, Jaipur"}
+{"caller": "+919923226025", "duration_sec": 380, "receiver": "+918891783908", "record_id": "CDR-000035", "source": "CDR", "timestamp": "2026-03-05T08:05:14", "tower": "Aminabad, Lucknow"}
+{"caller": "+918801845146", "duration_sec": 30, "receiver": "+918044997278", "record_id": "CDR-000036", "source": "CDR", "timestamp": "2026-01-12T06:21:15", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+919527758416", "duration_sec": 63, "receiver": "+916586518506", "record_id": "CDR-000037", "source": "CDR", "timestamp": "2026-03-05T04:02:49", "tower": "Hazratganj, Lucknow"}
+{"caller": "+918868501429", "duration_sec": 15, "receiver": "+916838637940", "record_id": "CDR-000038", "source": "CDR", "timestamp": "2026-03-31T12:59:21", "tower": "Hazratganj, Lucknow"}
+{"caller": "+917278248963", "duration_sec": 30, "receiver": "+919874296717", "record_id": "CDR-000039", "source": "CDR", "timestamp": "2026-03-27T07:38:40", "tower": "Hazratganj, Lucknow"}
+{"caller": "+918160607159", "duration_sec": 30, "receiver": "+916883561595", "record_id": "CDR-000040", "source": "CDR", "timestamp": "2026-01-17T10:03:47", "tower": "Dadar, Mumbai"}
+{"caller": "+918131869993", "duration_sec": 380, "receiver": "+918462914865", "record_id": "CDR-000041", "source": "CDR", "timestamp": "2026-03-28T22:09:41", "tower": "Gomti Nagar, Lucknow"}
+{"caller": "+916020539502", "duration_sec": 15, "receiver": "+918329318393", "record_id": "CDR-000042", "source": "CDR", "timestamp": "2026-02-08T03:24:18", "tower": "Connaught Place, New Delhi"}
+{"caller": "+919923226025", "duration_sec": 15, "receiver": "+919773782639", "record_id": "CDR-000043", "source": "CDR", "timestamp": "2026-03-30T01:12:15", "tower": "Andheri, Mumbai"}
+{"caller": "+918171870262", "duration_sec": 120, "receiver": "+916472779010", "record_id": "CDR-000044", "source": "CDR", "timestamp": "2026-02-22T22:25:36", "tower": "Hazratganj, Lucknow"}
+{"caller": "+917292706537", "duration_sec": 42, "receiver": "+919923226025", "record_id": "CDR-000045", "source": "CDR", "timestamp": "2026-01-01T14:53:58", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+919758692617", "duration_sec": 30, "receiver": "+919117980893", "record_id": "CDR-000046", "source": "CDR", "timestamp": "2026-03-24T05:38:07", "tower": "Civil Lines, Kanpur"}
+{"caller": "+917054868740", "duration_sec": 15, "receiver": "+919773782639", "record_id": "CDR-000047", "source": "CDR", "timestamp": "2026-02-17T16:45:48", "tower": "Salt Lake, Kolkata"}
+{"caller": "+916020539502", "duration_sec": 63, "receiver": "+918329318393", "record_id": "CDR-000048", "source": "CDR", "timestamp": "2026-04-11T07:05:56", "tower": "Andheri, Mumbai"}
+{"caller": "+916883561595", "duration_sec": 15, "receiver": "+919527758416", "record_id": "CDR-000049", "source": "CDR", "timestamp": "2026-03-25T18:29:45", "tower": "Andheri, Mumbai"}
+{"caller": "+919874296717", "duration_sec": 380, "receiver": "+916883561595", "record_id": "CDR-000050", "source": "CDR", "timestamp": "2026-03-07T08:00:11", "tower": "Vaishali Nagar, Jaipur"}
+{"caller": "+917037788925", "duration_sec": 15, "receiver": "+916163287083", "record_id": "CDR-000051", "source": "CDR", "timestamp": "2026-04-10T17:49:35", "tower": "Aminabad, Lucknow"}
+{"caller": "+916161559407", "duration_sec": 42, "receiver": "+918891783908", "record_id": "CDR-000052", "source": "CDR", "timestamp": "2026-01-16T11:55:34", "tower": "Aminabad, Lucknow"}
+{"caller": "+917321819600", "duration_sec": 240, "receiver": "+919576615654", "record_id": "CDR-000053", "source": "CDR", "timestamp": "2026-01-18T02:52:23", "tower": "Civil Lines, Kanpur"}
+{"caller": "+919758692617", "duration_sec": 15, "receiver": "+917455812236", "record_id": "CDR-000054", "source": "CDR", "timestamp": "2026-03-20T12:14:41", "tower": "Salt Lake, Kolkata"}
+{"caller": "+916436349578", "duration_sec": 8, "receiver": "+917990916998", "record_id": "CDR-000055", "source": "CDR", "timestamp": "2026-02-03T03:54:15", "tower": "Hazratganj, Lucknow"}
+{"caller": "+917054868740", "duration_sec": 15, "receiver": "+916586518506", "record_id": "CDR-000056", "source": "CDR", "timestamp": "2026-03-18T20:40:37", "tower": "Sadar Bazar, Kanpur"}
+{"caller": "+917455812236", "duration_sec": 240, "receiver": "+919117980893", "record_id": "CDR-000057", "source": "CDR", "timestamp": "2026-03-10T13:39:56", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+917328120679", "duration_sec": 15, "receiver": "+919758692617", "record_id": "CDR-000058", "source": "CDR", "timestamp": "2026-04-28T05:27:53", "tower": "Aminabad, Lucknow"}
+{"caller": "+919769453147", "duration_sec": 15, "receiver": "+917689980940", "record_id": "CDR-000059", "source": "CDR", "timestamp": "2026-01-12T15:57:43", "tower": "Gomti Nagar, Lucknow"}
+{"caller": "+919758692617", "duration_sec": 120, "receiver": "+918044997278", "record_id": "CDR-000060", "source": "CDR", "timestamp": "2026-02-25T23:06:31", "tower": "Civil Lines, Kanpur"}
+{"caller": "+918131869993", "duration_sec": 42, "receiver": "+918171870262", "record_id": "CDR-000061", "source": "CDR", "timestamp": "2026-01-18T23:08:57", "tower": "Vaishali Nagar, Jaipur"}
+{"caller": "+917054868740", "duration_sec": 240, "receiver": "+917689980940", "record_id": "CDR-000062", "source": "CDR", "timestamp": "2026-03-24T13:13:53", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+918329318393", "duration_sec": 42, "receiver": "+916161559407", "record_id": "CDR-000063", "source": "CDR", "timestamp": "2026-01-20T17:54:53", "tower": "Andheri, Mumbai"}
+{"caller": "+917613750606", "duration_sec": 15, "receiver": "+919117240050", "record_id": "CDR-000064", "source": "CDR", "timestamp": "2026-01-03T16:11:50", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+916163287083", "duration_sec": 120, "receiver": "+918868501429", "record_id": "CDR-000065", "source": "CDR", "timestamp": "2026-04-19T07:53:32", "tower": "Andheri, Mumbai"}
+{"caller": "+919769453147", "duration_sec": 63, "receiver": "+917990916998", "record_id": "CDR-000066", "source": "CDR", "timestamp": "2026-02-03T06:23:35", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+918823662994", "duration_sec": 120, "receiver": "+919576615654", "record_id": "CDR-000067", "source": "CDR", "timestamp": "2026-03-05T07:11:25", "tower": "Sadar Bazar, Kanpur"}
+{"caller": "+919152809885", "duration_sec": 240, "receiver": "+917542784980", "record_id": "CDR-000068", "source": "CDR", "timestamp": "2026-04-07T22:43:03", "tower": "Vaishali Nagar, Jaipur"}
+{"caller": "+916883561595", "duration_sec": 30, "receiver": "+917003791769", "record_id": "CDR-000069", "source": "CDR", "timestamp": "2026-02-15T16:01:43", "tower": "Connaught Place, New Delhi"}
+{"caller": "+919576615654", "duration_sec": 120, "receiver": "+918823662994", "record_id": "CDR-000070", "source": "CDR", "timestamp": "2026-03-28T23:03:08", "tower": "Aminabad, Lucknow"}
+{"caller": "+916385977034", "duration_sec": 120, "receiver": "+918462914865", "record_id": "CDR-000071", "source": "CDR", "timestamp": "2026-04-14T01:43:32", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+916163287083", "duration_sec": 30, "receiver": "+919152809885", "record_id": "CDR-000072", "source": "CDR", "timestamp": "2026-01-11T08:37:23", "tower": "Civil Lines, Kanpur"}
+{"caller": "+916838637940", "duration_sec": 15, "receiver": "+919743487347", "record_id": "CDR-000073", "source": "CDR", "timestamp": "2026-02-21T01:12:19", "tower": "Civil Lines, Kanpur"}
+{"caller": "+918868501429", "duration_sec": 30, "receiver": "+917328120679", "record_id": "CDR-000074", "source": "CDR", "timestamp": "2026-02-28T22:59:28", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+919214895134", "duration_sec": 15, "receiver": "+918868501429", "record_id": "CDR-000075", "source": "CDR", "timestamp": "2026-01-07T11:38:01", "tower": "Dadar, Mumbai"}
+{"caller": "+918462914865", "duration_sec": 15, "receiver": "+918131869993", "record_id": "CDR-000076", "source": "CDR", "timestamp": "2026-01-09T18:26:30", "tower": "Dadar, Mumbai"}
+{"caller": "+916472779010", "duration_sec": 15, "receiver": "+918131869993", "record_id": "CDR-000077", "source": "CDR", "timestamp": "2026-03-13T04:56:59", "tower": "Salt Lake, Kolkata"}
+{"caller": "+916561497840", "duration_sec": 8, "receiver": "+916112805982", "record_id": "CDR-000078", "source": "CDR", "timestamp": "2026-01-08T01:38:03", "tower": "Hazratganj, Lucknow"}
+{"caller": "+919923226025", "duration_sec": 15, "receiver": "+917054868740", "record_id": "CDR-000079", "source": "CDR", "timestamp": "2026-04-21T18:45:24", "tower": "Hazratganj, Lucknow"}
+{"caller": "+918329318393", "duration_sec": 15, "receiver": "+916805310033", "record_id": "CDR-000080", "source": "CDR", "timestamp": "2026-04-29T02:27:06", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+916436349578", "duration_sec": 380, "receiver": "+919152809885", "record_id": "CDR-000081", "source": "CDR", "timestamp": "2026-03-12T02:45:43", "tower": "Sadar Bazar, Kanpur"}
+{"caller": "+917542784980", "duration_sec": 15, "receiver": "+918462914865", "record_id": "CDR-000082", "source": "CDR", "timestamp": "2026-01-11T09:15:38", "tower": "Salt Lake, Kolkata"}
+{"caller": "+919214895134", "duration_sec": 8, "receiver": "+918868501429", "record_id": "CDR-000083", "source": "CDR", "timestamp": "2026-01-17T16:43:31", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+916586518506", "duration_sec": 8, "receiver": "+917037788925", "record_id": "CDR-000084", "source": "CDR", "timestamp": "2026-02-19T12:56:22", "tower": "Gomti Nagar, Lucknow"}
+{"caller": "+919923226025", "duration_sec": 15, "receiver": "+916974395339", "record_id": "CDR-000085", "source": "CDR", "timestamp": "2026-03-19T05:06:38", "tower": "Gomti Nagar, Lucknow"}
+{"caller": "+917618324210", "duration_sec": 63, "receiver": "+917990916998", "record_id": "CDR-000086", "source": "CDR", "timestamp": "2026-02-10T05:30:41", "tower": "Dadar, Mumbai"}
+{"caller": "+918044997278", "duration_sec": 63, "receiver": "+918131869993", "record_id": "CDR-000087", "source": "CDR", "timestamp": "2026-04-27T13:48:58", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+917990916998", "duration_sec": 120, "receiver": "+916436349578", "record_id": "CDR-000088", "source": "CDR", "timestamp": "2026-04-25T23:52:27", "tower": "Civil Lines, Kanpur"}
+{"caller": "+919874296717", "duration_sec": 8, "receiver": "+917278248963", "record_id": "CDR-000089", "source": "CDR", "timestamp": "2026-04-29T17:01:35", "tower": "Hazratganj, Lucknow"}
+{"caller": "+918961586578", "duration_sec": 15, "receiver": "+918255341928", "record_id": "CDR-000090", "source": "CDR", "timestamp": "2026-04-30T04:01:27", "tower": "Andheri, Mumbai"}
+{"caller": "+916472779010", "duration_sec": 15, "receiver": "+918961586578", "record_id": "CDR-000091", "source": "CDR", "timestamp": "2026-04-27T19:30:23", "tower": "Hazratganj, Lucknow"}
+{"caller": "+918462914865", "duration_sec": 380, "receiver": "+918961586578", "record_id": "CDR-000092", "source": "CDR", "timestamp": "2026-04-11T04:29:28", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+916020539502", "duration_sec": 15, "receiver": "+917689980940", "record_id": "CDR-000093", "source": "CDR", "timestamp": "2026-01-17T12:26:37", "tower": "Hazratganj, Lucknow"}
+{"caller": "+918044997278", "duration_sec": 240, "receiver": "+917455812236", "record_id": "CDR-000094", "source": "CDR", "timestamp": "2026-04-26T23:01:39", "tower": "Connaught Place, New Delhi"}
+{"caller": "+918823662994", "duration_sec": 63, "receiver": "+919576615654", "record_id": "CDR-000095", "source": "CDR", "timestamp": "2026-03-18T18:03:03", "tower": "Salt Lake, Kolkata"}
+{"caller": "+918462914865", "duration_sec": 8, "receiver": "+917278248963", "record_id": "CDR-000096", "source": "CDR", "timestamp": "2026-02-02T03:32:33", "tower": "Gomti Nagar, Lucknow"}
+{"caller": "+919152809885", "duration_sec": 8, "receiver": "+916163287083", "record_id": "CDR-000097", "source": "CDR", "timestamp": "2026-04-23T07:39:34", "tower": "Vaishali Nagar, Jaipur"}
+{"caller": "+919527758416", "duration_sec": 380, "receiver": "+917278248963", "record_id": "CDR-000098", "source": "CDR", "timestamp": "2026-01-01T08:51:30", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+916586518506", "duration_sec": 42, "receiver": "+917037788925", "record_id": "CDR-000099", "source": "CDR", "timestamp": "2026-02-04T19:06:51", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+916112805982", "duration_sec": 30, "receiver": "+919527758416", "record_id": "CDR-000100", "source": "CDR", "timestamp": "2026-02-13T12:51:25", "tower": "Connaught Place, New Delhi"}
+{"caller": "+918961586578", "duration_sec": 15, "receiver": "+918255341928", "record_id": "CDR-000101", "source": "CDR", "timestamp": "2026-04-02T03:46:38", "tower": "Hazratganj, Lucknow"}
+{"caller": "+916561497840", "duration_sec": 15, "receiver": "+917542784980", "record_id": "CDR-000102", "source": "CDR", "timestamp": "2026-01-21T08:12:57", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+917003791769", "duration_sec": 42, "receiver": "+916805310033", "record_id": "CDR-000103", "source": "CDR", "timestamp": "2026-03-05T13:05:30", "tower": "Andheri, Mumbai"}
+{"caller": "+918801845146", "duration_sec": 380, "receiver": "+919758692617", "record_id": "CDR-000104", "source": "CDR", "timestamp": "2026-01-18T04:25:38", "tower": "Aminabad, Lucknow"}
+{"caller": "+918891783908", "duration_sec": 380, "receiver": "+918329318393", "record_id": "CDR-000105", "source": "CDR", "timestamp": "2026-03-21T09:41:22", "tower": "Hazratganj, Lucknow"}
+{"caller": "+919117240050", "duration_sec": 8, "receiver": "+917613750606", "record_id": "CDR-000106", "source": "CDR", "timestamp": "2026-04-05T08:49:48", "tower": "Andheri, Mumbai"}
+{"caller": "+918550229612", "duration_sec": 120, "receiver": "+918255341928", "record_id": "CDR-000107", "source": "CDR", "timestamp": "2026-04-27T07:04:45", "tower": "Salt Lake, Kolkata"}
+{"caller": "+919117240050", "duration_sec": 120, "receiver": "+917613750606", "record_id": "CDR-000108", "source": "CDR", "timestamp": "2026-02-17T08:42:16", "tower": "Gomti Nagar, Lucknow"}
+{"caller": "+919540515319", "duration_sec": 8, "receiver": "+918329318393", "record_id": "CDR-000109", "source": "CDR", "timestamp": "2026-04-25T08:21:28", "tower": "Sadar Bazar, Kanpur"}
+{"caller": "+918717464887", "duration_sec": 380, "receiver": "+919117980893", "record_id": "CDR-000110", "source": "CDR", "timestamp": "2026-04-20T16:34:22", "tower": "Civil Lines, Kanpur"}
+{"caller": "+919117240050", "duration_sec": 120, "receiver": "+919874296717", "record_id": "CDR-000111", "source": "CDR", "timestamp": "2026-03-20T23:57:53", "tower": "Sadar Bazar, Kanpur"}
+{"caller": "+918255341928", "duration_sec": 42, "receiver": "+919874296717", "record_id": "CDR-000112", "source": "CDR", "timestamp": "2026-04-21T13:44:56", "tower": "Hazratganj, Lucknow"}
+{"caller": "+919758692617", "duration_sec": 15, "receiver": "+918044997278", "record_id": "CDR-000113", "source": "CDR", "timestamp": "2026-03-13T02:51:08", "tower": "Connaught Place, New Delhi"}
+{"caller": "+916034324451", "duration_sec": 380, "receiver": "+917278248963", "record_id": "CDR-000114", "source": "CDR", "timestamp": "2026-04-21T10:26:37", "tower": "Dadar, Mumbai"}
+{"caller": "+916163287083", "duration_sec": 15, "receiver": "+917037788925", "record_id": "CDR-000115", "source": "CDR", "timestamp": "2026-04-29T07:57:14", "tower": "Hazratganj, Lucknow"}
+{"caller": "+916163287083", "duration_sec": 15, "receiver": "+916561497840", "record_id": "CDR-000116", "source": "CDR", "timestamp": "2026-01-01T08:11:28", "tower": "Salt Lake, Kolkata"}
+{"caller": "+916385977034", "duration_sec": 380, "receiver": "+916472779010", "record_id": "CDR-000117", "source": "CDR", "timestamp": "2026-02-10T02:24:17", "tower": "Hazratganj, Lucknow"}
+{"caller": "+916020539502", "duration_sec": 120, "receiver": "+918329318393", "record_id": "CDR-000118", "source": "CDR", "timestamp": "2026-04-05T15:22:00", "tower": "Civil Lines, Kanpur"}
+{"caller": "+916472779010", "duration_sec": 120, "receiver": "+918462914865", "record_id": "CDR-000119", "source": "CDR", "timestamp": "2026-04-07T05:59:33", "tower": "Dadar, Mumbai"}
+{"caller": "+919773782639", "duration_sec": 120, "receiver": "+916974395339", "record_id": "CDR-000120", "source": "CDR", "timestamp": "2026-01-23T19:24:25", "tower": "Gomti Nagar, Lucknow"}
+{"caller": "+918160607159", "duration_sec": 63, "receiver": "+916112805982", "record_id": "CDR-000121", "source": "CDR", "timestamp": "2026-03-10T16:13:08", "tower": "Vaishali Nagar, Jaipur"}
+{"caller": "+916472779010", "duration_sec": 42, "receiver": "+918131869993", "record_id": "CDR-000122", "source": "CDR", "timestamp": "2026-03-14T19:36:51", "tower": "Gomti Nagar, Lucknow"}
+{"caller": "+917542784980", "duration_sec": 120, "receiver": "+916586518506", "record_id": "CDR-000123", "source": "CDR", "timestamp": "2026-03-03T10:38:35", "tower": "Vaishali Nagar, Jaipur"}
+{"caller": "+917292706537", "duration_sec": 380, "receiver": "+918255341928", "record_id": "CDR-000124", "source": "CDR", "timestamp": "2026-03-25T08:22:58", "tower": "Civil Lines, Kanpur"}
+{"caller": "+919576615654", "duration_sec": 30, "receiver": "+916805310033", "record_id": "CDR-000125", "source": "CDR", "timestamp": "2026-03-03T14:54:42", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+917292706537", "duration_sec": 15, "receiver": "+916883561595", "record_id": "CDR-000126", "source": "CDR", "timestamp": "2026-03-04T19:31:18", "tower": "Civil Lines, Kanpur"}
+{"caller": "+917618324210", "duration_sec": 15, "receiver": "+918641395376", "record_id": "CDR-000127", "source": "CDR", "timestamp": "2026-02-10T06:20:34", "tower": "Aminabad, Lucknow"}
+{"caller": "+918044997278", "duration_sec": 30, "receiver": "+917455812236", "record_id": "CDR-000128", "source": "CDR", "timestamp": "2026-04-08T05:18:46", "tower": "Salt Lake, Kolkata"}
+{"caller": "+917542784980", "duration_sec": 15, "receiver": "+917037788925", "record_id": "CDR-000129", "source": "CDR", "timestamp": "2026-03-21T07:25:22", "tower": "Dadar, Mumbai"}
+{"caller": "+918891783908", "duration_sec": 120, "receiver": "+916161559407", "record_id": "CDR-000130", "source": "CDR", "timestamp": "2026-03-04T02:18:07", "tower": "Connaught Place, New Delhi"}
+{"caller": "+919874296717", "duration_sec": 15, "receiver": "+916112805982", "record_id": "CDR-000131", "source": "CDR", "timestamp": "2026-02-14T00:36:12", "tower": "Dadar, Mumbai"}
+{"caller": "+917689980940", "duration_sec": 380, "receiver": "+917990916998", "record_id": "CDR-000132", "source": "CDR", "timestamp": "2026-03-04T16:51:23", "tower": "Connaught Place, New Delhi"}
+{"caller": "+917542784980", "duration_sec": 30, "receiver": "+917037788925", "record_id": "CDR-000133", "source": "CDR", "timestamp": "2026-02-05T15:45:48", "tower": "Connaught Place, New Delhi"}
+{"caller": "+919923226025", "duration_sec": 30, "receiver": "+917292706537", "record_id": "CDR-000134", "source": "CDR", "timestamp": "2026-02-15T15:47:14", "tower": "Hazratganj, Lucknow"}
+{"caller": "+917054868740", "duration_sec": 8, "receiver": "+919152809885", "record_id": "CDR-000135", "source": "CDR", "timestamp": "2026-04-19T20:02:31", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+919117980893", "duration_sec": 42, "receiver": "+916883561595", "record_id": "CDR-000136", "source": "CDR", "timestamp": "2026-02-27T23:58:12", "tower": "Civil Lines, Kanpur"}
+{"caller": "+918171870262", "duration_sec": 63, "receiver": "+918462914865", "record_id": "CDR-000137", "source": "CDR", "timestamp": "2026-01-14T08:12:37", "tower": "Sadar Bazar, Kanpur"}
+{"caller": "+919540515319", "duration_sec": 15, "receiver": "+916020539502", "record_id": "CDR-000138", "source": "CDR", "timestamp": "2026-02-17T14:00:53", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+918891783908", "duration_sec": 15, "receiver": "+916161559407", "record_id": "CDR-000139", "source": "CDR", "timestamp": "2026-04-09T06:27:33", "tower": "Hazratganj, Lucknow"}
+{"caller": "+917003791769", "duration_sec": 15, "receiver": "+917455812236", "record_id": "CDR-000140", "source": "CDR", "timestamp": "2026-03-29T06:06:44", "tower": "Civil Lines, Kanpur"}
+{"caller": "+916586518506", "duration_sec": 42, "receiver": "+919576615654", "record_id": "CDR-000141", "source": "CDR", "timestamp": "2026-02-21T09:09:47", "tower": "Aminabad, Lucknow"}
+{"caller": "+917278248963", "duration_sec": 15, "receiver": "+918828148932", "record_id": "CDR-000142", "source": "CDR", "timestamp": "2026-03-10T10:46:58", "tower": "Salt Lake, Kolkata"}
+{"caller": "+917613750606", "duration_sec": 42, "receiver": "+919758692617", "record_id": "CDR-000143", "source": "CDR", "timestamp": "2026-04-12T06:08:40", "tower": "Andheri, Mumbai"}
+{"caller": "+916586518506", "duration_sec": 63, "receiver": "+919152809885", "record_id": "CDR-000144", "source": "CDR", "timestamp": "2026-04-02T06:15:26", "tower": "Andheri, Mumbai"}
+{"caller": "+916586518506", "duration_sec": 120, "receiver": "+917542784980", "record_id": "CDR-000145", "source": "CDR", "timestamp": "2026-02-07T05:05:28", "tower": "Vaishali Nagar, Jaipur"}
+{"caller": "+916883561595", "duration_sec": 15, "receiver": "+917542784980", "record_id": "CDR-000146", "source": "CDR", "timestamp": "2026-01-28T19:53:17", "tower": "Connaught Place, New Delhi"}
+{"caller": "+917003791769", "duration_sec": 42, "receiver": "+919576615654", "record_id": "CDR-000147", "source": "CDR", "timestamp": "2026-03-10T05:50:16", "tower": "Dadar, Mumbai"}
+{"caller": "+917278248963", "duration_sec": 240, "receiver": "+916112805982", "record_id": "CDR-000148", "source": "CDR", "timestamp": "2026-01-06T19:57:15", "tower": "Salt Lake, Kolkata"}
+{"caller": "+918891783908", "duration_sec": 380, "receiver": "+916436349578", "record_id": "CDR-000149", "source": "CDR", "timestamp": "2026-02-13T00:50:29", "tower": "Vaishali Nagar, Jaipur"}
+{"caller": "+918868501429", "duration_sec": 380, "receiver": "+919874296717", "record_id": "CDR-000150", "source": "CDR", "timestamp": "2026-01-07T19:16:47", "tower": "Civil Lines, Kanpur"}
+{"caller": "+916883561595", "duration_sec": 120, "receiver": "+917292706537", "record_id": "CDR-000151", "source": "CDR", "timestamp": "2026-03-04T08:18:52", "tower": "Aminabad, Lucknow"}
+{"caller": "+919758692617", "duration_sec": 30, "receiver": "+918828148932", "record_id": "CDR-000152", "source": "CDR", "timestamp": "2026-01-29T10:00:42", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+919769453147", "duration_sec": 8, "receiver": "+917613750606", "record_id": "CDR-000153", "source": "CDR", "timestamp": "2026-02-17T12:45:12", "tower": "Andheri, Mumbai"}
+{"caller": "+916586518506", "duration_sec": 8, "receiver": "+916163287083", "record_id": "CDR-000154", "source": "CDR", "timestamp": "2026-03-26T11:15:59", "tower": "Civil Lines, Kanpur"}
+{"caller": "+919527758416", "duration_sec": 15, "receiver": "+917278248963", "record_id": "CDR-000155", "source": "CDR", "timestamp": "2026-03-27T22:53:47", "tower": "Connaught Place, New Delhi"}
+{"caller": "+917037788925", "duration_sec": 380, "receiver": "+917689980940", "record_id": "CDR-000156", "source": "CDR", "timestamp": "2026-04-08T16:18:09", "tower": "Andheri, Mumbai"}
+{"caller": "+916561497840", "duration_sec": 42, "receiver": "+916974395339", "record_id": "CDR-000157", "source": "CDR", "timestamp": "2026-04-05T09:36:54", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+916385977034", "duration_sec": 42, "receiver": "+918462914865", "record_id": "CDR-000158", "source": "CDR", "timestamp": "2026-03-23T11:59:10", "tower": "Vaishali Nagar, Jaipur"}
+{"caller": "+918770054119", "duration_sec": 42, "receiver": "+918891783908", "record_id": "CDR-000159", "source": "CDR", "timestamp": "2026-04-15T12:37:49", "tower": "Civil Lines, Kanpur"}
+{"caller": "+918044997278", "duration_sec": 380, "receiver": "+919758692617", "record_id": "CDR-000160", "source": "CDR", "timestamp": "2026-04-12T19:41:50", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+919540515319", "duration_sec": 240, "receiver": "+918891783908", "record_id": "CDR-000161", "source": "CDR", "timestamp": "2026-01-04T20:51:20", "tower": "Salt Lake, Kolkata"}
+{"caller": "+916385977034", "duration_sec": 15, "receiver": "+918131869993", "record_id": "CDR-000162", "source": "CDR", "timestamp": "2026-01-21T14:59:43", "tower": "Aminabad, Lucknow"}
+{"caller": "+918131869993", "duration_sec": 30, "receiver": "+916385977034", "record_id": "CDR-000163", "source": "CDR", "timestamp": "2026-02-25T19:28:28", "tower": "Salt Lake, Kolkata"}
+{"caller": "+918868501429", "duration_sec": 30, "receiver": "+917003791769", "record_id": "CDR-000164", "source": "CDR", "timestamp": "2026-03-25T06:15:32", "tower": "Andheri, Mumbai"}
+{"caller": "+918329318393", "duration_sec": 120, "receiver": "+918891783908", "record_id": "CDR-000165", "source": "CDR", "timestamp": "2026-02-27T05:14:15", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+919769453147", "duration_sec": 42, "receiver": "+919527758416", "record_id": "CDR-000166", "source": "CDR", "timestamp": "2026-01-23T16:24:31", "tower": "Hazratganj, Lucknow"}
+{"caller": "+918462914865", "duration_sec": 8, "receiver": "+917689980940", "record_id": "CDR-000167", "source": "CDR", "timestamp": "2026-03-30T11:34:35", "tower": "Hazratganj, Lucknow"}
+{"caller": "+917054868740", "duration_sec": 42, "receiver": "+917689980940", "record_id": "CDR-000168", "source": "CDR", "timestamp": "2026-02-17T02:44:53", "tower": "Salt Lake, Kolkata"}
+{"caller": "+919152809885", "duration_sec": 380, "receiver": "+917054868740", "record_id": "CDR-000169", "source": "CDR", "timestamp": "2026-01-11T03:04:25", "tower": "Andheri, Mumbai"}
+{"caller": "+918160607159", "duration_sec": 63, "receiver": "+919923226025", "record_id": "CDR-000170", "source": "CDR", "timestamp": "2026-02-24T19:37:17", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+917292706537", "duration_sec": 8, "receiver": "+916974395339", "record_id": "CDR-000171", "source": "CDR", "timestamp": "2026-01-18T02:36:21", "tower": "Civil Lines, Kanpur"}
+{"caller": "+919507527354", "duration_sec": 15, "receiver": "+916436349578", "record_id": "CDR-000172", "source": "CDR", "timestamp": "2026-03-31T00:40:19", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+917990916998", "duration_sec": 63, "receiver": "+917613750606", "record_id": "CDR-000173", "source": "CDR", "timestamp": "2026-03-29T19:55:32", "tower": "Salt Lake, Kolkata"}
+{"caller": "+916161559407", "duration_sec": 63, "receiver": "+916020539502", "record_id": "CDR-000174", "source": "CDR", "timestamp": "2026-01-16T21:21:26", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+918160607159", "duration_sec": 15, "receiver": "+917054868740", "record_id": "CDR-000175", "source": "CDR", "timestamp": "2026-01-29T13:55:11", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+916112805982", "duration_sec": 42, "receiver": "+916561497840", "record_id": "CDR-000176", "source": "CDR", "timestamp": "2026-01-07T17:26:09", "tower": "Vaishali Nagar, Jaipur"}
+{"caller": "+917003791769", "duration_sec": 15, "receiver": "+916805310033", "record_id": "CDR-000177", "source": "CDR", "timestamp": "2026-04-06T12:05:08", "tower": "Salt Lake, Kolkata"}
+{"caller": "+919923226025", "duration_sec": 15, "receiver": "+916883561595", "record_id": "CDR-000178", "source": "CDR", "timestamp": "2026-04-04T05:11:33", "tower": "Vaishali Nagar, Jaipur"}
+{"caller": "+919152809885", "duration_sec": 380, "receiver": "+917542784980", "record_id": "CDR-000179", "source": "CDR", "timestamp": "2026-04-22T17:28:50", "tower": "Civil Lines, Kanpur"}
+{"caller": "+919874296717", "duration_sec": 15, "receiver": "+917542784980", "record_id": "CDR-000180", "source": "CDR", "timestamp": "2026-02-25T13:01:31", "tower": "Hazratganj, Lucknow"}
+{"caller": "+917542784980", "duration_sec": 30, "receiver": "+917292706537", "record_id": "CDR-000181", "source": "CDR", "timestamp": "2026-02-26T18:29:37", "tower": "Civil Lines, Kanpur"}
+{"caller": "+918868501429", "duration_sec": 15, "receiver": "+918823662994", "record_id": "CDR-000182", "source": "CDR", "timestamp": "2026-04-15T15:50:48", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+916112805982", "duration_sec": 15, "receiver": "+919874296717", "record_id": "CDR-000183", "source": "CDR", "timestamp": "2026-02-11T06:45:30", "tower": "Hazratganj, Lucknow"}
+{"caller": "+916436349578", "duration_sec": 380, "receiver": "+918329318393", "record_id": "CDR-000184", "source": "CDR", "timestamp": "2026-01-06T15:30:49", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+916805310033", "duration_sec": 30, "receiver": "+916161559407", "record_id": "CDR-000185", "source": "CDR", "timestamp": "2026-02-02T18:18:16", "tower": "Connaught Place, New Delhi"}
+{"caller": "+918171870262", "duration_sec": 15, "receiver": "+917689980940", "record_id": "CDR-000186", "source": "CDR", "timestamp": "2026-02-03T12:37:46", "tower": "Hazratganj, Lucknow"}
+{"caller": "+916883561595", "duration_sec": 30, "receiver": "+916974395339", "record_id": "CDR-000187", "source": "CDR", "timestamp": "2026-04-04T04:24:18", "tower": "Salt Lake, Kolkata"}
+{"caller": "+919117240050", "duration_sec": 8, "receiver": "+917613750606", "record_id": "CDR-000188", "source": "CDR", "timestamp": "2026-02-15T23:27:25", "tower": "Aminabad, Lucknow"}
+{"caller": "+918828148932", "duration_sec": 63, "receiver": "+919743487347", "record_id": "CDR-000189", "source": "CDR", "timestamp": "2026-02-02T19:04:45", "tower": "Hazratganj, Lucknow"}
+{"caller": "+916805310033", "duration_sec": 240, "receiver": "+918868501429", "record_id": "CDR-000190", "source": "CDR", "timestamp": "2026-03-29T15:00:15", "tower": "Aminabad, Lucknow"}
+{"caller": "+916112805982", "duration_sec": 380, "receiver": "+919874296717", "record_id": "CDR-000191", "source": "CDR", "timestamp": "2026-03-02T02:32:57", "tower": "Hazratganj, Lucknow"}
+{"caller": "+917689980940", "duration_sec": 380, "receiver": "+919117240050", "record_id": "CDR-000192", "source": "CDR", "timestamp": "2026-04-10T11:16:34", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+919540515319", "duration_sec": 63, "receiver": "+919527758416", "record_id": "CDR-000193", "source": "CDR", "timestamp": "2026-02-08T06:16:42", "tower": "Hazratganj, Lucknow"}
+{"caller": "+919576615654", "duration_sec": 120, "receiver": "+917003791769", "record_id": "CDR-000194", "source": "CDR", "timestamp": "2026-02-20T08:29:31", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+917278248963", "duration_sec": 8, "receiver": "+919874296717", "record_id": "CDR-000195", "source": "CDR", "timestamp": "2026-01-13T20:05:30", "tower": "Hazratganj, Lucknow"}
+{"caller": "+916472779010", "duration_sec": 15, "receiver": "+918641395376", "record_id": "CDR-000196", "source": "CDR", "timestamp": "2026-01-14T08:14:32", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+916472779010", "duration_sec": 8, "receiver": "+916385977034", "record_id": "CDR-000197", "source": "CDR", "timestamp": "2026-01-12T06:07:59", "tower": "Andheri, Mumbai"}
+{"caller": "+918770054119", "duration_sec": 30, "receiver": "+918891783908", "record_id": "CDR-000198", "source": "CDR", "timestamp": "2026-04-30T12:45:36", "tower": "Gomti Nagar, Lucknow"}
+{"caller": "+919773782639", "duration_sec": 42, "receiver": "+918770054119", "record_id": "CDR-000199", "source": "CDR", "timestamp": "2026-03-30T12:20:54", "tower": "Dadar, Mumbai"}
+{"caller": "+919758692617", "duration_sec": 8, "receiver": "+918717464887", "record_id": "CDR-000200", "source": "CDR", "timestamp": "2026-03-26T01:38:50", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+916436349578", "duration_sec": 42, "receiver": "+919769453147", "record_id": "CDR-000201", "source": "CDR", "timestamp": "2026-01-31T14:59:51", "tower": "Connaught Place, New Delhi"}
+{"caller": "+917003791769", "duration_sec": 42, "receiver": "+916838637940", "record_id": "CDR-000202", "source": "CDR", "timestamp": "2026-03-18T09:10:25", "tower": "Connaught Place, New Delhi"}
+{"caller": "+919540515319", "duration_sec": 8, "receiver": "+918770054119", "record_id": "CDR-000203", "source": "CDR", "timestamp": "2026-03-07T07:41:06", "tower": "Andheri, Mumbai"}
+{"caller": "+919576615654", "duration_sec": 8, "receiver": "+917003791769", "record_id": "CDR-000204", "source": "CDR", "timestamp": "2026-04-23T01:08:30", "tower": "Connaught Place, New Delhi"}
+{"caller": "+916161559407", "duration_sec": 15, "receiver": "+916974395339", "record_id": "CDR-000205", "source": "CDR", "timestamp": "2026-03-22T00:37:13", "tower": "Salt Lake, Kolkata"}
+{"caller": "+916112805982", "duration_sec": 380, "receiver": "+916561497840", "record_id": "CDR-000206", "source": "CDR", "timestamp": "2026-02-08T14:53:02", "tower": "Connaught Place, New Delhi"}
+{"caller": "+918550229612", "duration_sec": 63, "receiver": "+918868501429", "record_id": "CDR-000207", "source": "CDR", "timestamp": "2026-04-22T14:11:47", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+917054868740", "duration_sec": 380, "receiver": "+917321819600", "record_id": "CDR-000208", "source": "CDR", "timestamp": "2026-01-22T18:51:53", "tower": "Aminabad, Lucknow"}
+{"caller": "+916436349578", "duration_sec": 15, "receiver": "+917990916998", "record_id": "CDR-000209", "source": "CDR", "timestamp": "2026-02-04T10:54:33", "tower": "Dadar, Mumbai"}
+{"caller": "+918770054119", "duration_sec": 15, "receiver": "+916020539502", "record_id": "CDR-000210", "source": "CDR", "timestamp": "2026-03-09T09:01:52", "tower": "Vaishali Nagar, Jaipur"}
+{"caller": "+917618324210", "duration_sec": 8, "receiver": "+919117980893", "record_id": "CDR-000211", "source": "CDR", "timestamp": "2026-01-27T15:54:32", "tower": "Salt Lake, Kolkata"}
+{"caller": "+916020539502", "duration_sec": 42, "receiver": "+918329318393", "record_id": "CDR-000212", "source": "CDR", "timestamp": "2026-02-17T18:10:06", "tower": "Gomti Nagar, Lucknow"}
+{"caller": "+919576615654", "duration_sec": 8, "receiver": "+917321819600", "record_id": "CDR-000213", "source": "CDR", "timestamp": "2026-01-23T12:13:52", "tower": "Andheri, Mumbai"}
+{"caller": "+919923226025", "duration_sec": 42, "receiver": "+918160607159", "record_id": "CDR-000214", "source": "CDR", "timestamp": "2026-02-17T15:34:18", "tower": "Connaught Place, New Delhi"}
+{"caller": "+918717464887", "duration_sec": 63, "receiver": "+919758692617", "record_id": "CDR-000215", "source": "CDR", "timestamp": "2026-04-10T22:51:58", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+917542784980", "duration_sec": 15, "receiver": "+916163287083", "record_id": "CDR-000216", "source": "CDR", "timestamp": "2026-01-03T21:49:24", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+917618324210", "duration_sec": 8, "receiver": "+917328120679", "record_id": "CDR-000217", "source": "CDR", "timestamp": "2026-02-23T08:47:49", "tower": "Vaishali Nagar, Jaipur"}
+{"caller": "+916974395339", "duration_sec": 15, "receiver": "+917292706537", "record_id": "CDR-000218", "source": "CDR", "timestamp": "2026-03-09T23:59:48", "tower": "Aminabad, Lucknow"}
+{"caller": "+919576615654", "duration_sec": 15, "receiver": "+916805310033", "record_id": "CDR-000219", "source": "CDR", "timestamp": "2026-01-31T16:09:13", "tower": "Sadar Bazar, Kanpur"}
+{"caller": "+916586518506", "duration_sec": 15, "receiver": "+918828148932", "record_id": "CDR-000220", "source": "CDR", "timestamp": "2026-03-19T01:22:22", "tower": "Sadar Bazar, Kanpur"}
+{"caller": "+918823662994", "duration_sec": 380, "receiver": "+917689980940", "record_id": "CDR-000221", "source": "CDR", "timestamp": "2026-03-11T15:56:12", "tower": "Civil Lines, Kanpur"}
+{"caller": "+918255341928", "duration_sec": 30, "receiver": "+916163287083", "record_id": "CDR-000222", "source": "CDR", "timestamp": "2026-01-24T08:28:37", "tower": "Andheri, Mumbai"}
+{"caller": "+916838637940", "duration_sec": 15, "receiver": "+917003791769", "record_id": "CDR-000223", "source": "CDR", "timestamp": "2026-03-18T11:19:33", "tower": "Salt Lake, Kolkata"}
+{"caller": "+916472779010", "duration_sec": 8, "receiver": "+918961586578", "record_id": "CDR-000224", "source": "CDR", "timestamp": "2026-03-03T05:34:25", "tower": "Sadar Bazar, Kanpur"}
+{"caller": "+917542784980", "duration_sec": 120, "receiver": "+916586518506", "record_id": "CDR-000225", "source": "CDR", "timestamp": "2026-01-23T04:31:25", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+917990916998", "duration_sec": 8, "receiver": "+917613750606", "record_id": "CDR-000226", "source": "CDR", "timestamp": "2026-04-10T13:08:25", "tower": "Hazratganj, Lucknow"}
+{"caller": "+919758692617", "duration_sec": 120, "receiver": "+919743487347", "record_id": "CDR-000227", "source": "CDR", "timestamp": "2026-02-08T18:59:53", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+919773782639", "duration_sec": 8, "receiver": "+919923226025", "record_id": "CDR-000228", "source": "CDR", "timestamp": "2026-03-03T15:30:23", "tower": "Aminabad, Lucknow"}
+{"caller": "+918717464887", "duration_sec": 30, "receiver": "+919117980893", "record_id": "CDR-000229", "source": "CDR", "timestamp": "2026-04-08T13:13:26", "tower": "Hazratganj, Lucknow"}
+{"caller": "+919874296717", "duration_sec": 15, "receiver": "+917689980940", "record_id": "CDR-000230", "source": "CDR", "timestamp": "2026-03-24T12:11:00", "tower": "Andheri, Mumbai"}
+{"caller": "+918160607159", "duration_sec": 63, "receiver": "+917292706537", "record_id": "CDR-000231", "source": "CDR", "timestamp": "2026-02-11T20:11:14", "tower": "Civil Lines, Kanpur"}
+{"caller": "+916586518506", "duration_sec": 8, "receiver": "+919923226025", "record_id": "CDR-000232", "source": "CDR", "timestamp": "2026-01-14T18:21:21", "tower": "Connaught Place, New Delhi"}
+{"caller": "+917037788925", "duration_sec": 240, "receiver": "+916163287083", "record_id": "CDR-000233", "source": "CDR", "timestamp": "2026-04-09T21:04:21", "tower": "Civil Lines, Kanpur"}
+{"caller": "+917278248963", "duration_sec": 15, "receiver": "+917845115447", "record_id": "CDR-000234", "source": "CDR", "timestamp": "2026-04-08T22:10:21", "tower": "Hazratganj, Lucknow"}
+{"caller": "+916838637940", "duration_sec": 240, "receiver": "+917003791769", "record_id": "CDR-000235", "source": "CDR", "timestamp": "2026-03-06T23:24:44", "tower": "Sadar Bazar, Kanpur"}
+{"caller": "+918255341928", "duration_sec": 120, "receiver": "+918131869993", "record_id": "CDR-000236", "source": "CDR", "timestamp": "2026-01-30T06:25:48", "tower": "Salt Lake, Kolkata"}
+{"caller": "+917613750606", "duration_sec": 8, "receiver": "+917990916998", "record_id": "CDR-000237", "source": "CDR", "timestamp": "2026-01-01T13:43:23", "tower": "Sadar Bazar, Kanpur"}
+{"caller": "+918160607159", "duration_sec": 8, "receiver": "+916883561595", "record_id": "CDR-000238", "source": "CDR", "timestamp": "2026-02-13T11:07:50", "tower": "Vaishali Nagar, Jaipur"}
+{"caller": "+918891783908", "duration_sec": 30, "receiver": "+919117980893", "record_id": "CDR-000239", "source": "CDR", "timestamp": "2026-01-15T13:47:31", "tower": "Hazratganj, Lucknow"}
+{"caller": "+916112805982", "duration_sec": 240, "receiver": "+919576615654", "record_id": "CDR-000240", "source": "CDR", "timestamp": "2026-03-13T00:11:08", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+919874296717", "duration_sec": 63, "receiver": "+917613750606", "record_id": "CDR-000241", "source": "CDR", "timestamp": "2026-03-23T16:49:06", "tower": "Connaught Place, New Delhi"}
+{"caller": "+918891783908", "duration_sec": 15, "receiver": "+918329318393", "record_id": "CDR-000242", "source": "CDR", "timestamp": "2026-03-16T10:49:12", "tower": "Gomti Nagar, Lucknow"}
+{"caller": "+919773782639", "duration_sec": 120, "receiver": "+918828148932", "record_id": "CDR-000243", "source": "CDR", "timestamp": "2026-03-25T22:51:55", "tower": "Sadar Bazar, Kanpur"}
+{"caller": "+916586518506", "duration_sec": 240, "receiver": "+916163287083", "record_id": "CDR-000244", "source": "CDR", "timestamp": "2026-02-02T19:18:11", "tower": "Dadar, Mumbai"}
+{"caller": "+918868501429", "duration_sec": 42, "receiver": "+918255341928", "record_id": "CDR-000245", "source": "CDR", "timestamp": "2026-03-23T13:04:49", "tower": "Vaishali Nagar, Jaipur"}
+{"caller": "+919874296717", "duration_sec": 120, "receiver": "+916805310033", "record_id": "CDR-000246", "source": "CDR", "timestamp": "2026-02-04T15:16:22", "tower": "Dadar, Mumbai"}
+{"caller": "+919117240050", "duration_sec": 15, "receiver": "+919769453147", "record_id": "CDR-000247", "source": "CDR", "timestamp": "2026-02-14T03:05:19", "tower": "Andheri, Mumbai"}
+{"caller": "+916472779010", "duration_sec": 15, "receiver": "+916385977034", "record_id": "CDR-000248", "source": "CDR", "timestamp": "2026-01-06T04:39:20", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+916472779010", "duration_sec": 15, "receiver": "+916385977034", "record_id": "CDR-000249", "source": "CDR", "timestamp": "2026-04-10T19:56:43", "tower": "Connaught Place, New Delhi"}
+{"caller": "+918641395376", "duration_sec": 380, "receiver": "+917278248963", "record_id": "CDR-000250", "source": "CDR", "timestamp": "2026-03-01T19:25:37", "tower": "Andheri, Mumbai"}
+{"caller": "+918329318393", "duration_sec": 30, "receiver": "+919874296717", "record_id": "CDR-000251", "source": "CDR", "timestamp": "2026-04-17T05:03:00", "tower": "Aminabad, Lucknow"}
+{"caller": "+917455812236", "duration_sec": 42, "receiver": "+918044997278", "record_id": "CDR-000252", "source": "CDR", "timestamp": "2026-04-18T16:12:27", "tower": "Hazratganj, Lucknow"}
+{"caller": "+916161559407", "duration_sec": 120, "receiver": "+916838637940", "record_id": "CDR-000253", "source": "CDR", "timestamp": "2026-04-22T20:56:42", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+916436349578", "duration_sec": 240, "receiver": "+916586518506", "record_id": "CDR-000254", "source": "CDR", "timestamp": "2026-01-22T19:27:35", "tower": "Dadar, Mumbai"}
+{"caller": "+918255341928", "duration_sec": 240, "receiver": "+918961586578", "record_id": "CDR-000255", "source": "CDR", "timestamp": "2026-03-30T10:07:44", "tower": "Andheri, Mumbai"}
+{"caller": "+918131869993", "duration_sec": 42, "receiver": "+916586518506", "record_id": "CDR-000256", "source": "CDR", "timestamp": "2026-01-19T14:09:03", "tower": "Aminabad, Lucknow"}
+{"caller": "+918868501429", "duration_sec": 240, "receiver": "+916838637940", "record_id": "CDR-000257", "source": "CDR", "timestamp": "2026-03-05T23:11:07", "tower": "Vaishali Nagar, Jaipur"}
+{"caller": "+918641395376", "duration_sec": 63, "receiver": "+916586518506", "record_id": "CDR-000258", "source": "CDR", "timestamp": "2026-04-07T15:59:53", "tower": "Connaught Place, New Delhi"}
+{"caller": "+918462914865", "duration_sec": 120, "receiver": "+918255341928", "record_id": "CDR-000259", "source": "CDR", "timestamp": "2026-01-05T08:30:21", "tower": "Dadar, Mumbai"}
+{"caller": "+917613750606", "duration_sec": 30, "receiver": "+919117240050", "record_id": "CDR-000260", "source": "CDR", "timestamp": "2026-03-05T00:12:25", "tower": "Connaught Place, New Delhi"}
+{"caller": "+917292706537", "duration_sec": 380, "receiver": "+916883561595", "record_id": "CDR-000261", "source": "CDR", "timestamp": "2026-03-17T15:12:24", "tower": "Aminabad, Lucknow"}
+{"caller": "+917292706537", "duration_sec": 240, "receiver": "+918868501429", "record_id": "CDR-000262", "source": "CDR", "timestamp": "2026-01-07T08:30:19", "tower": "Salt Lake, Kolkata"}
+{"caller": "+917455812236", "duration_sec": 380, "receiver": "+919758692617", "record_id": "CDR-000263", "source": "CDR", "timestamp": "2026-04-13T14:37:20", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+917455812236", "duration_sec": 120, "receiver": "+919758692617", "record_id": "CDR-000264", "source": "CDR", "timestamp": "2026-03-06T05:50:00", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+916586518506", "duration_sec": 15, "receiver": "+916163287083", "record_id": "CDR-000265", "source": "CDR", "timestamp": "2026-04-30T01:56:18", "tower": "Civil Lines, Kanpur"}
+{"caller": "+917037788925", "duration_sec": 63, "receiver": "+916163287083", "record_id": "CDR-000266", "source": "CDR", "timestamp": "2026-01-31T15:24:31", "tower": "Hazratganj, Lucknow"}
+{"caller": "+917618324210", "duration_sec": 15, "receiver": "+919758692617", "record_id": "CDR-000267", "source": "CDR", "timestamp": "2026-01-01T06:29:01", "tower": "Civil Lines, Kanpur"}
+{"caller": "+919874296717", "duration_sec": 63, "receiver": "+916561497840", "record_id": "CDR-000268", "source": "CDR", "timestamp": "2026-02-22T06:48:26", "tower": "Salt Lake, Kolkata"}
+{"caller": "+916838637940", "duration_sec": 8, "receiver": "+918823662994", "record_id": "CDR-000269", "source": "CDR", "timestamp": "2026-03-19T09:06:17", "tower": "Andheri, Mumbai"}
+{"caller": "+917037788925", "duration_sec": 8, "receiver": "+919152809885", "record_id": "CDR-000270", "source": "CDR", "timestamp": "2026-04-22T08:18:03", "tower": "Gomti Nagar, Lucknow"}
+{"caller": "+918961586578", "duration_sec": 380, "receiver": "+916385977034", "record_id": "CDR-000271", "source": "CDR", "timestamp": "2026-04-07T06:55:37", "tower": "Aminabad, Lucknow"}
+{"caller": "+918462914865", "duration_sec": 30, "receiver": "+918961586578", "record_id": "CDR-000272", "source": "CDR", "timestamp": "2026-02-24T04:08:50", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+919923226025", "duration_sec": 15, "receiver": "+916974395339", "record_id": "CDR-000273", "source": "CDR", "timestamp": "2026-04-16T14:27:18", "tower": "Andheri, Mumbai"}
+{"caller": "+918770054119", "duration_sec": 15, "receiver": "+916161559407", "record_id": "CDR-000274", "source": "CDR", "timestamp": "2026-02-02T09:50:13", "tower": "Connaught Place, New Delhi"}
+{"caller": "+916974395339", "duration_sec": 8, "receiver": "+918160607159", "record_id": "CDR-000275", "source": "CDR", "timestamp": "2026-04-05T16:07:31", "tower": "Salt Lake, Kolkata"}
+{"caller": "+919773782639", "duration_sec": 240, "receiver": "+916385977034", "record_id": "CDR-000276", "source": "CDR", "timestamp": "2026-01-29T23:51:59", "tower": "Salt Lake, Kolkata"}
+{"caller": "+916472779010", "duration_sec": 15, "receiver": "+919117980893", "record_id": "CDR-000277", "source": "CDR", "timestamp": "2026-04-05T14:15:05", "tower": "Andheri, Mumbai"}
+{"caller": "+917037788925", "duration_sec": 15, "receiver": "+918160607159", "record_id": "CDR-000278", "source": "CDR", "timestamp": "2026-03-01T07:51:18", "tower": "Sadar Bazar, Kanpur"}
+{"caller": "+916883561595", "duration_sec": 120, "receiver": "+916974395339", "record_id": "CDR-000279", "source": "CDR", "timestamp": "2026-02-10T13:46:34", "tower": "Gomti Nagar, Lucknow"}
+{"caller": "+918891783908", "duration_sec": 15, "receiver": "+919540515319", "record_id": "CDR-000280", "source": "CDR", "timestamp": "2026-01-20T06:56:40", "tower": "Dadar, Mumbai"}
+{"caller": "+917845115447", "duration_sec": 42, "receiver": "+916112805982", "record_id": "CDR-000281", "source": "CDR", "timestamp": "2026-04-30T03:20:59", "tower": "Dadar, Mumbai"}
+{"caller": "+917990916998", "duration_sec": 380, "receiver": "+916436349578", "record_id": "CDR-000282", "source": "CDR", "timestamp": "2026-01-13T18:55:08", "tower": "Connaught Place, New Delhi"}
+{"caller": "+917054868740", "duration_sec": 30, "receiver": "+919117980893", "record_id": "CDR-000283", "source": "CDR", "timestamp": "2026-04-08T05:40:25", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+918160607159", "duration_sec": 30, "receiver": "+919773782639", "record_id": "CDR-000284", "source": "CDR", "timestamp": "2026-03-07T18:45:40", "tower": "Andheri, Mumbai"}
+{"caller": "+918044997278", "duration_sec": 42, "receiver": "+919117980893", "record_id": "CDR-000285", "source": "CDR", "timestamp": "2026-01-13T01:55:55", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+919758692617", "duration_sec": 240, "receiver": "+918823662994", "record_id": "CDR-000286", "source": "CDR", "timestamp": "2026-04-11T21:35:52", "tower": "Sadar Bazar, Kanpur"}
+{"caller": "+916163287083", "duration_sec": 120, "receiver": "+916586518506", "record_id": "CDR-000287", "source": "CDR", "timestamp": "2026-03-08T08:50:57", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+919507527354", "duration_sec": 15, "receiver": "+917613750606", "record_id": "CDR-000288", "source": "CDR", "timestamp": "2026-04-21T05:54:47", "tower": "Salt Lake, Kolkata"}
+{"caller": "+916472779010", "duration_sec": 15, "receiver": "+917618324210", "record_id": "CDR-000289", "source": "CDR", "timestamp": "2026-01-13T22:50:40", "tower": "Andheri, Mumbai"}
+{"caller": "+919527758416", "duration_sec": 380, "receiver": "+916838637940", "record_id": "CDR-000290", "source": "CDR", "timestamp": "2026-03-12T18:12:28", "tower": "Civil Lines, Kanpur"}
+{"caller": "+917613750606", "duration_sec": 15, "receiver": "+917990916998", "record_id": "CDR-000291", "source": "CDR", "timestamp": "2026-04-17T06:00:22", "tower": "Andheri, Mumbai"}
+{"caller": "+916472779010", "duration_sec": 8, "receiver": "+918961586578", "record_id": "CDR-000292", "source": "CDR", "timestamp": "2026-04-07T16:27:08", "tower": "Aminabad, Lucknow"}
+{"caller": "+919527758416", "duration_sec": 380, "receiver": "+918868501429", "record_id": "CDR-000293", "source": "CDR", "timestamp": "2026-03-07T22:00:08", "tower": "Dadar, Mumbai"}
+{"caller": "+919527758416", "duration_sec": 120, "receiver": "+918641395376", "record_id": "CDR-000294", "source": "CDR", "timestamp": "2026-02-23T04:46:18", "tower": "Andheri, Mumbai"}
+{"caller": "+916472779010", "duration_sec": 42, "receiver": "+918823662994", "record_id": "CDR-000295", "source": "CDR", "timestamp": "2026-02-26T09:31:54", "tower": "Dadar, Mumbai"}
+{"caller": "+919743487347", "duration_sec": 8, "receiver": "+918131869993", "record_id": "CDR-000296", "source": "CDR", "timestamp": "2026-01-01T14:50:38", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+919923226025", "duration_sec": 8, "receiver": "+916974395339", "record_id": "CDR-000297", "source": "CDR", "timestamp": "2026-04-06T08:21:23", "tower": "Hazratganj, Lucknow"}
+{"caller": "+916586518506", "duration_sec": 380, "receiver": "+919214895134", "record_id": "CDR-000298", "source": "CDR", "timestamp": "2026-02-10T05:41:23", "tower": "Aminabad, Lucknow"}
+{"caller": "+919758692617", "duration_sec": 8, "receiver": "+918044997278", "record_id": "CDR-000299", "source": "CDR", "timestamp": "2026-04-07T17:04:01", "tower": "Salt Lake, Kolkata"}
+{"caller": "+918550229612", "duration_sec": 8, "receiver": "+919117240050", "record_id": "CDR-000300", "source": "CDR", "timestamp": "2026-04-20T01:11:23", "tower": "Vaishali Nagar, Jaipur"}
+{"caller": "+918329318393", "duration_sec": 30, "receiver": "+919117240050", "record_id": "CDR-000301", "source": "CDR", "timestamp": "2026-01-04T10:28:00", "tower": "Salt Lake, New Delhi"}
+{"caller": "+918329318393", "duration_sec": 63, "receiver": "+917618324210", "record_id": "CDR-000302", "source": "CDR", "timestamp": "2026-01-03T14:30:00", "tower": "Hazratganj, Jaipur"}
+{"caller": "+918329318393", "duration_sec": 30, "receiver": "+917328120679", "record_id": "CDR-000303", "source": "CDR", "timestamp": "2026-01-03T20:22:00", "tower": "Malviya Nagar, Lucknow"}
+{"caller": "+918329318393", "duration_sec": 15, "receiver": "+918770054119", "record_id": "CDR-000304", "source": "CDR", "timestamp": "2026-01-04T02:39:00", "tower": "Vaishali Nagar, New Delhi"}
+{"caller": "+918329318393", "duration_sec": 42, "receiver": "+919152809885", "record_id": "CDR-000305", "source": "CDR", "timestamp": "2026-01-04T13:03:00", "tower": "Aminabad, Jaipur"}
+{"caller": "+918329318393", "duration_sec": 8, "receiver": "+919743487347", "record_id": "CDR-000306", "source": "CDR", "timestamp": "2026-01-03T17:19:00", "tower": "Andheri, New Delhi"}
+{"caller": "+918329318393", "duration_sec": 63, "receiver": "+918641395376", "record_id": "CDR-000307", "source": "CDR", "timestamp": "2026-01-04T16:11:00", "tower": "Connaught Place, Mumbai"}
+{"caller": "+918329318393", "duration_sec": 8, "receiver": "+917054868740", "record_id": "CDR-000308", "source": "CDR", "timestamp": "2026-01-03T07:14:00", "tower": "Salt Lake, Jaipur"}
+{"caller": "+918329318393", "duration_sec": 42, "receiver": "+917321819600", "record_id": "CDR-000309", "source": "CDR", "timestamp": "2026-01-03T02:57:00", "tower": "Civil Lines, Lucknow"}
+{"caller": "+918329318393", "duration_sec": 30, "receiver": "+918770054119", "record_id": "CDR-000310", "source": "CDR", "timestamp": "2026-01-04T06:35:00", "tower": "Sadar Bazar, Mumbai"}
+{"caller": "+918329318393", "duration_sec": 63, "receiver": "+919540515319", "record_id": "CDR-000311", "source": "CDR", "timestamp": "2026-01-03T14:38:00", "tower": "Malviya Nagar, Mumbai"}
+{"caller": "+918329318393", "duration_sec": 30, "receiver": "+916112805982", "record_id": "CDR-000312", "source": "CDR", "timestamp": "2026-01-04T08:50:00", "tower": "Malviya Nagar, Lucknow"}
+{"caller": "+918329318393", "duration_sec": 63, "receiver": "+919769453147", "record_id": "CDR-000313", "source": "CDR", "timestamp": "2026-01-03T04:12:00", "tower": "Connaught Place, Kanpur"}
+{"caller": "+918329318393", "duration_sec": 15, "receiver": "+918160607159", "record_id": "CDR-000314", "source": "CDR", "timestamp": "2026-01-03T23:29:00", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+918823662994", "duration_sec": 8, "receiver": "+917003791769", "record_id": "CDR-000315", "source": "CDR", "timestamp": "2026-04-29T23:24:00", "tower": "Vaishali Nagar, New Delhi"}
+{"caller": "+918823662994", "duration_sec": 8, "receiver": "+919117240050", "record_id": "CDR-000316", "source": "CDR", "timestamp": "2026-04-29T08:06:00", "tower": "Dadar, Jaipur"}
+{"caller": "+918823662994", "duration_sec": 15, "receiver": "+916034324451", "record_id": "CDR-000317", "source": "CDR", "timestamp": "2026-04-29T20:02:00", "tower": "Civil Lines, Kolkata"}
+{"caller": "+918823662994", "duration_sec": 8, "receiver": "+917037788925", "record_id": "CDR-000318", "source": "CDR", "timestamp": "2026-04-28T13:11:00", "tower": "Civil Lines, Lucknow"}
+{"caller": "+918823662994", "duration_sec": 8, "receiver": "+916163287083", "record_id": "CDR-000319", "source": "CDR", "timestamp": "2026-04-30T05:48:00", "tower": "Sadar Bazar, Lucknow"}
+{"caller": "+918823662994", "duration_sec": 15, "receiver": "+917542784980", "record_id": "CDR-000320", "source": "CDR", "timestamp": "2026-04-29T08:44:00", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+918823662994", "duration_sec": 15, "receiver": "+917845115447", "record_id": "CDR-000321", "source": "CDR", "timestamp": "2026-04-29T05:46:00", "tower": "Andheri, Jaipur"}
+{"caller": "+918823662994", "duration_sec": 15, "receiver": "+918828148932", "record_id": "CDR-000322", "source": "CDR", "timestamp": "2026-04-29T06:02:00", "tower": "Vaishali Nagar, Kolkata"}
+{"caller": "+918823662994", "duration_sec": 8, "receiver": "+919874296717", "record_id": "CDR-000323", "source": "CDR", "timestamp": "2026-04-29T20:52:00", "tower": "Hazratganj, New Delhi"}
+{"caller": "+918823662994", "duration_sec": 8, "receiver": "+916385977034", "record_id": "CDR-000324", "source": "CDR", "timestamp": "2026-04-29T16:00:00", "tower": "Hazratganj, Jaipur"}
+{"caller": "+918823662994", "duration_sec": 63, "receiver": "+917003791769", "record_id": "CDR-000325", "source": "CDR", "timestamp": "2026-04-30T04:56:00", "tower": "Malviya Nagar, New Delhi"}
+{"caller": "+918823662994", "duration_sec": 30, "receiver": "+917292706537", "record_id": "CDR-000326", "source": "CDR", "timestamp": "2026-04-29T02:06:00", "tower": "Malviya Nagar, Kanpur"}
+{"caller": "+918823662994", "duration_sec": 15, "receiver": "+917054868740", "record_id": "CDR-000327", "source": "CDR", "timestamp": "2026-04-28T15:52:00", "tower": "Vaishali Nagar, Lucknow"}
+{"caller": "+918823662994", "duration_sec": 8, "receiver": "+918891783908", "record_id": "CDR-000328", "source": "CDR", "timestamp": "2026-04-29T16:55:00", "tower": "Hazratganj, Jaipur"}
+{"caller": "+918823662994", "duration_sec": 63, "receiver": "+918770054119", "record_id": "CDR-000329", "source": "CDR", "timestamp": "2026-04-29T23:20:00", "tower": "Aminabad, Mumbai"}
+{"caller": "+918770054119", "duration_sec": 30, "receiver": "+916436349578", "record_id": "CDR-000330", "source": "CDR", "timestamp": "2026-03-03T16:24:00", "tower": "Civil Lines, Kanpur"}
+{"caller": "+918770054119", "duration_sec": 63, "receiver": "+917292706537", "record_id": "CDR-000331", "source": "CDR", "timestamp": "2026-03-04T12:41:00", "tower": "Vaishali Nagar, Lucknow"}
+{"caller": "+918770054119", "duration_sec": 63, "receiver": "+919874296717", "record_id": "CDR-000332", "source": "CDR", "timestamp": "2026-03-04T03:42:00", "tower": "Civil Lines, Lucknow"}
+{"caller": "+918770054119", "duration_sec": 30, "receiver": "+918329318393", "record_id": "CDR-000333", "source": "CDR", "timestamp": "2026-03-04T09:22:00", "tower": "Andheri, Lucknow"}
+{"caller": "+918770054119", "duration_sec": 42, "receiver": "+919576615654", "record_id": "CDR-000334", "source": "CDR", "timestamp": "2026-03-04T10:19:00", "tower": "Gomti Nagar, Lucknow"}
+{"caller": "+918770054119", "duration_sec": 63, "receiver": "+918329318393", "record_id": "CDR-000335", "source": "CDR", "timestamp": "2026-03-04T16:20:00", "tower": "Connaught Place, Lucknow"}
+{"caller": "+918770054119", "duration_sec": 8, "receiver": "+917292706537", "record_id": "CDR-000336", "source": "CDR", "timestamp": "2026-03-03T17:37:00", "tower": "Salt Lake, Lucknow"}
+{"caller": "+918770054119", "duration_sec": 30, "receiver": "+918823662994", "record_id": "CDR-000337", "source": "CDR", "timestamp": "2026-03-04T07:22:00", "tower": "Hazratganj, New Delhi"}
+{"caller": "+918770054119", "duration_sec": 15, "receiver": "+917292706537", "record_id": "CDR-000338", "source": "CDR", "timestamp": "2026-03-04T07:19:00", "tower": "Gomti Nagar, Kanpur"}
+{"caller": "+918770054119", "duration_sec": 15, "receiver": "+917292706537", "record_id": "CDR-000339", "source": "CDR", "timestamp": "2026-03-03T21:32:00", "tower": "Salt Lake, Kanpur"}
+{"caller": "+918770054119", "duration_sec": 15, "receiver": "+919758692617", "record_id": "CDR-000340", "source": "CDR", "timestamp": "2026-03-04T04:45:00", "tower": "Gomti Nagar, Jaipur"}
+{"caller": "+918770054119", "duration_sec": 8, "receiver": "+916163287083", "record_id": "CDR-000341", "source": "CDR", "timestamp": "2026-03-04T07:36:00", "tower": "Connaught Place, Lucknow"}
+{"caller": "+918770054119", "duration_sec": 30, "receiver": "+917542784980", "record_id": "CDR-000342", "source": "CDR", "timestamp": "2026-03-03T10:09:00", "tower": "Salt Lake, Kanpur"}
+{"caller": "+918770054119", "duration_sec": 15, "receiver": "+918255341928", "record_id": "CDR-000343", "source": "CDR", "timestamp": "2026-03-03T14:32:00", "tower": "Salt Lake, Mumbai"}
+{"caller": "+918770054119", "duration_sec": 63, "receiver": "+916838637940", "record_id": "CDR-000344", "source": "CDR", "timestamp": "2026-03-04T10:20:00", "tower": "Connaught Place, New Delhi"}
+{"caller": "+916586518506", "duration_sec": 120, "receiver": "+917003791769", "record_id": "CDR-000345", "source": "CDR", "timestamp": "2026-03-20T11:16:07", "tower": "Salt Lake, Kolkata"}
+{"caller": "+916586518506", "duration_sec": 42, "receiver": "+917003791769", "record_id": "CDR-000346", "source": "CDR", "timestamp": "2026-03-27T13:20:55", "tower": "Vaishali Nagar, Jaipur"}
+{"caller": "+916586518506", "duration_sec": 42, "receiver": "+917003791769", "record_id": "CDR-000347", "source": "CDR", "timestamp": "2026-03-29T14:40:34", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+916586518506", "duration_sec": 15, "receiver": "+917003791769", "record_id": "CDR-000348", "source": "CDR", "timestamp": "2026-03-31T10:03:43", "tower": "Vaishali Nagar, Jaipur"}
+{"caller": "+916586518506", "duration_sec": 8, "receiver": "+917003791769", "record_id": "CDR-000349", "source": "CDR", "timestamp": "2026-04-03T23:30:30", "tower": "Hazratganj, Lucknow"}
+{"caller": "+916586518506", "duration_sec": 42, "receiver": "+917003791769", "record_id": "CDR-000350", "source": "CDR", "timestamp": "2026-04-04T00:01:07", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+916586518506", "duration_sec": 30, "receiver": "+917003791769", "record_id": "CDR-000351", "source": "CDR", "timestamp": "2026-04-05T12:23:03", "tower": "Dadar, Mumbai"}
+{"caller": "+916586518506", "duration_sec": 15, "receiver": "+917003791769", "record_id": "CDR-000352", "source": "CDR", "timestamp": "2026-04-06T14:09:56", "tower": "Aminabad, Lucknow"}
+{"caller": "+916586518506", "duration_sec": 42, "receiver": "+917003791769", "record_id": "CDR-000353", "source": "CDR", "timestamp": "2026-04-07T19:04:28", "tower": "Salt Lake, Kolkata"}
+{"caller": "+916883561595", "duration_sec": 15, "receiver": "+917054868740", "record_id": "CDR-000354", "source": "CDR", "timestamp": "2026-03-19T18:21:07", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+916883561595", "duration_sec": 15, "receiver": "+917054868740", "record_id": "CDR-000355", "source": "CDR", "timestamp": "2026-03-26T12:43:00", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+916883561595", "duration_sec": 8, "receiver": "+917054868740", "record_id": "CDR-000356", "source": "CDR", "timestamp": "2026-03-28T20:27:29", "tower": "Gomti Nagar, Lucknow"}
+{"caller": "+916883561595", "duration_sec": 63, "receiver": "+917054868740", "record_id": "CDR-000357", "source": "CDR", "timestamp": "2026-03-30T11:21:44", "tower": "Salt Lake, Kolkata"}
+{"caller": "+916883561595", "duration_sec": 120, "receiver": "+917054868740", "record_id": "CDR-000358", "source": "CDR", "timestamp": "2026-04-02T00:39:16", "tower": "Gomti Nagar, Lucknow"}
+{"caller": "+916883561595", "duration_sec": 42, "receiver": "+917054868740", "record_id": "CDR-000359", "source": "CDR", "timestamp": "2026-04-03T02:32:50", "tower": "Malviya Nagar, Jaipur"}
+{"caller": "+916883561595", "duration_sec": 15, "receiver": "+917054868740", "record_id": "CDR-000360", "source": "CDR", "timestamp": "2026-04-04T12:15:54", "tower": "Aminabad, Lucknow"}
+{"caller": "+916883561595", "duration_sec": 120, "receiver": "+917054868740", "record_id": "CDR-000361", "source": "CDR", "timestamp": "2026-04-05T16:11:14", "tower": "Aminabad, Lucknow"}
+{"caller": "+916883561595", "duration_sec": 63, "receiver": "+917054868740", "record_id": "CDR-000362", "source": "CDR", "timestamp": "2026-04-06T10:18:11", "tower": "Aminabad, Lucknow"}
+{"caller": "+916112805982", "duration_sec": 8, "receiver": "+919527758416", "record_id": "CDR-000363", "source": "CDR", "timestamp": "2026-03-18T17:18:20", "tower": "Civil Lines, Kanpur"}
+{"caller": "+916112805982", "duration_sec": 15, "receiver": "+919527758416", "record_id": "CDR-000364", "source": "CDR", "timestamp": "2026-03-25T13:12:51", "tower": "Karol Bagh, New Delhi"}
+{"caller": "+916112805982", "duration_sec": 42, "receiver": "+919527758416", "record_id": "CDR-000365", "source": "CDR", "timestamp": "2026-03-27T13:59:18", "tower": "Connaught Place, New Delhi"}
+{"caller": "+916112805982", "duration_sec": 15, "receiver": "+919527758416", "record_id": "CDR-000366", "source": "CDR", "timestamp": "2026-03-29T17:06:32", "tower": "Andheri, Mumbai"}
+{"caller": "+916112805982", "duration_sec": 42, "receiver": "+919527758416", "record_id": "CDR-000367", "source": "CDR", "timestamp": "2026-04-01T03:07:44", "tower": "Connaught Place, New Delhi"}
+{"caller": "+916112805982", "duration_sec": 15, "receiver": "+919527758416", "record_id": "CDR-000368", "source": "CDR", "timestamp": "2026-04-02T23:59:04", "tower": "Dadar, Mumbai"}
+{"caller": "+916112805982", "duration_sec": 120, "receiver": "+919527758416", "record_id": "CDR-000369", "source": "CDR", "timestamp": "2026-04-03T13:48:47", "tower": "Aminabad, Lucknow"}
+{"caller": "+916112805982", "duration_sec": 63, "receiver": "+919527758416", "record_id": "CDR-000370", "source": "CDR", "timestamp": "2026-04-04T13:10:32", "tower": "Salt Lake, Kolkata"}
+{"caller": "+916112805982", "duration_sec": 120, "receiver": "+919527758416", "record_id": "CDR-000371", "source": "CDR", "timestamp": "2026-04-05T16:01:59", "tower": "Gomti Nagar, Lucknow"}

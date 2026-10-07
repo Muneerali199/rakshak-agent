@@ -5,3 +5,5 @@ fastapi>=0.110
 uvicorn[standard]>=0.27
 pydantic>=2.6
 httpx>=0.27        # for TestClient in tests/test_api.py
+python-multipart>=0.0.9   # multipart file upload (evidence PDF)
+pypdf>=5.0                 # server-side PDF text extraction (evidence PDF)

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import GraphCanvas from '@/workbench/GraphCanvas'
 import QueryRail from '@/workbench/QueryRail'
 import QueryBar from '@/workbench/QueryBar'
@@ -10,6 +10,7 @@ import FileFirPanel from '@/workbench/FileFirPanel'
 import {
   api, LAYER_COLOR, type EntitySummary, type LayerName, type ReviewStatus, type SubgraphResponse,
 } from '@/lib/api'
+import { clearSession, useAuth } from '@/lib/auth'
 
 const DEFAULT_LAYERS: LayerName[] = ['communication', 'financial', 'spatial']
 
@@ -29,6 +30,8 @@ function useMediaQuery(query: string): boolean {
 type Pane = 'search' | 'graph' | 'evidence'
 
 export default function Workbench() {
+  const nav = useNavigate()
+  const { session, setSession } = useAuth()
   const [entities, setEntities] = useState<EntitySummary[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
   const [raw, setRaw] = useState<SubgraphResponse | null>(null)
@@ -183,6 +186,13 @@ export default function Workbench() {
     setActiveId(nodeId)
   }, [])
 
+  const signOut = async () => {
+    try { await api.logout() } catch { /* session may already be gone */ }
+    clearSession()
+    setSession(null)
+    nav('/login', { replace: true })
+  }
+
   const rail = (
     <QueryRail
       entities={entities} activeId={activeId} onPick={pickEntity}
@@ -277,6 +287,23 @@ export default function Workbench() {
                   style={{ background: online === false ? '#ef4444' : online ? '#34d399' : '#64748b' }} />
             {online === false ? 'offline' : online ? 'live' : '…'}
           </span>
+          {session && (
+            <div className="hidden items-center gap-2 rounded-lg border border-emerald-400/25 bg-emerald-400/5 px-2.5 py-1 sm:flex"
+                 title="Aadhaar-verified officer session — identity bound to the token, rank enforced server-side">
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" />
+              <span className="max-w-28 truncate font-mono text-[9px] text-emerald-300">
+                {session.officer.name}
+              </span>
+              <span className="font-mono text-[9px] text-slate-500">
+                {session.officer.badge} · {session.officer.role}
+              </span>
+              <button onClick={signOut}
+                      className="font-mono text-[10px] text-slate-500 transition-colors hover:text-red-400"
+                      title="End session and return to the Aadhaar login">
+                ⏻
+              </button>
+            </div>
+          )}
         </div>
       </header>
 

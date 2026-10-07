@@ -19,6 +19,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from fastapi.testclient import TestClient  # noqa: E402
 
+import auth_helpers                         # noqa: E402
 import api.main as apimod                   # noqa: E402
 from api.ingest import extract_entities     # noqa: E402
 
@@ -52,7 +53,8 @@ def _ingest(client: TestClient, **over):
         "accused_names": ["Ramesh Kumar"],
         **over,
     }
-    return client.post("/api/ingest/fir", json=body)
+    return client.post("/api/ingest/fir", json=body,
+                       headers=auth_helpers.io_headers(client))
 
 
 def test_ner_extracts_indian_identifiers_with_spans():

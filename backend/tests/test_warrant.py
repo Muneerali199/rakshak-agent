@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import pytest
 
+import auth_helpers
 from api.warrants import WarrantStore
 
 
@@ -92,13 +93,18 @@ def test_evidence_masked_without_warrant(client):
 
 def test_evidence_unmasked_with_dual_signed_warrant(client):
     eid = _shielded_edge_id(client)
-    # request + countersign
+    # request as the IO…
+    io = auth_helpers.io_headers(client)
     w = client.post("/api/warrants", json={
-        "scope": f"edge:{eid}", "requester_id": "io.sharma",
-        "requester_role": "INSPECTOR", "reason": "chargesheet identity confirmation"}).json()
+        "scope": f"edge:{eid}", "requester_id": "ignored-client-value",
+        "requester_role": "INSPECTOR", "reason": "chargesheet identity confirmation"},
+        headers=io).json()
     assert w["ok"] is True
+    # …countersigned by a different SP (identity comes from the session, not the body)
+    sp = auth_helpers.sp_headers(client)
     ap = client.post(f"/api/warrants/{w['warrant_id']}/approve",
-                     json={"approver_id": "sp.rao", "approver_role": "SP"}).json()
+                     json={"approver_id": "ignored-client-value", "approver_role": "SP"},
+                     headers=sp).json()
     assert ap["ok"] is True
     # invalid warrant id → 403
     assert client.get(f"/api/evidence/{eid}", params={"warrant_id": "W-BOGUS"}).status_code == 403

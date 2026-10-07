@@ -10,6 +10,63 @@
 
 ---
 
+## LATEST — Aadhaar-verified officer auth (added 22 Sep)
+
+Deck has warrants + HITL but **no identity story**. Add one claim + one screenshot:
+
+1. **Slide 2 USP (or slide 5 features if space is tight)** — new bullet:
+   *"DigiLocker e-KYC verified officer sessions over API Setu — every write to the
+   case graph is bound to a rank-enforced identity (IO / FORENSIC / SP),
+   purpose-bound consent, 8h-expiring bearer token, and a hash-chained auth ledger.
+   Identity is read from the signed token, never from the client; the warrant gate
+   still requires a countersigning SP (four-eyes)."*
+2. **Slide 6 prototype row** — add `aadhaar-login.png` + `warrant-counter.png` (SP
+   countersign step) as proof-of-life screenshots next to the workbench shot.
+3. **Do NOT claim live DigiLocker / API Setu integration.** The bridge is
+   `digilocker-ekyc-sim` (offline simulation, synthetic) — production = the real
+   DigiLocker e-KYC API through API Setu (DGoI APIGW) under the Aadhaar Act 2016
+   framework. Deck wording must say "DigiLocker e-KYC · delivered over API Setu —
+   simulated on this box".
+
+---
+
+## LATEST — Bhashini voice channel (added 22 Sep)
+
+Deck's "Indic NLP" line already cites AI4Bharat/Bhashini. Now it's demo-able — a
+**vocal FIR intake**: officer taps *dictate* in the FIR panel and speaks Hindi;
+on-device speech-to-text drops the transcript into the narrative (vetted before
+ingest), and *listen* reads it back in Hindi. Add to better tell the story:
+
+1. **Slide 5 features** (or slide 2 USP if space): *"Bhāshinī voice channel — file
+   a Hindi FIR by speaking, not typing: statement → on-device STT → vetted narrative →
+   graph; listen-back TTS. Production runs Bhashini (MeitY NLM) ASR/TTS over API Setu
+   for 20+ Indic languages."*
+2. **Slide 6 prototype row** — add `voice-fir-dictation.png` (mic toggle live in the
+   FIR panel).
+3. **Do NOT claim live Bhashini API.** Running bridge is `bhashini-ondevice-sim`
+   (Web Speech, offline); live needs a Bhashini token. Deck wording must say
+   "on-device Hindi speech on this box — production Bhashini/API Setu".
+
+---
+
+## LATEST — Evidence auto-resolution (added 23 Sep)
+
+Deck's "identity resolution" fires on two typed names. Now the pitch is
+**document-in, leads-out**: paste the FIR/PDF and every person in it is extracted
+and scored against the case graph at once. Add to strengthen the demo:
+
+1. **Slide 5 features (or slide 2 USP)** — *"Evidence auto-resolution — paste the
+   FIR or a PDF; every person is extracted and scored against the case graph in
+   one pass (name · phonetic · attribute), ambiguous rows auto-route to review."*
+2. **Slide 6 prototype row** — add `evidence-autoresolve.png` (workbench rail:
+   pasted FIR → per-person MATCH/REVIEW/REJECT table with confidence + engine chip).
+3. **Do NOT claim neural IndicXlit in this path.** Auto-resolve reuses the same
+   Hybrid resolver; the exposed engine on this box remains `builtin-rule-romanizer`
+   (neural export offline). Wording: "deterministic + machine-assisted, human-review
+   gated". Officer session required (`POST /api/resolve/evidence[/pdf]`, L1).
+
+---
+
 ## 0 · Per-slide status (from the actual 14 Sep file)
 
 | # | Slide | Content detected | Status |

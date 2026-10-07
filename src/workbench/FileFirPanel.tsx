@@ -4,15 +4,16 @@
 // pasted text, fires cross-district collision alerts against the existing case
 // graph, and merges the FIR into the live graph. Zero LLM — every highlight is
 // auditable against the source text.
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import {
   FilePlus2, Loader2, AlertTriangle, Shield, ArrowRight,
   Phone, Building2, Car, User, Scale, X, Network, BadgeCheck, BadgeX,
-  MapPin, Landmark,
+  MapPin, Landmark, Mic, Square, Volume2,
 } from 'lucide-react'
 import {
   api, ApiError, type ExtractedEntityOut, type IngestResponse,
 } from '@/lib/api'
+import { dictate, speak, speechAvailable, stopSpeaking, VOICE_MODE } from '@/lib/voice'
 
 const DEFAULT_COMPLAINANT = 'Sunita Devi'
 const DEFAULT_ACCUSED = 'Ramesh Kumar'
@@ -94,6 +95,10 @@ export default function FileFirPanel({
   const [busy, setBusy] = useState(false)
   const [res, setRes] = useState<IngestResponse | null>(null)
   const [err, setErr] = useState<string | null>(null)
+  const [dictating, setDictating] = useState(false)
+  const [listening, setListening] = useState(false)
+  const [micNote, setMicNote] = useState<string | null>(null)
+  const stopRef = useRef<() => void>(() => {})
 
   // Field-driven narrative: swap the sample-injected names so the highlighted
   // entities ALWAYS match what the investigator typed, not what the sample said.
@@ -112,6 +117,33 @@ export default function FileFirPanel({
     setComplainant(DEFAULT_COMPLAINANT)
     setAccused(DEFAULT_ACCUSED)
     setDate(todayISO())
+  }
+
+  // Bhashini voice channel — on-device Hindi dictation (vetted before ingest).
+  const startDictation = () => {
+    if (dictating) return
+    if (!speechAvailable()) {
+      setMicNote('Speech not available in this browser')
+      return
+    }
+    const base = narrative.replace(/\s+$/, '')
+    setDictating(true)
+    setMicNote('सुन रहा हूँ… बोलिए (dictating · hi-IN)')
+    stopRef.current = dictate(
+      (t, done) => {
+        if (done) { setDictating(false); setMicNote('transcript vetted above — ready to ingest') }
+        setNarrative(base ? `${base} ${t.trim()}`.trim() : t.trim())
+      },
+      () => { setDictating(false); setMicNote('dictation stopped') },
+    )
+  }
+  const stopDictation = () => { stopRef.current(); setDictating(false); setMicNote('dictation stopped') }
+
+  const toggleListen = () => {
+    if (listening) { stopSpeaking(); setListening(false); return }
+    speak(narrative.trim())
+    setListening(true)
+    setTimeout(() => setListening(false), Math.max(2000, narrative.length * 28))
   }
 
   async function submit() {
@@ -190,11 +222,34 @@ export default function FileFirPanel({
               <label className="block">
                 <span className="mb-1 flex items-center justify-between font-mono text-[9px] uppercase tracking-wider text-slate-500">
                   <span>FIR narrative — Hindi / English / Hinglish</span>
-                  <button onClick={loadSample}
-                          className="text-cyan-500 transition-colors hover:text-cyan-300">
-                    load sample
-                  </button>
+                  <span className="flex items-center gap-2">
+                    <span className="hidden text-[8px] uppercase tracking-wider text-slate-600 sm:inline">
+                      भाषिणी · on-device · {VOICE_MODE}
+                    </span>
+                    <button onClick={() => (dictating ? stopDictation() : startDictation())}
+                            title="Dictate in Hindi (on-device STT — Nothing leaves the box)"
+                            className={`flex items-center gap-1 rounded px-1.5 py-0.5 transition-colors ${
+                              dictating ? 'bg-red-500/15 text-red-400' : 'text-cyan-500 hover:bg-cyan-500/10'}`}>
+                      {dictating ? <Square size={11} /> : <Mic size={11} />}
+                      {dictating ? 'stop' : 'dictate'}
+                    </button>
+                    <button onClick={toggleListen}
+                            title="Listen to the narrative (on-device Hindi TTS)"
+                            className={`flex items-center gap-1 rounded px-1.5 py-0.5 transition-colors ${
+                              listening ? 'bg-emerald-500/15 text-emerald-400' : 'text-cyan-500 hover:bg-cyan-500/10'}`}>
+                      <Volume2 size={11} /> listen
+                    </button>
+                    <button onClick={loadSample}
+                            className="text-cyan-500 transition-colors hover:text-cyan-300">
+                      load sample
+                    </button>
+                  </span>
                 </span>
+                {micNote && (
+                  <p className="mb-1 flex items-center gap-1.5 font-mono text-[9px] text-amber-400/90">
+                    <Mic size={9} /> {micNote}
+                  </p>
+                )}
                 <textarea
                   value={narrative}
                   onChange={(e) => setNarrative(e.target.value)}

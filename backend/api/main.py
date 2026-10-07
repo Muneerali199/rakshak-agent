@@ -23,7 +23,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
 from analytics import analyze_blindspot, detect_anomalies, evaluate_anomalies
@@ -39,13 +39,15 @@ from .query import DISCLOSURE as QUERY_DISCLOSURE, answer_question
 from .review_store import ReviewStore
 from .scanner import scan as run_scan
 from . import vault_config
+from .auth import AadhaarAuth, BRIDGE_MOCK, RANK
 from .sentinel import (ENDPOINT_LEVELS, SentinelStore, build_manifest, check_manifest,
                        model_pin, release_manifest_check, scan_own_codebase)
 from .warrants import WarrantStore
 from mesh import client as mesh_client, protocol as mesh_protocol
+from voice import voice_status as _voice_status
 from .schemas import (
-    AuditRecordSchema, Decision, EscalationAlert, EscalationResponse,
-    EvidenceResponse, ExtractedEntityOut, FeatureBreakdown, GraphEdge,
+    AuditRecordSchema, AuthOtpRequest, AuthLogin, Decision, EscalationAlert, EscalationResponse,
+    EvidenceResolveIn, EvidenceResponse, ExtractedEntityOut, FeatureBreakdown, GraphEdge,
     GraphNode, IngestRequest, IngestResponse, MeshFanout, MeshReceiptOut,
     QueryResponse, ReportResponse,
     ReportRow, ResolveRequest, ResolveResponse, ReviewDecision,
@@ -202,6 +204,7 @@ async def lifespan(app: FastAPI):
         sentinel.log("MANIFEST_RELEASE", release)
     STATE["sentinel"] = sentinel
     STATE["manifest"] = manifest
+    STATE["auth"] = AadhaarAuth(BENCH_DIR / "auth.db")
     yield
     STATE.clear()
 
@@ -235,6 +238,83 @@ def health() -> dict:
     return {"status": "ok", "nodes": len(g.nodes) if g else 0,
             "edges": len(g.edges) if g else 0,
             "vault": vault_config.vault_id(), "mesh": vault_config.mesh_enabled()}
+
+
+# ═══════════════ Aadhaar-verified officer authentication ═══════════════
+
+def _auth_service() -> AadhaarAuth:
+    svc = STATE.get("auth")
+    if svc is None:
+        raise HTTPException(503, "auth service not initialised")
+    return svc
+
+
+def _bearer(request: Request, action: str, min_rank: int = 1) -> dict:
+    """Resolve the signed-in officer from the Authorization header and enforce
+    the minimum rank for a *write* action. Identity comes from the token — the
+    client cannot self-attest a role."""
+    svc = _auth_service()
+    header = request.headers.get("authorization", "")
+    token = header[7:].strip() if header.lower().startswith("bearer ") else ""
+    try:
+        payload = svc.require_token(token or None)
+        return svc.require_rank(payload, min_rank, action)
+    except PermissionError as exc:
+        if token:
+            svc.deny_log(payload if "payload" in locals() else {"sub": "unknown"},
+                         action, str(exc))
+        raise HTTPException(403 if token else 401, str(exc))
+
+
+@app.get("/api/auth/status")
+def api_auth_status() -> dict:
+    """Auth architecture: bridge mode, lawful frame, storage policy, enforcement map."""
+    return _auth_service().status()
+
+
+@app.get("/api/auth/officers")
+def api_auth_officers() -> dict:
+    """Demo officer directory — masked Aadhaar last-4 + UID token only, plus the
+    synthetic credentials the offline DigiLocker e-KYC sim accepts (production hides them)."""
+    return {"officers": _auth_service().officers(),
+            "bridge": BRIDGE_MOCK,
+            "disclosure": ("synthetic sim registry — masked Aadhaar last-4 and identity token; "
+                           "the raw number exists only in the offline DigiLocker e-KYC sim seed")}
+
+
+@app.get("/api/voice/status")
+def api_voice_status() -> dict:
+    """Bhashini voice channel: what runs here is on-device Hindi speech, labeled;
+    production is Bhashini ASR/TTS via API Setu (needs a token)."""
+    return _voice_status()
+
+
+@app.post("/api/auth/request-otp")
+def api_auth_request_otp(req: AuthOtpRequest) -> dict:
+    """Simulated DigiLocker OTP dispatch — step 1 of the e-KYC handshake."""
+    return _auth_service().request_otp(req.aadhaar)
+
+
+@app.post("/api/auth/login")
+def api_auth_login(req: AuthLogin) -> dict:
+    """DigiLocker e-KYC login (simulated) → purpose-bound, expiring officer token."""
+    return _auth_service().login(req.aadhaar, req.otp, req.purpose)
+
+
+@app.post("/api/auth/logout")
+def api_auth_logout(request: Request) -> dict:
+    payload = _bearer(request, "logout")
+    return _auth_service().logout(payload["sub"])
+
+
+@app.get("/api/auth/me")
+def api_auth_me(request: Request) -> dict:
+    header = request.headers.get("authorization", "")
+    token = header[7:].strip() if header.lower().startswith("bearer ") else ""
+    me = _auth_service().me(token) if token else None
+    if me is None:
+        raise HTTPException(401, "invalid or expired officer session")
+    return me
 
 
 # ═══════════════ mesh responder (vault side of the UPI moment) ═══════════════
@@ -354,6 +434,40 @@ def _mesh_exchanges_for_entity(g, entity_id: str) -> list[dict]:
              "receipts": [{"responder_vault": r["responder_vault"], "hits": r["hits"]}
                           for r in ex["receipts"]]}
             for ex in exchanges if any(k in ex["entity_keys"] for k in keys)][:10]
+
+
+@app.post("/api/resolve/evidence", response_model=None)
+def api_resolve_evidence(request: Request, req: EvidenceResolveIn) -> dict:
+    """Auto-resolve every person in pasted document text against the case graph."""
+    _bearer(request, "resolve-evidence", 1)
+    return _evidence_resolve_text(req.text)
+
+
+@app.post("/api/resolve/evidence/pdf", response_model=None)
+async def api_resolve_evidence_pdf(request: Request, file: UploadFile = File(...)) -> dict:
+    """Same auto-resolution, driven by an uploaded PDF (extracted server-side)."""
+    _bearer(request, "resolve-evidence-pdf", 1)
+    if not (file.filename or "").lower().endswith(".pdf"):
+        raise HTTPException(415, "send a PDF file")
+    try:
+        from pypdf import PdfReader
+        reader = PdfReader(file.file)
+        text = "\n".join((page.extract_text() or "") for page in reader.pages)
+    except Exception:                                       # noqa: BLE001
+        raise HTTPException(400, "could not extract text from this PDF")
+    if len(text.strip()) < 10:
+        raise HTTPException(400, "PDF yielded no extractable text")
+    return _evidence_resolve_text(text)
+
+
+def _evidence_resolve_text(text: str) -> dict:
+    try:
+        from resolve.evidence import auto_resolve, engine_name
+        out = auto_resolve(STATE["graph"], text)
+        out["engine"] = engine_name()
+        return out
+    except Exception:                                       # noqa: BLE001
+        raise HTTPException(500, "evidence resolution failed")
 
 
 @app.post("/api/resolve", response_model=ResolveResponse)
@@ -583,7 +697,8 @@ def _validate_modifications(decision: ReviewDecision, modifications: dict | None
 
 
 @app.post("/api/review", response_model=ReviewResponse)
-def api_review(req: ReviewRequest) -> ReviewResponse:
+def api_review(req: ReviewRequest, request: Request) -> ReviewResponse:
+    actor = _bearer(request, "review decision", min_rank=RANK["IO"])
     g, store = STATE["graph"], STATE.get("reviews")
     if store is None:
         raise HTTPException(503, "review store not initialised")
@@ -601,7 +716,7 @@ def api_review(req: ReviewRequest) -> ReviewResponse:
     record = store.add_review(
         edge_id=req.edge_id,
         decision=req.decision.value,
-        reviewer_id=req.reviewer_id,
+        reviewer_id=actor["sub"],
         evidence_payload=panel,
         prev_status=prev_status,
         modifications=req.modifications,
@@ -664,25 +779,29 @@ def _warrant_store() -> WarrantStore:
 
 
 @app.post("/api/warrants", response_model=WarrantOut)
-def api_warrant_request(req: WarrantRequestIn) -> WarrantOut:
-    """Request access to protected data — opens a PENDING warrant artifact."""
-    out = _warrant_store().request(req.scope, req.requester_id, req.requester_role, req.reason)
+def api_warrant_request(req: WarrantRequestIn, request: Request) -> WarrantOut:
+    """Request access to protected data — identity and rank come from the
+    Aadhaar-verified officer session, never from a client-supplied string."""
+    actor = _bearer(request, "warrant request", min_rank=RANK["IO"])
+    out = _warrant_store().request(req.scope, actor["sub"], actor["role"], req.reason)
     return WarrantOut(ok=True, warrant_id=out["warrant_id"], status=out["status"],
                       scope=out["scope"], expires_at=out["expires_at"])
 
 
 @app.post("/api/warrants/{warrant_id}/approve", response_model=WarrantOut)
-def api_warrant_approve(warrant_id: str, req: WarrantApproveIn) -> WarrantOut:
-    """Senior-officer countersignature — the dual-key moment (requester ≠ approver)."""
-    out = _warrant_store().approve(warrant_id, req.approver_id, req.approver_role)
+def api_warrant_approve(warrant_id: str, req: WarrantApproveIn, request: Request) -> WarrantOut:
+    """Senior-officer countersignature — SP rank verified by Aadhaar session."""
+    actor = _bearer(request, "warrant countersignature", min_rank=RANK["SP"])
+    out = _warrant_store().approve(warrant_id, actor["sub"], actor["role"])
     if not out["ok"]:
         raise HTTPException(403, out["error"])
     return WarrantOut(**out)
 
 
 @app.post("/api/warrants/{warrant_id}/revoke", response_model=WarrantOut)
-def api_warrant_revoke(warrant_id: str, by: str = "system", role: str = "SP") -> WarrantOut:
-    out = _warrant_store().revoke(warrant_id, by, role)
+def api_warrant_revoke(warrant_id: str, request: Request) -> WarrantOut:
+    actor = _bearer(request, "warrant revocation", min_rank=RANK["SP"])
+    out = _warrant_store().revoke(warrant_id, actor["sub"], actor["role"])
     if not out["ok"]:
         raise HTTPException(404, out["error"])
     return WarrantOut(**out)
@@ -798,13 +917,15 @@ INGEST_DISCLOSURE = ("live FIR ingestion: deterministic regex NER with source sp
 
 
 @app.post("/api/ingest/fir", response_model=IngestResponse)
-def api_ingest_fir(req: IngestRequest) -> IngestResponse:
+def api_ingest_fir(req: IngestRequest, request: Request) -> IngestResponse:
     """File a new FIR: extract entities, detect cross-case linkage, merge into the graph.
 
     The demo's opening moment — paste raw narrative text and watch it become
     intelligence: extracted entities carry source spans, existing collisions across
-    districts surface as alerts, and the live graph grows.
+    districts surface as alerts, and the live graph grows. The filing officer is
+    the Aadhaar-verified session holder.
     """
+    actor = _bearer(request, "file FIR", min_rank=RANK["IO"])
     g, bench = STATE["graph"], STATE["bench"]
     if g is None or bench is None:
         raise HTTPException(503, "case graph not loaded")
@@ -822,6 +943,8 @@ def api_ingest_fir(req: IngestRequest) -> IngestResponse:
         "accused": [{"name": n} for n in req.accused_names],
         "complainant": {"name": req.complainant_name} if req.complainant_name else {},
         "ipc_sections": [],
+        "filed_by": actor["sub"],
+        "filing_officer": actor.get("name"),
     }
 
     # 1) regex NER with spans — deterministic, auditable
@@ -896,6 +1019,7 @@ def api_security_posture() -> dict:
     pin = sentinel.latest("MODEL_PIN") if sentinel else None
     manifest_check = sentinel.latest("MANIFEST") if sentinel else None
     manifest_release = sentinel.latest("MANIFEST_RELEASE") if sentinel else None
+    aauth = STATE.get("auth")
     return {
         "levels": {route: {"level": lvl, "note": note}
                    for route, (lvl, note) in sorted(ENDPOINT_LEVELS.items())},
@@ -906,16 +1030,22 @@ def api_security_posture() -> dict:
         "manifest": STATE.get("manifest"),
         "manifest_check": (json.loads(manifest_check["report"]) if manifest_check else None),
         "manifest_release": (json.loads(manifest_release["report"]) if manifest_release else None),
+        "auth": aauth.status() if aauth else None,
+        "voice": _voice_status(),
         "ledgers": {
             "reviews": STATE["reviews"].verify_chain() if STATE.get("reviews") else None,
             "warrants": STATE["warrants"].verify_chain() if STATE.get("warrants") else None,
             "sentinel": sentinel.verify_chain() if sentinel else None,
+            "auth": aauth.ledger.verify_chain() if aauth else None,
         },
         "mesh": {"enabled": vault_config.mesh_enabled(), "vault": vault_config.vault_id()},
         "disclosure": ("self-security posture: graded endpoint levels (MLPS-inspired), "
                        "boot self-scan hash-chained into the sentinel ledger, build "
                        "manifest over all backend sources COMPARED against the previous "
-                       "boot (and an optional trusted release manifest); tamper-evident "
+                       "boot (and an optional trusted release manifest); every write is "
+                       "bound to an Aadhaar-verified officer session with rank enforced "
+                       "server-side and identity events hash-chained; reads stay open by "
+                       "design (L1 transparency, per the graded map); tamper-evident "
                        "audit trail, not tamper-proof storage"),
     }
 

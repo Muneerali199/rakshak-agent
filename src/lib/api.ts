@@ -1,5 +1,6 @@
 // Typed client for the RAKSHAK MVP API (backend/api/main.py).
 // Base URL is overridable with VITE_API_URL; defaults to the local FastAPI dev server.
+import { token, type AuthResult } from './auth'
 
 const BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:8000'
 
@@ -18,7 +19,7 @@ export interface FeatureBreakdown {
 }
 
 export interface ResolveResponse {
-  decision: Decision
+  decision: 'MATCH' | 'UNCERTAIN' | 'REJECT'
   confidence: number
   calibrated: boolean
   weights: Record<string, number>
@@ -27,6 +28,26 @@ export interface ResolveResponse {
   normalized_b: string
   veto_reason: string | null
   route_to_review: boolean
+}
+
+export interface EvidenceRow {
+  surface: string
+  normalized: string
+  span: [number, number]
+  match: { id: string; label: string } | null
+  decision: 'MATCH' | 'UNCERTAIN' | 'REJECT' | 'NEW'
+  confidence: number
+  basis: { name: number; phonetic: number }
+  veto: string | null
+  route_to_review: boolean
+}
+export interface EvidenceResolve {
+  engine: string
+  count: number
+  candidate_count: number
+  rows: EvidenceRow[]
+  weights: Record<string, number>
+  disclosure: string
 }
 
 export interface ResolveRequest {
@@ -356,8 +377,15 @@ export interface BlindspotResponse {
 }
 
 // ── fetch helpers ───────────────────────────────────────────────────────────
+// Write endpoints are bound to the Aadhaar-verified officer session, so every
+// request carries the bearer token when one is present; public reads ignore it.
+function authHeaders(extra?: Record<string, string>): Record<string, string> {
+  const t = token()
+  return { ...(t ? { Authorization: `Bearer ${t}` } : {}), ...(extra ?? {}) }
+}
+
 async function get<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE}${path}`)
+  const res = await fetch(`${BASE}${path}`, { headers: authHeaders() })
   if (!res.ok) throw new ApiError(res.status, `GET ${path} → ${res.status}`)
   return res.json() as Promise<T>
 }
@@ -392,7 +420,7 @@ export const api = {
   ingestFir: async (body: IngestRequest): Promise<IngestResponse> => {
     const res = await fetch(`${BASE}/api/ingest/fir`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(body),
     })
     if (!res.ok) throw new ApiError(res.status, `POST /api/ingest/fir → ${res.status}`)
@@ -401,7 +429,7 @@ export const api = {
   scan: async (code: string, filename?: string): Promise<ScanResponse> => {
     const res = await fetch(`${BASE}/api/scan`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ code, filename }),
     })
     if (!res.ok) throw new ApiError(res.status, `POST /api/scan → ${res.status}`)
@@ -415,13 +443,13 @@ export const api = {
   review: async (body: ReviewRequest): Promise<ReviewResponse> => {
     const res = await fetch(`${BASE}/api/review`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(body),
     })
     if (!res.ok) throw new ApiError(res.status, `POST /api/review → ${res.status}`)
     return res.json() as Promise<ReviewResponse>
   },
-  resolve: async (body: ResolveRequest): Promise<ResolveResponse> => {
+resolve: async (body: ResolveRequest): Promise<ResolveResponse> => {
     const res = await fetch(`${BASE}/api/resolve`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -430,20 +458,76 @@ export const api = {
     if (!res.ok) throw new ApiError(res.status, `POST /api/resolve → ${res.status}`)
     return res.json() as Promise<ResolveResponse>
   },
+  // ── evidence auto-resolution: full documents, not two names ──────────────
+  resolveEvidence: async (text: string): Promise<EvidenceResolve> => {
+    const res = await fetch(`${BASE}/api/resolve/evidence`, {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ text }),
+    })
+    if (!res.ok) throw new ApiError(res.status, `POST /api/resolve/evidence → ${res.status}`)
+    return res.json() as Promise<EvidenceResolve>
+  },
+  resolveEvidencePdf: async (file: File): Promise<EvidenceResolve> => {
+    const fd = new FormData()
+    fd.append('file', file)
+    const res = await fetch(`${BASE}/api/resolve/evidence/pdf`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: fd,
+    })
+    const detail = await res.json().catch(() => null)
+    if (!res.ok) throw new ApiError(res.status, detail?.detail ?? `evidence pdf → ${res.status}`)
+    return detail as EvidenceResolve
+  },
+  // ── DigiLocker e-KYC officer auth ─────────────────────────────────────────
+  requestOtp: async (aadhaar: string): Promise<AuthOtpResult> => {
+    const res = await fetch(`${BASE}/api/auth/request-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ aadhaar }),
+    })
+    const body = (await res.json().catch(() => null)) as AuthOtpResult | null
+    if (!res.ok || !body || body.ok === false) {
+      throw new ApiError(res.status, body?.error ?? `request-otp → ${res.status}`)
+    }
+    return body
+  },
+  login: async (aadhaar: string, otp: string, purpose: string): Promise<AuthResult> => {
+    const res = await fetch(`${BASE}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ aadhaar, otp, purpose }),
+    })
+    const body = (await res.json()) as AuthResult & { ok?: boolean; error?: string }
+    if (!res.ok || body.ok === false) {
+      throw new ApiError(res.status, body.error ?? `login → ${res.status}`)
+    }
+    return body
+  },
+  authOfficers: async () => (await get<{ officers: AuthOfficer[] }>('/api/auth/officers')).officers,
+  authStatus: () => get<AuthStatus>('/api/auth/status'),
+  logout: async (): Promise<void> => {
+    await fetch(`${BASE}/api/auth/logout`, { method: 'POST', headers: authHeaders() })
+  },
   // ── warrant gate (DEPA consent artifacts — scoped, dual-signed, ledgered) ──
   requestWarrant: async (body: WarrantRequestIn): Promise<WarrantOut> => {
     const res = await fetch(`${BASE}/api/warrants`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(body),
     })
     if (!res.ok) throw new ApiError(res.status, `POST /api/warrants → ${res.status}`)
     return res.json() as Promise<WarrantOut>
   },
-  approveWarrant: async (warrantId: string, body: WarrantApproveIn): Promise<WarrantOut> => {
+  // countersigning as another officer (SP): approve with an explicit bearer token
+  // so the four-eyes moment runs under THAT officer's verified session.
+  approveWarrant: async (warrantId: string, body: WarrantApproveIn, bearerOverride?: string): Promise<WarrantOut> => {
     const res = await fetch(`${BASE}/api/warrants/${warrantId}/approve`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: bearerOverride
+        ? { 'Content-Type': 'application/json', Authorization: `Bearer ${bearerOverride}` }
+        : authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(body),
     })
     if (!res.ok) {
@@ -452,6 +536,38 @@ export const api = {
     }
     return res.json() as Promise<WarrantOut>
   },
+}
+
+export interface AuthOtpResult {
+  ok: boolean
+  txn?: string
+  bridge?: string
+  hint?: string
+  masked?: string
+  error?: string
+}
+export interface AuthOfficer {
+  id: string
+  name: string
+  badge: string
+  role: 'IO' | 'FORENSIC' | 'SP'
+  role_label: string
+  vault: string
+  district: string
+  police_station: string
+  aadhaar_masked: string
+  demo?: { aadhaar: string; otp: string }
+}
+export interface AuthStatus {
+  bridge: string
+  production_adapter: string
+  law: string
+  session_ttl_seconds: number
+  secret_mode: string
+  storage: string
+  roles: Record<string, string>
+  enforcement: Record<string, string>
+  ledger: { ok: boolean; records: number; first_bad_id: number | null }
 }
 
 export interface WarrantRequestIn {

@@ -18,6 +18,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from fastapi.testclient import TestClient  # noqa: E402
 
+import auth_helpers                         # noqa: E402
 import api.main as apimod                   # noqa: E402
 
 
@@ -53,7 +54,7 @@ class _Client:
 def _review(client, edge_id, decision, reviewer="inv-007", **extra):
     return client.c.post("/api/review", json={
         "edge_id": edge_id, "decision": decision, "reviewer_id": reviewer, **extra
-    })
+    }, headers=auth_helpers.io_headers(client.c))
 
 
 def _rebuild_graph_with_same_reviews():

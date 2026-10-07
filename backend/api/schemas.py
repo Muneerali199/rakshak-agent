@@ -19,6 +19,26 @@ class Decision(str, Enum):
     REJECT = "NON_MATCH"
 
 
+# ─────────────────────────── Aadhaar-verified officer login ───────────────────────────
+class AuthOtpRequest(BaseModel):
+    aadhaar: str = Field(..., min_length=12, max_length=12, pattern=r"^\d{12}$",
+                         examples=["700011771177"])
+
+
+class EvidenceResolveIn(BaseModel):
+    text: str = Field(..., min_length=10, max_length=200_000,
+                      description="Document text (or PDF-extracted text) to auto-resolve",
+                      examples=["Shikayatkarta Sunita Devi … संदिग्ध रमेश कुमार …"])
+
+
+class AuthLogin(BaseModel):
+    aadhaar: str = Field(..., min_length=12, max_length=12, pattern=r"^\d{12}$",
+                         examples=["700011771177"])
+    otp: str = Field(..., min_length=6, max_length=6, pattern=r"^\d{6}$", examples=["771177"])
+    purpose: str = Field("workbench login", max_length=80,
+                         examples=["FIR filing session"])
+
+
 class Layer(str, Enum):
     COMMUNICATION = "communication"
     FINANCIAL = "financial"

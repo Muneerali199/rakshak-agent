@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import pytest
 
+import auth_helpers
 from mesh import protocol
 from mesh.ledger import MeshLedger
 
@@ -159,12 +160,13 @@ def test_vault_mesh_query_rejects_forgery(vault_client):
 
 
 def test_ingest_fires_mesh_fanout(vault_client):
+    headers = auth_helpers.io_headers(vault_client)    # delhi vault officer
     r = vault_client.post("/api/ingest/fir", json={
         "narrative": "Complainant ne bataya ki accused ne +918044997278 se dhamki di. "
                      "Vehicle UP78 GC 4978 spot pe dikha. धारा 354D.",
         "district": "New Delhi", "police_station": "PS Karol Bagh",
         "date": "2026-05-01", "accused_names": ["Test Accused"],
-        "complainant_name": "Test Complainant"})
+        "complainant_name": "Test Complainant"}, headers=headers)
     assert r.status_code == 200
     mesh = r.json()["mesh"]
     assert mesh is not None and mesh["all_verified"] is True
