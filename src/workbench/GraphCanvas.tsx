@@ -6,6 +6,7 @@ import '@xyflow/react/dist/style.css'
 import EntityNode, { type EntityNodeData } from './EntityNode'
 import LayeredEdge, { type LayeredEdgeData } from './LayeredEdge'
 import { LAYER_COLOR, LAYER_LABEL, type LayerName, type SubgraphResponse } from '@/lib/api'
+import { LANE_LABEL_HI } from '@/lib/lang'
 
 const nodeTypes = { entity: EntityNode }
 const edgeTypes = { layered: LayeredEdge }
@@ -24,6 +25,7 @@ function layout(
   sg: SubgraphResponse,
   onEdgeClick: (edgeId: string) => void,
   focusTick: number,
+  hiLabels: Record<string, string>,
 ): { nodes: Node[]; edges: Edge[]; lanes: LaneBox[] } {
   const laneOf = (layers: LayerName[]): LayerName =>
     LANES.find((l) => layers.includes(l)) ?? 'communication'
@@ -59,7 +61,8 @@ function layout(
         y: laneTop[lane] + 34 + row * ROW_H + (col % 2) * 14,
       },
       data: {
-        label: n.label, type: n.type, layers: n.layers, risk: n.risk,
+        label: n.label, hiLabel: hiLabels[n.label] ?? n.label, type: n.type,
+        layers: n.layers, risk: n.risk,
         role: (n.meta?.role as string | undefined) ?? null,
         isRoot: n.id === sg.root,
         focusTick: n.id === sg.root ? focusTick : undefined,
@@ -85,17 +88,19 @@ function layout(
 const HINT_KEY = 'rakshak-workbench-hint-dismissed'
 
 export default function GraphCanvas({
-  subgraph, onEdgeClick, onNodeClick, selectedEdge, focusTick,
+  subgraph, onEdgeClick, onNodeClick, selectedEdge, focusTick, lang = 'en', hiLabels = {},
 }: {
   subgraph: SubgraphResponse | null
   onEdgeClick: (edgeId: string) => void
   onNodeClick?: (nodeId: string) => void
   selectedEdge: string | null
   focusTick: number
+  lang?: 'en' | 'hi'
+  hiLabels?: Record<string, string>
 }) {
   const { nodes, edges, lanes } = useMemo(
-    () => (subgraph ? layout(subgraph, onEdgeClick, focusTick) : { nodes: [], edges: [], lanes: [] }),
-    [subgraph, onEdgeClick, focusTick],
+    () => (subgraph ? layout(subgraph, onEdgeClick, focusTick, hiLabels) : { nodes: [], edges: [], lanes: [] }),
+    [subgraph, onEdgeClick, focusTick, hiLabels],
   )
 
   // the focused entity — for the "investigating" banner
@@ -118,7 +123,7 @@ export default function GraphCanvas({
             <div className="h-full w-full rounded-lg" style={{ background: `${LAYER_COLOR[name]}08` }} />
             <span className="absolute left-3 top-2 font-mono text-[9px] uppercase tracking-[0.3em]"
                   style={{ color: LAYER_COLOR[name] }}>
-              {LAYER_LABEL[name]}
+              {lang === 'hi' ? (LANE_LABEL_HI[name] ?? LAYER_LABEL[name]) : LAYER_LABEL[name]}
             </span>
           </div>
         ))}
@@ -149,10 +154,10 @@ export default function GraphCanvas({
               <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan-400" />
             </span>
             <span className="shrink-0 font-mono text-[8px] uppercase tracking-[0.28em] text-cyan-400/80">
-              investigating
+              {lang === 'hi' ? 'जाँच जारी' : 'investigating'}
             </span>
             <span className="truncate text-xs font-semibold text-slate-100" title={rootNode.label}>
-              {rootNode.label}
+              {lang === 'hi' ? (hiLabels[rootNode.label] ?? rootNode.label) : rootNode.label}
             </span>
             <span className="hidden shrink-0 rounded border border-slate-700/60 px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-wider text-slate-500 sm:inline">
               {rootNode.type.toLowerCase()}
@@ -168,15 +173,17 @@ export default function GraphCanvas({
       {subgraph && (
         <div className="pointer-events-none absolute bottom-3 left-3 z-10 flex flex-col gap-1 rounded-md border border-white/10 bg-slate-900/90 px-2.5 py-2 font-mono text-[9px] text-slate-400 backdrop-blur-md">
           <span className="flex items-center gap-2">
-            <span className="inline-block h-0.5 w-6" style={{ background: '#00f0ff' }} /> observed fact
+            <span className="inline-block h-0.5 w-6" style={{ background: '#00f0ff' }} />
+            {lang === 'hi' ? 'प्रेक्षित तथ्य' : 'observed fact'}
           </span>
           <span className="flex items-center gap-2">
             <span className="inline-block h-0.5 w-6 opacity-70"
                   style={{ background: 'repeating-linear-gradient(90deg,#71717a 0 4px,transparent 4px 7px)' }} />
-            inferred · needs review
+            {lang === 'hi' ? 'अनुमानित · समीक्षा आवश्यक' : 'inferred · needs review'}
           </span>
           <span className="flex items-center gap-2">
-            <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#ff2d55]" /> high risk
+            <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#ff2d55]" />
+            {lang === 'hi' ? 'उच्च जोखिम' : 'high risk'}
           </span>
         </div>
       )}

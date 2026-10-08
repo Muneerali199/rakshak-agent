@@ -4,6 +4,7 @@ import { LAYER_COLOR, type LayerName, type NodeType } from '@/lib/api'
 
 export interface EntityNodeData {
   label: string
+  hiLabel?: string
   type: NodeType
   layers: LayerName[]
   risk: number | null
@@ -108,9 +109,9 @@ export default function EntityNode({ data, selected }: NodeProps) {
       <div className="w-full text-center">
         <p
           className="truncate text-xs font-semibold text-slate-100"
-          title={d.label}
+          title={d.label ?? ''}
         >
-          {d.label}
+          {d.hiLabel || d.label}
         </p>
         <p className="mt-0.5 font-mono text-[9px] tracking-wide text-slate-500">
           {isVictim ? (

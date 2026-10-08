@@ -5,8 +5,10 @@ import { api, type QueryResponse } from '@/lib/api'
 // cite their evidence. Clicking a result focuses the entity and opens the evidence.
 export default function QueryBar({
   onResult,
+  lang = 'en',
 }: {
   onResult: (focusEntityId: string, edgeId?: string) => void
+  lang?: 'en' | 'hi'
 }) {
   const [q, setQ] = useState('')
   const [res, setRes] = useState<QueryResponse | null>(null)
@@ -20,7 +22,7 @@ export default function QueryBar({
     setBusy(true)
     setErr(null)
     try {
-      setRes(await api.ask(query))
+      setRes(await api.ask(query, lang))
     } catch {
       setErr('Query failed — is the backend running on :8000?')
     } finally {
@@ -46,6 +48,18 @@ export default function QueryBar({
       </div>
 
       {err && <p className="mt-1.5 font-mono text-[10px] text-[#ff2d55]">{err}</p>}
+
+      {lang === 'hi' && !res && !busy && (
+        <div className="mt-1.5 flex flex-wrap gap-1.5">
+          {['Nehaa Kumaar kis se sampark mein hai?', 'How are Aniil Singh and Nehaa Kumaar connected?', 'koi sandigdh gatiwidhi?']
+            .map((s) => (
+              <button key={s} onClick={() => ask(s)}
+                      className="rounded border border-zinc-800 bg-[#0b0d12] px-2 py-0.5 font-mono text-[9px] text-zinc-400 hover:border-[#00f0ff]/40 hover:text-[#00f0ff]">
+                {s}
+              </button>
+            ))}
+        </div>
+      )}
 
       {res && (
         <div className="absolute inset-x-4 top-full z-30 mt-1 max-h-[60vh] overflow-y-auto rounded-lg border border-zinc-700 bg-[#0b0d12] p-3 shadow-2xl">

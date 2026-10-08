@@ -178,6 +178,33 @@ extract: PHONE 8044997278 · ACCOUNT AC7234309805 · VEHICLE UP78GC4978  (recove
 Judge line: *"Offline, air-gapped Devanagari OCR; notice it tells you exactly how it read the
 scan — including the digit it mangled. No external API, no silent correction."*
 
+### 2.10 English→Hindi demo layer — offline, no LLM, and honest about it
+Two gates on the workbench top bar: **हिंदी ✓** (toggles the whole graph, dossier card and
+query answers into Devanagari) and the **Identity → हिंदी profile** panel on the left rail:
+paste an English identity/profile and get the complete profile back in Devanagari.
+
+`POST /api/hindi/transliterate` `{"texts":["Nehaa Kumaar","Sunita Devi","Karol Bagh","Delhi"]}`:
+```
+{"hindi":["नेहा कुमार","सुनिता देवी","करोल बाग़","दिल्ली"],
+ "engine":"builtin-hindi-rules-v1", "disclosure":"English→Hindi demo layer: rule-based Devanagari
+ transliteration + deterministic translation of the fixed UI vocabulary — offline, no neural model,
+ no API. engine = builtin-hindi-rules-v1"}
+```
+`POST /api/hindi/profile` `{"fields":{name, husband_name, address, phone, account, vehicle, section}}`:
+```
+नाम: सुनिता देवी | पति का नाम: रमेश कुमार | पता: स-12 गलि, करोल बघ, नेव दिल्ली |
+मोबाइल: +91-8044997278 | खाता: AC7234309805 | वाहन: UP78 GC 4978 | धारा: IPC 354D
+```
+Identifiers (phone / account / vehicle / date / IPC section) pass through verbatim; only labels and
+names/addresses are transliterated. Query answers localize too — `GET /api/query?q=…&lang=hi` returns
+```
+2-चरणीय जुड़ाव: रकेशह कुमार → अनील सिंह → नेहा कुमार। हर चरण साक्ष्य के साथ उद्धृत है।
+```
+and `POST /api/resolve/person?lang=hi` adds a `hindi` block (name नेहा कुमार, roles आरोपित/
+शिकायतकर्ता, aliases in Devanagari). The graph draws node labels and lane headers in Devanagari.
+Judge line: *"Flip the toggle; the whole case reads in हिंदी. Everything is rule-based and disclosed —
+same engine string on every response, no black box."*
+
 ---
 
 ## 3. The 30-second trust checks (Q&A backup)
@@ -187,7 +214,9 @@ curl -s http://localhost:8001/api/reviews/verify    # → ok:true
 curl -s http://localhost:8001/api/warrants/verify   # → ok:true
 curl -s http://localhost:8000/mesh/verify           # → ok:true
 curl -s http://localhost:8001/api/security/posture  # graded endpoints · boot scan (40 files, 4 findings reported) · manifest check
+curl -s http://localhost:8001/api/hindi/transliterate -H "Authorization: Bearer $TOK" -d '{"texts":["Delhi"]}'  # → दिल्ली, engine builtin-hindi-rules-v1
 ```
+(`bash scripts/demo_data_check.sh` runs all 22 checks end-to-end; the Hindi beats make up four of them.)
 
 ## 4. Determinism & honesty notes for judges
 
@@ -196,6 +225,8 @@ curl -s http://localhost:8001/api/security/posture  # graded endpoints · boot s
   (Node ids are cluster-order artifacts and can shift ±a few; the check script never pins them.)
 - **No real people:** deterministic synthetic FIR/CDR/FIN with planted ground truth (that's what
   makes honest precision claims possible).
+- **The Hindi layer is also deterministic & offline:** rule-based Devanagari transliteration plus a
+  fixed dictionary for the UI vocabulary — `builtin-hindi-rules-v1`, same output every run, no LLM.
 - **Engine labels are literal:** `digilocker-ekyc-sim`, `bhashini-ondevice-sim`,
   `builtin-rule-romanizer`, `tesseract-ocr` — the response payload says which simulated bridge is
   in use; production adapters (API Setu DigiLocker / Bhashini / NIC PKI) are credential-layer swaps.

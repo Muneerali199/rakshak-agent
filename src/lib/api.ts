@@ -96,6 +96,30 @@ export interface PersonDossier {
   firs?: PersonDossierFir[]
   fir_count?: number
   identifiers?: { phones: string[]; accounts: string[]; vehicles: string[] }
+  hindi?: {
+    name: string
+    roles: string[]
+    aliases: string[]
+    identifiers: { phones: string[]; accounts: string[]; vehicles: string[] }
+  }
+  engine: string
+  disclosure: string
+}
+
+export interface HindiProfileItem {
+  field: string
+  label: string
+  original: string
+  hindi: string
+}
+export interface HindiProfileResponse {
+  items: HindiProfileItem[]
+  paragraph: string
+  engine: string
+  disclosure: string
+}
+export interface HindiBulkResponse {
+  hindi: string[]
   engine: string
   disclosure: string
 }
@@ -463,7 +487,8 @@ export const api = {
   evidence: (edgeId: string, warrantId?: string) =>
     get<EvidenceResponse>(`/api/evidence/${edgeId}${warrantId ? `?warrant_id=${encodeURIComponent(warrantId)}` : ''}`),
   anomalies: () => get<AnomaliesResponse>('/api/anomalies'),
-  ask: (q: string) => get<QueryResponse>(`/api/query?q=${encodeURIComponent(q)}`),
+  ask: (q: string, lang: 'en' | 'hi' = 'en') =>
+    get<QueryResponse>(`/api/query?q=${encodeURIComponent(q)}&lang=${lang}`),
   escalation: () => get<EscalationResponse>('/api/escalation'),
   report: (entityId: string) => get<ReportResponse>(`/api/report/${encodeURIComponent(entityId)}`),
   blindspot: (entityId: string) => get<BlindspotResponse>(`/api/blindspot/${encodeURIComponent(entityId)}`),
@@ -559,8 +584,8 @@ resolve: async (body: ResolveRequest): Promise<ResolveResponse> => {
     return detail as ExtractResponse
   },
   // ── deterministic person dossier ───────────────────────────────────────────
-  resolvePerson: async (name: string): Promise<PersonDossier> => {
-    const res = await fetch(`${BASE}/api/resolve/person`, {
+  resolvePerson: async (name: string, lang: 'en' | 'hi' = 'en'): Promise<PersonDossier> => {
+    const res = await fetch(`${BASE}/api/resolve/person?lang=${lang}`, {
       method: 'POST',
       headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ name }),
@@ -570,6 +595,43 @@ resolve: async (body: ResolveRequest): Promise<ResolveResponse> => {
       | null
     if (!res.ok) throw new ApiError(res.status, detail?.detail ?? `person dossier → ${res.status}`)
     return detail as PersonDossier
+  },
+  // ── offline English→Hindi demo layer ─────────────────────────────────────
+  hindiTransliterate: async (texts: string[]): Promise<HindiBulkResponse> => {
+    const res = await fetch(`${BASE}/api/hindi/transliterate`, {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ texts }),
+    })
+    const detail = (await res.json().catch(() => null)) as
+      | (HindiBulkResponse & { detail?: string })
+      | null
+    if (!res.ok) throw new ApiError(res.status, detail?.detail ?? `hindi/transliterate → ${res.status}`)
+    return detail as HindiBulkResponse
+  },
+  hindiTranslate: async (terms: string[]): Promise<HindiBulkResponse> => {
+    const res = await fetch(`${BASE}/api/hindi/translate`, {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ terms }),
+    })
+    const detail = (await res.json().catch(() => null)) as
+      | (HindiBulkResponse & { detail?: string })
+      | null
+    if (!res.ok) throw new ApiError(res.status, detail?.detail ?? `hindi/translate → ${res.status}`)
+    return detail as HindiBulkResponse
+  },
+  hindiProfile: async (body: { fields?: Record<string, string>; text?: string }): Promise<HindiProfileResponse> => {
+    const res = await fetch(`${BASE}/api/hindi/profile`, {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(body),
+    })
+    const detail = (await res.json().catch(() => null)) as
+      | (HindiProfileResponse & { detail?: string })
+      | null
+    if (!res.ok) throw new ApiError(res.status, detail?.detail ?? `hindi/profile → ${res.status}`)
+    return detail as HindiProfileResponse
   },
   // ── DigiLocker e-KYC officer auth ─────────────────────────────────────────
   requestOtp: async (aadhaar: string): Promise<AuthOtpResult> => {

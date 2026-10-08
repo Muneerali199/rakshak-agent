@@ -9,6 +9,7 @@ import {
   type BlindspotResponse, type EntitySummary, type EscalationResponse,
   type EvidenceResolve, type LayerName, type PersonDossier, type ResolveResponse,
 } from '@/lib/api'
+import HindiProfilePanel from './HindiProfile'
 
 const ALL_LAYERS: LayerName[] = ['communication', 'financial', 'spatial']
 
@@ -20,6 +21,7 @@ const KIND_STYLE: Record<Anomaly['kind'], { color: string; label: string }> = {
 
 export default function QueryRail({
   entities, activeId, onPick, layers, setLayers, minConf, setMinConf, showInferred, setShowInferred,
+  lang = 'en', hiLabels = {},
 }: {
   entities: EntitySummary[]
   activeId: string | null
@@ -30,6 +32,8 @@ export default function QueryRail({
   setMinConf: (n: number) => void
   showInferred: boolean
   setShowInferred: (b: boolean) => void
+  lang?: 'en' | 'hi'
+  hiLabels?: Record<string, string>
 }) {
   // Top-3 cross-layer hubs (degree × layer-breadth) — badged with a ★ so the
   // network-relay suspect is visible at a glance (PS-6 key influencers).
@@ -46,10 +50,11 @@ export default function QueryRail({
     <aside className="flex h-full w-80 shrink-0 flex-col gap-4 overflow-y-auto border-r border-white/5 bg-[#0a0f1c] p-3">
       <EscalationPanel onPick={onPick} />
       <AnomalyPanel onPick={onPick} />
+      <HindiProfilePanel />
       {activeId && <BlindspotPanel entityId={activeId} />}
       <ResolveTester />
       <EvidenceAutoResolve />
-      <PersonDossierCard />
+      <PersonDossierCard lang={lang} />
 
       {/* Entities by Risk */}
       <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3 backdrop-blur-md">
@@ -82,7 +87,7 @@ export default function QueryRail({
                       className={`block truncate text-xs font-medium ${
                         isActive ? 'text-cyan-300' : 'text-slate-200'
                       }`}
-                      title={e.label}
+                      title={hiLabels[e.label] ?? e.label}
                     >
                       {isHub && (
                         <Star
@@ -91,7 +96,7 @@ export default function QueryRail({
                           className="mr-1 inline -translate-y-px text-amber-400"
                         />
                       )}
-                      {e.label}
+                      {hiLabels[e.label] ?? e.label}
                     </span>
                     <span className="flex items-center gap-1 font-mono text-[8px] uppercase tracking-wider text-slate-600">
                       <span>{e.type.toLowerCase()}</span>
@@ -467,7 +472,7 @@ function EvidenceAutoResolve() {
   )
 }
 
-function PersonDossierCard() {
+function PersonDossierCard({ lang = 'en' }: { lang?: 'en' | 'hi' }) {
   const [name, setName] = useState('')
   const [res, setRes] = useState<PersonDossier | null>(null)
   const [busy, setBusy] = useState(false)
@@ -477,10 +482,15 @@ function PersonDossierCard() {
   async function run() {
     if (name.trim().length < 2) { setErr('enter a name (any script)'); return }
     setBusy(true); setErr(null)
-    try { setRes(await api.resolvePerson(name)) }
+    try { setRes(await api.resolvePerson(name, lang)) }
     catch (e) { setErr(e instanceof Error ? e.message : 'dossier failed') }
     finally { setBusy(false) }
   }
+
+  const hindi = res?.hindi
+  const shownName = lang === 'hi' ? (hindi?.name ?? res?.name) : res?.name
+  const shownAliases = lang === 'hi' ? hindi?.aliases : res?.aliases
+  const shownRoles = lang === 'hi' ? hindi?.roles : res?.roles
 
   return (
     <div className="rounded-lg border border-cyan-400/15 bg-cyan-500/[0.03] p-3 backdrop-blur-md">
@@ -518,15 +528,15 @@ function PersonDossierCard() {
             <div className="mt-2 space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <span className="truncate font-mono text-[11px] font-semibold text-slate-200">
-                  {res.name}
+                  {shownName}
                 </span>
                 <span className="shrink-0 font-mono text-[8px] text-cyan-400">
                   match {(res.match_confidence ?? 0).toFixed(3)}
                 </span>
               </div>
-              {res.aliases && res.aliases.length > 1 && (
+              {shownAliases && shownAliases.length > 1 && (
                 <div className="flex flex-wrap gap-1">
-                  {res.aliases.map((a) => (
+                  {shownAliases.map((a) => (
                     <span key={a} className="rounded bg-slate-800/70 px-1 py-0.5 font-mono text-[8px] text-slate-400">
                       {a}
                     </span>
@@ -534,7 +544,7 @@ function PersonDossierCard() {
                 </div>
               )}
               <div className="flex flex-wrap gap-1">
-                {res.roles?.map((r) => (
+                {shownRoles?.map((r) => (
                   <span key={r} className="flex items-center gap-0.5 rounded bg-cyan-500/10 px-1 py-0.5 font-mono text-[8px] text-cyan-300">
                     <Shield size={7} /> {r}
                   </span>

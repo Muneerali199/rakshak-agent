@@ -19,6 +19,9 @@ VICTIM_SHIELD_MSG = ("is a protected party in this case. Victim data is pseudony
                      "access-restricted under Women Safety Division policy — network "
                      "analysis is limited to accused persons.")
 
+VICTIM_SHIELD_MSG_HI = ("इस मामले के संरक्षित पक्ष हैं। पीड़ित डेटा छद्मीकृत और प्रतिबंधित है — "
+                        "नेटवर्क विश्लेषण केवल आरोपित व्यक्तियों तक सीमित है।")
+
 
 def _is_victim(graph, node_id: str) -> bool:
     n = graph.nodes.get(node_id)
@@ -125,9 +128,20 @@ def _edges_of_type(graph, person_id: str, etype: str) -> list[dict]:
     return rows
 
 
-def answer_question(question: str, graph, anomalies: list[dict], limit: int = 10) -> dict:
+def answer_question(question: str, graph, anomalies: list[dict], limit: int = 10,
+                    lang: str = "en") -> dict:
+    """``lang="hi"`` renders the answer sentence in Hindi (Devanagari labels +
+    fixed Hindi templates); evidence rows/citations keep machine labels. The Hindi
+    path is the offline rule-based layer (resolve.hindi) — disclosed, not neural."""
+    from resolve.hindi import to_devanagari
     q = question.strip()
     ql = q.lower()
+    _hi = lang == "hi"
+    h = (lambda x: to_devanagari(str(x))) if _hi else (lambda x: str(x))
+
+    def _t(hi_s: str, en_s: str) -> str:
+        return hi_s if _hi else en_s
+
     intent = next((k for k, rx in _INTENTS.items() if re.search(rx, ql)), None)
     matches = _find_entities(q, graph)
 
@@ -139,19 +153,36 @@ def answer_question(question: str, graph, anomalies: list[dict], limit: int = 10
         "results": [],
         "citations": [],
     }
+    if _hi:
+        base["matches"] = [{**m, "label": h(m["label"])} for m in base["matches"]]
 
     if intent == "anomaly":
         top = anomalies[:limit]
 
         def _short(a: dict) -> str:
             label = a.get("label") or a["entity_id"].split(":", 1)[-1]
-            return f"{label} ({a['kind'].lower().replace('_', ' ')})"
+            kind = a["kind"].lower().replace("_", " ")
+            return f"{h(label)} ({_t(kind, kind)})"
 
         names = "; ".join(_short(a) for a in top)
         return {**base,
                 "grounded": True,
-                "answer": f"{len(anomalies)} analytical anomalies on file. Top: {names}. "
-                          f"Open the suspicious-activity panel for the full list.",
+                "answer": _t(
+                    f"{len(anomalies)} विश्लेषणात्मक संदिग्ध गतिविधियाँ दर्ज हैं। प्रमुख: {names}. "
+                    f"संपूर्ण सूची के लिए संदिग्ध-गतिविधि पैनल खोलें।",
+                    f"{len(anomalies)} analytical anomalies on file. Top: {names}. "
+                    f"Open the suspicious-activity panel for the full list."),
+                "citations": []}
+
+    if intent == "help" or not intent:
+        return {**base,
+                "grounded": False,
+                "answer": _t(
+                    "मामले-संजाल के बारे में पूछें, जैसे “who did <नाम> contact?” — "
+                    "या हिंदी में: नाम के सहारे ग्राफ़ से जुड़ाव देखने के लिए पूछें।",
+                    "Ask about the case graph, e.g. “who did <name> contact?”, "
+                    "“where was <name> seen?”, “what does <name> own?”, "
+                    "“how are <A> and <B> connected?”, “any suspicious activity?”"),
                 "citations": []}
 
     if intent == "help" or not intent:
@@ -166,8 +197,11 @@ def answer_question(question: str, graph, anomalies: list[dict], limit: int = 10
         if len(matches) < 2:
             return {**base,
                     "grounded": len(matches) > 0,
-                    "answer": "Name two entities from the case file to trace a connection, "
-                              "e.g. “how are Aneel Sharmaa and RAJEHSH Redddi connected?”",
+                    "answer": _t(
+                        "दो नाम बताइए जिनका जुड़ाव देखना है, जैसे “how are Aneel Sharmaa and "
+                        "RAJEHSH Redddi connected?”",
+                        "Name two entities from the case file to trace a connection, "
+                        "e.g. “how are Aneel Sharmaa and RAJEHSH Redddi connected?”"),
                     "citations": []}
         a, b = matches[0], matches[1]
         # victim-shield: never trace a path through a protected party
@@ -175,22 +209,28 @@ def answer_question(question: str, graph, anomalies: list[dict], limit: int = 10
             vic = a if _is_victim(graph, a["node_id"]) else b
             return {**base,
                     "grounded": True,
-                    "answer": f"{graph.nodes[vic['node_id']].label} {VICTIM_SHIELD_MSG}",
+                    "answer": f"{h(graph.nodes[vic['node_id']].label)} "
+                              + _t(VICTIM_SHIELD_MSG_HI, VICTIM_SHIELD_MSG),
                     "results": [],
                     "citations": []}
         path = graph.shortest_path(a["node_id"], b["node_id"])
         if path is None:
             return {**base,
                     "grounded": True,
-                    "answer": f"No connection found between {graph.nodes[a['node_id']].label} and "
-                              f"{graph.nodes[b['node_id']].label} within the case graph.",
+                    "answer": _t(
+                        f"मामले-संजाल में {h(graph.nodes[a['node_id']].label)} और "
+                        f"{h(graph.nodes[b['node_id']].label)} के बीच कोई जुड़ाव नहीं मिला।",
+                        f"No connection found between {h(graph.nodes[a['node_id']].label)} and "
+                        f"{h(graph.nodes[b['node_id']].label)} within the case graph."),
                     "citations": []}
         rows = [_row(graph, e) for e in path[:limit]]
-        chain = " → ".join([graph.nodes[path[0].source].label]
-                           + [graph.nodes[e.target].label for e in path])
+        chain = " → ".join([h(graph.nodes[path[0].source].label)]
+                           + [h(graph.nodes[e.target].label) for e in path])
         return {**base,
                 "grounded": True,
-                "answer": f"{len(path)}-step connection: {chain}. Every step cites its evidence.",
+                "answer": _t(
+                    f"{len(path)}-चरणीय जुड़ाव: {chain}। हर चरण साक्ष्य के साथ उद्धृत है।",
+                    f"{len(path)}-step connection: {chain}. Every step cites its evidence."),
                 "results": rows,
                 "citations": [e.id for e in path[:limit]]}
 
@@ -198,18 +238,21 @@ def answer_question(question: str, graph, anomalies: list[dict], limit: int = 10
         # anti-hallucination: refuse rather than guess (paper §16.3)
         return {**base,
                 "grounded": False,
-                "answer": "That entity is not in the case graph, so I cannot answer from "
-                          "evidence. Try a name from the entity list.",
+                "answer": _t(
+                    "यह व्यक्ति मामले-संजाल में नहीं है, इसलिए साक्ष्य से उत्तर देना संभव नहीं। "
+                    "सूची से कोई नाम आज़माइए।",
+                    "That entity is not in the case graph, so I cannot answer from "
+                    "evidence. Try a name from the entity list."),
                 "citations": []}
 
     person = matches[0]["node_id"]
-    label = graph.nodes[person].label
+    label = h(graph.nodes[person].label)
 
     # victim-shield: a protected party is never network-analyzed (any intent)
     if _is_victim(graph, person):
         return {**base,
                 "grounded": True,
-                "answer": f"{label} {VICTIM_SHIELD_MSG}",
+                "answer": f"{label} " + _t(VICTIM_SHIELD_MSG_HI, VICTIM_SHIELD_MSG),
                 "results": [],
                 "citations": []}
 
@@ -217,13 +260,18 @@ def answer_question(question: str, graph, anomalies: list[dict], limit: int = 10
         rows = _contacts_of(graph, person)[:limit]
         if not rows:
             return {**base, "grounded": True,
-                    "answer": f"No communication records for {label} in the case graph.",
+                    "answer": _t(
+                        f"मामले-संजाल में {label} का कोई संचार-अभिलेख नहीं।",
+                        f"No communication records for {label} in the case graph."),
                     "citations": []}
         counterparts = sorted({r["claim"].split(" via ")[0] for r in rows})
-        shown = ", ".join(counterparts[:5])
+        shown = ", ".join(h(c) for c in counterparts[:5])
         return {**base, "grounded": True,
-                "answer": f"CDR records show {label} in contact with: {shown}"
-                          + (f" — {len(rows)} call records cited." if len(rows) > 1 else "."),
+                "answer": _t(
+                    f"कॉल-विवरण दिखाता है: {label} संपर्क में है {shown}"
+                    + (f" — {len(rows)} कॉल अभिलेख उद्धृत।" if len(rows) > 1 else "."),
+                    f"CDR records show {label} in contact with: {shown}"
+                    + (f" — {len(rows)} call records cited." if len(rows) > 1 else ".")),
                 "results": rows,
                 "citations": [r["edge_id"] for r in rows]}
 
@@ -231,12 +279,18 @@ def answer_question(question: str, graph, anomalies: list[dict], limit: int = 10
         rows = _edges_of_type(graph, person, "ASSOCIATE_OF")[:limit]
         if not rows:
             return {**base, "grounded": True,
-                    "answer": f"No inferred associations for {label} — nothing to verify yet.",
+                    "answer": _t(
+                        f"{label} के लिए कोई अनुमानित संबंध नहीं — अभी सत्यापन हेतु नहीं।",
+                        f"No inferred associations for {label} — nothing to verify yet."),
                     "citations": []}
         return {**base, "grounded": True,
-                "answer": f"{label} is inferred to be associated with: "
-                          + ", ".join(r["claim"].split("→")[-1].strip() for r in rows)
-                          + ". These are INFERRED links pending human review.",
+                "answer": _t(
+                    f"{label} इनसे अनुमानित रूप से संबंधित: "
+                    + ", ".join(h(r["claim"].split("→")[-1].strip()) for r in rows)
+                    + ". ये अनुमानित-संबंध मानव समीक्षा की प्रतीक्षा में हैं।",
+                    f"{label} is inferred to be associated with: "
+                    + ", ".join(r["claim"].split("→")[-1].strip() for r in rows)
+                    + ". These are INFERRED links pending human review."),
                 "results": rows,
                 "citations": [r["edge_id"] for r in rows]}
 
@@ -244,11 +298,15 @@ def answer_question(question: str, graph, anomalies: list[dict], limit: int = 10
         rows = _edges_of_type(graph, person, "LOCATED_AT")[:limit]
         if not rows:
             return {**base, "grounded": True,
-                    "answer": f"No location records for {label} in the case graph.",
+                    "answer": _t(
+                        f"मामले-संजाल में {label} का कोई स्थान-अभिलेख नहीं।",
+                        f"No location records for {label} in the case graph."),
                     "citations": []}
         places = sorted({r["claim"].split("→")[-1].strip() for r in rows})
         return {**base, "grounded": True,
-                "answer": f"FIR records place {label} at: " + ", ".join(places) + ".",
+                "answer": _t(
+                    f"प्राथमिकी के अनुसार {label} यहाँ उपस्थित: " + ", ".join(h(p) for p in places) + ".",
+                    f"FIR records place {label} at: " + ", ".join(places) + "."),
                 "results": rows,
                 "citations": [r["edge_id"] for r in rows]}
 
@@ -256,14 +314,21 @@ def answer_question(question: str, graph, anomalies: list[dict], limit: int = 10
         rows = (_edges_of_type(graph, person, "OWNED") + _edges_of_type(graph, person, "USES"))[:limit]
         if not rows:
             return {**base, "grounded": True,
-                    "answer": f"No ownership or device attribution for {label} in the case graph.",
+                    "answer": _t(
+                        f"मामले-संजाल में {label} के लिए कोई स्वामित्व/उपकरण-जिम्मेदारी नहीं।",
+                        f"No ownership or device attribution for {label} in the case graph."),
                     "citations": []}
         return {**base, "grounded": True,
-                "answer": f"{label} is linked to {len(rows)} asset(s) — accounts, vehicles, "
-                          "and the attributed phone. These are inferred attributions.",
+                "answer": _t(
+                    f"{label} {len(rows)} संपत्ति(ओं) से जुड़ा है — खाते, वाहन और संबद्ध मोबाइल। "
+                    f"ये अनुमानित आरोपण हैं।",
+                    f"{label} is linked to {len(rows)} asset(s) — accounts, vehicles, "
+                    "and the attributed phone. These are inferred attributions."),
                 "results": rows,
                 "citations": [r["edge_id"] for r in rows]}
 
     return {**base, "grounded": False,
-            "answer": "Unsupported question type.",
+            "answer": _t(
+                "समर्थित प्रश्न-प्रकार नहीं।",
+                "Unsupported question type."),
             "citations": []}

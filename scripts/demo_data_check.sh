@@ -52,6 +52,16 @@ PY
 )
 case "$MSGS" in *True*) ok "mesh ENTITY_LOOKUP all_verified (mumbai/jaipur receipts)";; *) bad "mesh ENTITY_LOOKUP";; esac
 
+echo "▸ English→Hindi demo layer"
+check_game "hindi transliterate (rule-based, नेहा कुमार)" "d['engine']=='builtin-hindi-rules-v1' and 'नेहा कुमार' in d['hindi']" \
+  "$(curl -s -H "Authorization: Bearer $TOK" -X POST "$B/hindi/transliterate" -H 'Content-Type: application/json' -d '{"texts":["Nehaa Kumaar","Delhi"]}')"
+check_game "hindi profile (identifiers kept, Devanagari labels)" "d['engine']=='builtin-hindi-rules-v1' and any(i['field']=='name' and i['hindi']=='सुनिता देवी' for i in d['items']) and any(i['field']=='phone' and i['original']=='+91-8044997278' for i in d['items'])" \
+  "$(curl -s -H "Authorization: Bearer $TOK" -X POST "$B/hindi/profile" -H 'Content-Type: application/json' -d '{"fields":{"name":"Sunita Devi","phone":"+91-8044997278","section":"IPC 354D"}}')"
+check_game "query?lang=hi grounded with Devanagari answer" "d['grounded'] and any(('\u0905' <= c <= '\u095f' or c == '\u200d') for c in d['answer'] or '')" \
+  "$(curl -s --max-time 15 --get --data-urlencode 'q=who does Nehaa Kumaar contact' --data-urlencode 'lang=hi' "$B/query")"
+check_game "person dossier lang=hi (हिंदी block)" "d['found'] and d.get('hindi',{}).get('name')=='नेहा कुमार' and 'आरोपित' in d['hindi'].get('roles',[])" \
+  "$(curl -s -H "Authorization: Bearer $TOK" -X POST "$B/resolve/person?lang=hi" -H 'Content-Type: application/json' -d '{"name":"Nehaa Kumaar"}')"
+
 echo "▸ trust chain"
 check_game "posture: >=20 graded endpoints + rule-engine boot scan (40 files, 4 findings)" \
   "len(d.get('levels',{}))>=20 and d['boot_scan']['report']['engine']=='rules' and d['boot_scan']['report']['files_scanned']>=40" \

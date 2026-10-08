@@ -111,6 +111,33 @@ def test_repeat_offender_signal():
         assert repeats, "seed-42 should contain at least one repeat-involved person"
 
 
+def test_hindi_transliterate_and_profile_offline():
+    """English→Hindi demo layer is offline + rule-based (builtin-hindi-rules-v1):
+    identifiers pass through verbatim, names/addresses render in Devanagari."""
+    with _client() as c:
+        tok = c.post("/api/auth/login", json={
+            "aadhaar": "700011771177", "otp": "771177", "purpose": "test"}).json()["token"]
+        h = {"Authorization": f"Bearer {tok}"}
+
+        t = c.post("/api/hindi/transliterate", json={
+            "texts": ["Nehaa Kumaar", "Sunita Devi", "Delhi"]}, headers=h).json()
+        assert t["engine"] == "builtin-hindi-rules-v1"
+        assert t["hindi"] == ["नेहा कुमार", "सुनिता देवी", "दिल्ली"]
+        assert "no neural model" in t["disclosure"]
+
+        p = c.post("/api/hindi/profile", json={
+            "fields": {
+                "name": "Sunita Devi", "phone": "+91-8044997278",
+                "account": "AC7234309805", "section": "IPC 354D",
+            }}, headers=h).json()
+        items = {it["field"]: it for it in p["items"]}
+        assert items["name"]["hindi"] == "सुनिता देवी"
+        assert items["phone"]["original"] == "+91-8044997278"
+        assert items["phone"]["hindi"] == "+91-8044997278"          # identifiers untouched
+        assert items["account"]["hindi"] == "AC7234309805"
+        assert "सुनिता देवी" in p["paragraph"]
+
+
 if __name__ == "__main__":
     import traceback
 

@@ -11,6 +11,7 @@ import {
   api, LAYER_COLOR, type EntitySummary, type LayerName, type ReviewStatus, type SubgraphResponse,
 } from '@/lib/api'
 import { clearSession, useAuth } from '@/lib/auth'
+import { useHiLabels } from '@/lib/lang'
 
 const DEFAULT_LAYERS: LayerName[] = ['communication', 'financial', 'spatial']
 
@@ -53,8 +54,27 @@ export default function Workbench() {
   // file-new-FIR modal + a bump counter that forces subgraph refetch after ingest
   const [fileFir, setFileFir] = useState(false)
   const [dataVersion, setDataVersion] = useState(0)
+  // offline English→Hindi demo layer (graph labels, dossiers, answers)
+  const [lang, setLang] = useState<'en' | 'hi'>(() =>
+    (localStorage.getItem('rakshak-lang') as 'en' | 'hi') || 'en',
+  )
+  const toggleLang = () => {
+    const next = lang === 'en' ? 'hi' : 'en'
+    localStorage.setItem('rakshak-lang', next)
+    setLang(next)
+  }
 
   const isNarrow = useMediaQuery('(max-width: 1023px)')
+
+  // transliterated node/entity labels for the current subgraph + rail list
+  const hiLabels = useHiLabels(
+    lang,
+    useMemo(() => {
+      const labels = entities.map((e) => e.label)
+      raw?.nodes.forEach((n) => { if (n.label) labels.push(n.label) })
+      return Array.from(new Set(labels))
+    }, [entities, raw]),
+  )
 
   // bootstrap: health check + top entities, then AUTO-LOAD the lead case —
   // the highest-severity circular-flow ring — so the workbench opens on the story,
@@ -199,11 +219,12 @@ export default function Workbench() {
       layers={layers} setLayers={setLayers}
       minConf={minConf} setMinConf={setMinConf}
       showInferred={showInferred} setShowInferred={setShowInferred}
+      lang={lang} hiLabels={hiLabels}
     />
   )
   const canvas = (
     <div className="relative h-full">
-      <GraphCanvas subgraph={filtered} onEdgeClick={pickEdge} onNodeClick={focusNode} selectedEdge={selectedEdge} focusTick={focusTick} />
+      <GraphCanvas subgraph={filtered} onEdgeClick={pickEdge} onNodeClick={focusNode} selectedEdge={selectedEdge} focusTick={focusTick} lang={lang} hiLabels={hiLabels} />
       {timeRange && (
         <TimeSlider
           minTs={timeRange.min}
@@ -261,6 +282,17 @@ export default function Workbench() {
               ))}
             </div>
           </div>
+          {/* offline English→Hindi demo toggle */}
+          <button onClick={toggleLang}
+                  className={[
+                    'rounded border px-2 py-0.5 font-mono text-[10px] transition-colors',
+                    lang === 'hi'
+                      ? 'border-fuchsia-400/50 bg-fuchsia-400/15 text-fuchsia-200'
+                      : 'border-slate-700/50 text-slate-400 hover:border-fuchsia-400/40 hover:text-fuchsia-300',
+                  ].join(' ')}
+                  title="Render graph labels, dossiers and answers in Devanagari (offline rule-based)">
+            {lang === 'hi' ? 'हिंदी ✓' : 'हिंदी'}
+          </button>
           {filtered && (
             <span className="hidden font-mono text-[10px] text-slate-500 lg:inline">
               {filtered.stats.nodes} nodes · {filtered.stats.edges} edges · {filtered.stats.inferred} inferred
@@ -313,7 +345,7 @@ export default function Workbench() {
         </div>
       )}
 
-      <QueryBar onResult={handleQueryResult} />
+      <QueryBar onResult={handleQueryResult} lang={lang} />
 
       {demo && (
         <DemoMode

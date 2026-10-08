@@ -43,6 +43,22 @@ class PersonResolveRequest(BaseModel):
                       examples=["Mohammad Arif", "मोहम्मद आरिफ़"])
 
 
+class HindiTransliterateIn(BaseModel):
+    texts: list[str] = Field(..., min_length=1, max_length=512,
+                             description="Latin strings to convert to Devanagari")
+
+
+class HindiTranslateIn(BaseModel):
+    terms: list[str] = Field(..., min_length=1, max_length=256,
+                             description="Fixed-vocabulary terms to translate to Hindi")
+
+
+class HindiProfileIn(BaseModel):
+    fields: dict | None = Field(None, description="Structured English profile (name/address/…)")
+    text: str | None = Field(None, min_length=10, max_length=200_000,
+                             description="Or: raw English profile text; entities are extracted first")
+
+
 class AuthLogin(BaseModel):
     aadhaar: str = Field(..., min_length=12, max_length=12, pattern=r"^\d{12}$",
                          examples=["700011771177"])

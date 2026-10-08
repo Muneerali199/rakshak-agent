@@ -50,7 +50,8 @@ import ocr
 from .schemas import (
     AuditRecordSchema, AuthOtpRequest, AuthLogin, Decision, EscalationAlert, EscalationResponse,
     EvidenceResolveIn, EvidenceResponse, ExtractRequest, ExtractedEntityOut, FeatureBreakdown, GraphEdge,
-    GraphNode, IngestRequest, IngestResponse, MeshFanout, MeshReceiptOut, PersonResolveRequest,
+    GraphNode, HindiProfileIn, HindiTranslateIn, HindiTransliterateIn, IngestRequest, IngestResponse,
+    MeshFanout, MeshReceiptOut, PersonResolveRequest,
     QueryResponse, ReportResponse,
     ReportRow, ResolveRequest, ResolveResponse, ReviewDecision,
     ReviewRequest, ReviewResponse, ReviewStatus, ScanRequest, ScanResponse,
@@ -536,14 +537,73 @@ def api_ingest_extract(request: Request, req: ExtractRequest,
 
 
 @app.post("/api/resolve/person", response_model=None)
-def api_resolve_person(request: Request, req: PersonResolveRequest) -> dict:
-    """Person dossier — complete cross-case profile by name (deterministic)."""
+def api_resolve_person(request: Request, req: PersonResolveRequest,
+                       lang: str = Query("en")) -> dict:
+    """Person dossier — complete cross-case profile by name (deterministic).
+
+    ``lang=hi`` adds a Devanagari block (transliterated name / roles / aliases and
+    Hindi labels for the fixed vocabulary) — offline rule-based, disclosed engine.
+    """
     _bearer(request, "resolve-person", 1)
     try:
         from resolve.dossier import dossier
-        return dossier(STATE["graph"], STATE["bench"], req.name)
+        out = dossier(STATE["graph"], STATE["bench"], req.name)
+        if lang == "hi":
+            out["hindi"] = _dossier_hindi(out)
+        return out
     except Exception:                                       # noqa: BLE001
         raise HTTPException(500, "person dossier failed")
+
+
+def _dossier_hindi(d: dict) -> dict:
+    """Attach a Devanagari view of a dossier (labels + transliterated values)."""
+    from resolve.hindi import term, to_devanagari
+    hindi = {
+        "name": to_devanagari(d["name"]),
+        "roles": [term(r) for r in d.get("roles", [])],
+        "aliases": [to_devanagari(a) for a in d.get("aliases", [])],
+        "identifiers": {
+            "phones": d.get("identifiers", {}).get("phones", []),
+            "accounts": d.get("identifiers", {}).get("accounts", []),
+            "vehicles": d.get("identifiers", {}).get("vehicles", []),
+        },
+    }
+    return hindi
+
+
+
+# ═══════════════ Hindi demo layer (offline English→Hindi, disclosed) ═══════════════
+
+@app.post("/api/hindi/transliterate", response_model=None)
+def api_hindi_transliterate(request: Request, req: HindiTransliterateIn) -> dict:
+    """Bulk Latin→Devanagari transliteration for UI labels (offline, not neural)."""
+    _bearer(request, "hindi-transliterate", 1)
+    from resolve.hindi import ENGINE, DISCLOSURE, transliterate
+    return {"hindi": transliterate(req.texts), "engine": ENGINE, "disclosure": DISCLOSURE}
+
+
+@app.post("/api/hindi/translate", response_model=None)
+def api_hindi_translate(request: Request, req: HindiTranslateIn) -> dict:
+    """Bulk known-vocabulary English→Hindi translation (bounded dictionary)."""
+    _bearer(request, "hindi-translate", 1)
+    from resolve.hindi import ENGINE, DISCLOSURE, terms
+    return {"hindi": terms(req.terms), "engine": ENGINE, "disclosure": DISCLOSURE}
+
+
+@app.post("/api/hindi/profile", response_model=None)
+def api_hindi_profile(request: Request, req: HindiProfileIn) -> dict:
+    """English profile → full Devanagari profile card (identity-resolution flavour).
+
+    Structured ``fields`` transliterate names/places and keep identifiers verbatim;
+    with ``text`` the vault's regex extractor pulls entities first. Every value is
+    labeled with the Hindi term and the engine is disclosed.
+    """
+    _bearer(request, "hindi-profile", 1)
+    if not req.fields and not req.text:
+        raise HTTPException(400, "send structured `fields` or raw `text`")
+    from resolve.hindi import profile_to_hindi
+    return profile_to_hindi(fields=req.fields, text=req.text,
+                            extract=extract_entities if req.text else None)
 
 
 @app.post("/api/resolve", response_model=ResolveResponse)
@@ -976,12 +1036,17 @@ def api_experiment_a() -> dict:
 
 @app.get("/api/query", response_model=QueryResponse)
 def api_query(q: str = Query(..., min_length=2, description="natural-language question"),
-              limit: int = Query(10, ge=1, le=50)) -> QueryResponse:
-    """Grounded investigation query: answers come only from the case graph (§16.3)."""
+              limit: int = Query(10, ge=1, le=50),
+              lang: str = Query("en", pattern="^(en|hi)$")) -> QueryResponse:
+    """Grounded investigation query: answers come only from the case graph (§16.3).
+
+    ``lang=hi`` renders the answer sentence in Hindi (rule-based Devanagari layer,
+    disclosed); grounding/citations are language-independent.
+    """
     g = STATE["graph"]
     if g is None:
         raise HTTPException(503, "case graph not loaded")
-    out = answer_question(q, g, STATE.get("anomalies", []), limit=limit)
+    out = answer_question(q, g, STATE.get("anomalies", []), limit=limit, lang=lang)
     return QueryResponse(disclosure=QUERY_DISCLOSURE, **out)
 
 
