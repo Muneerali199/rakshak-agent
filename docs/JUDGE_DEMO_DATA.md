@@ -5,7 +5,7 @@
 > FIRs, weapons → same answers and curls. **Node ids may shift ±a few on a fresh partition**
 > (cluster ordering), so scripts must never pin an id — the check script already ignores ids.
 > Last verified: **2026-10-08** · services: gateway **:8000**, Delhi **:8001**, Mumbai **:8002**,
-> Jaipur **:8003**, UI **:5173**.
+> Jaipur **:8003**, UI **:3000** (Vite, configured in `vite.config.ts`).
 
 ---
 
